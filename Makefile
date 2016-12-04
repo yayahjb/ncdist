@@ -4,10 +4,10 @@ RCPPPARA ?= /usr/local/lib/R/site-library/RcppParallel/
 RPATH ?= /usr/share/R
 
 ncdist.o:  ncdist.cpp Reducer.h Cell.h NCDist.h
-	g++ -g -O3 -fopenmp -c -I $(HOME)/usr/include ncdist.cpp
+	g++ -g -O3 -fopenmp -c -I $(RCPPARMA)/include -I $(RCPPPARA)/include ncdist.cpp
 
 ncdist:  ncdist.o Reducer.cpp Cell.cpp BasicDistance.cpp BasicDistance.h
-	g++ -g -O3 -fopenmp -o ncdist ncdist.o Reducer.cpp Cell.cpp BasicDistance.cpp -lpthread
+	g++ -g -O3 -fopenmp -o ncdist ncdist.o -I $(RCPPARMA)/include -I $(RCPPPARA)/include Reducer.cpp Cell.cpp BasicDistance.cpp -lpthread
 
 rcpp_ncdist.o:  rcpp_ncdist.cpp Reducer.h Cell.h NCDist.h
 	g++ -g -O3 -fopenmp  -I$(RPATH)/include -DNDEBUG  -fpic  -O2 -fPIC \
