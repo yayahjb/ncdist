@@ -98,7 +98,8 @@ set_target_properties(RBLAS_shared_lib PROPERTIES INTERFACE_LINK_LIBRARIES ${RBL
 add_library(RLAPACK_shared_lib INTERFACE IMPORTED GLOBAL)
 set_target_properties(RLAPACK_shared_lib PROPERTIES INTERFACE_LINK_LIBRARIES ${RLAPACK_LIBRARY} )
 add_library(rcpp_ncdist SHARED ${RCPP_NCDIST_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
-target_link_libraries(rcpp_ncdist R_shared_lib RBLAS_shared_lib RLAPACK_shared_lib)
+#target_link_libraries(rcpp_ncdist R_shared_lib RBLAS_shared_lib RLAPACK_shared_lib)
+target_link_libraries(rcpp_ncdist)
 add_executable(ncdist ${NCDIST_SOURCES} )
 target_link_libraries(ncdist ${CMAKE_THREAD_LIBS_INIT} )
 
