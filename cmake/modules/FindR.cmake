@@ -39,7 +39,7 @@ set(R_PKGCONF_LIBRARY_DIRS
 
 set(R_PKGCONF_INCLUDE_DIRS
         "${R_HOME}/include"
-        "/usr/local/include" "/usr/include"
+        "/usr/local/include" "/usr/include" "/usr/share/R/include"
         )
 
 # Finf the R, Rblas and Rlapack libraries
