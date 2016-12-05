@@ -134,7 +134,7 @@ int main(int argc, char ** argv) {
          
     if (argc < 15) {
         std::cerr 
-		<< "Usage: ncdist lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamm2" 
+		<< "Usage: ncdist lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2" 
 		<< std::endl;
         return -1;
     }

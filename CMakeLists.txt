@@ -59,7 +59,7 @@
 
 cmake_minimum_required(VERSION 2.8)
 project(ncdist C CXX)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 find_package(R REQUIRED)
 find_package(Rcpp REQUIRED)
 find_package(RcppArmadillo REQUIRED)
