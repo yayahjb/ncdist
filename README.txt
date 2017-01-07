@@ -1,6 +1,6 @@
                           ncdist -- Niggli Cone Distance utilities
                         Herbert J. Bernstein and Lawrence C. Andrews
-                                Version 1.0.0 03 Dec 2016
+                                Version 1.0.0 07 Jan 2016
 
                                     yayahjb@gmail.com
 
@@ -10,7 +10,7 @@ ncdist is a package of two utilities built on the Niggli-Cone cell distance disc
 embedding Niggli reduction and analysis of boundaries". Journal of applied crystallography, 
 47(1), 346-359.] which provides a sensitive and reliable metric for the distance between
 crystallographic unit cells.  A shell command line program ncdist is provided as well as
-a shared library rcpp_ncdist for use of ncdist from R.
+a shared library rcpp_ncdist (librcpp_ncdist.so)  for use of ncdist from R.
 
 LICENSE
 
@@ -146,4 +146,6 @@ will install the kit in <prefix>, specifically, it will
 install ncdist in <prefix>/bin/ncdist
 install librcpp_ncdist in <prefix>/lib/librcpp_ncdist.<shared_library_extension>
 install license.txt in <prefix>/share/ncdist/license.txt
+
+In most cases you will want <prefix> to be $CCP4
 
