@@ -36,3 +36,14 @@ BasicDistance.o:  BasicDistance.cpp Reducer.h Cell.h NCDist.h
 rcpp_ncdist.so:	rcpp_ncdist.o Reducer.o Cell.o BasicDistance.o
 	g++ -shared -o rcpp_ncdist.so rcpp_ncdist.o Reducer.o Cell.o BasicDistance.o -L/usr/lib/R/lib -lR -lblas -llapack -lpthread
 
+
+D7Test:  Cell.cpp CellInputData.cpp D6.cpp D7.cpp D7Test.cpp Delaunay.cpp DelaunayTetrahedron.cpp \
+	G6.cpp LatticeConverter.cpp Mat66.cpp Mat7.cpp MatMN.cpp MatN.cpp MaximaTools.cpp PrintTable.cpp \
+	ProjectorTools.cpp RandTools.cpp ReadCellData.cpp Reducer.cpp StringTools.cpp VecN.cpp \
+	Vec_N_Tools.cpp VectorTools.cpp inverse.cpp vector_3d.cpp D7dist.h NCDist.h
+	g++ -g -O3 -fopenmp -o D7Test  \
+	Cell.cpp CellInputData.cpp D6.cpp D7.cpp D7Test.cpp Delaunay.cpp DelaunayTetrahedron.cpp \
+	G6.cpp LatticeConverter.cpp Mat66.cpp Mat7.cpp MatMN.cpp MatN.cpp MaximaTools.cpp PrintTable.cpp \
+	ProjectorTools.cpp RandTools.cpp ReadCellData.cpp Reducer.cpp StringTools.cpp VecN.cpp \
+	Vec_N_Tools.cpp VectorTools.cpp inverse.cpp vector_3d.cpp -lpthread
+

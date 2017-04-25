@@ -1,8 +1,12 @@
+#include <algorithm>
 
 #include <cmath>
 #include <cstdio>
+#include <iomanip>
 
 #include "Cell.h"
+#include "rhrand.h"
+#include "Vec_N_Tools.h"
 
 /*  class Cell
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11,24 +15,15 @@ A class to implement some common operations for unit cells as usually
    from unit to G6 are included. The angles are ALWAYS in RADIANS.
 
    Cell(void)                                  == default constructor
-   Cell( const arma::vec6& v )                 == constructor to convert a G6 vector to unit cell
+   Cell( const G6& v )                 == constructor to convert a G6 vector to unit cell
    double Volume(void)                         == return the volume of a unit cell
-   arma::vec6 Cell::CellWithDegrees            == return the unit cell as a vector with the angles as DEGREES
+   G6 Cell::CellWithDegrees            == return the unit cell as a vector with the angles as DEGREES
    double Cell::operator[](const int& n) const == return the n-th element of a cell (zero-based)
    Cell Cell::Inverse( void ) const            == compute the reciprocal cell
-   arma::vec6 Cell::Cell2V6( void ) const      == return the G6 vector corresponding to a unit cell
+   G6 Cell::Cell2V6( void ) const      == return the G6 vector corresponding to a unit cell
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
-
-const double PI( 4.0 * atan(1.0) );
-const double RAD2ANGLE( 180.0/PI );
-const int fi[37] = { 0, 0, 6,12,18,24,30,
-                        1, 7,13,19,25,31,
-                        2, 8,14,20,26,32,
-                        3, 9,15,21,27,33,
-                        4,10,16,22,28,34,
-                        5,11,17,23,29,35};
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Name: Cell()
@@ -36,6 +31,39 @@ const int fi[37] = { 0, 0, 6,12,18,24,30,
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 Cell::Cell(void)
 {
+   m_cell.resize(6);
+}
+
+Cell::Cell(const Cell& c)
+: m_cell(c.m_cell)
+{
+}
+
+Cell::Cell(const std::string& s)
+{
+   m_cell = Vec_N_Tools::FromString(s);
+   for (size_t i = 3; i < 6; ++i)
+      m_cell[i] *= 4.0*atan(1.0) / 180.0;
+}
+
+Cell::Cell(const D6& ds)
+{
+   (*this) = G6(ds);
+}
+
+Cell::Cell(const DelaunayTetrahedron& dt)
+{
+   (*this) = G6(dt);
+}
+
+std::ostream& operator<< (std::ostream& o, const Cell& c) {
+   std::streamsize oldPrecision = o.precision();
+   o << std::fixed << std::setprecision(5);
+   for (size_t i = 0; i < 6; ++i)
+      o << std::setw(9) << c.m_cell[i] << " ";
+   o << std::setprecision(oldPrecision);
+   o.unsetf(std::ios::floatfield);
+   return o;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -45,12 +73,35 @@ Cell::Cell(void)
 Cell::Cell( const double a, const double b, const double c,
            const double alpha, const double beta, const double gamma)
 {
-    m_cell[0] = a;
-    m_cell[1] = b;
-    m_cell[2] = c;
-    m_cell[3] = alpha/RAD2ANGLE;
-    m_cell[4] = beta/RAD2ANGLE;
-    m_cell[5] = gamma/RAD2ANGLE;
+   m_cell.resize( 6 );
+   m_cell[0] = a;
+   m_cell[1] = b;
+   m_cell[2] = c;
+   m_cell[3] = alpha / 57.2957795130823;
+   m_cell[4] = beta / 57.2957795130823;
+   m_cell[5] = gamma / 57.2957795130823;
+}
+
+std::vector<double> V62Cell(const G6& v) {
+   std::vector<double> vd;
+   vd.resize(6);
+   vd[0] = sqrt(v[0]);
+   vd[1] = sqrt(v[1]);
+   vd[2] = sqrt(v[2]);
+
+   const double cosalpha(0.5*v[3] / (vd[1] * vd[2]));
+   const double cosbeta(0.5*v[4] / (vd[0] * vd[2]));
+   const double cosgamma(0.5*v[5] / (vd[0] * vd[1]));
+   const double sinalpha(sqrt(std::max(0.0, 1.0 - cosalpha*cosalpha)));
+   const double sinbeta(sqrt(std::max(0.0, 1.0 - cosbeta *cosbeta)));
+   const double singamma(sqrt(std::max(0.0, 1.0 - cosgamma*cosgamma)));
+   
+   // compute the vd angles in radians
+   vd[3] = atan2(sinalpha, cosalpha);
+   vd[4] = atan2(sinbeta, cosbeta);
+   vd[5] = atan2(singamma, cosgamma);
+
+   return vd;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -58,24 +109,18 @@ Cell::Cell( const double a, const double b, const double c,
 // Description: constructor to convert an input G6 vector (as a vector of
 //              doubles to E3 lengths and angles. The angles are 
 //              stored as RADIANS (only). For angles as degrees, use the
-//              function CellWithDegrees to obtain a VECTOR (arma::vec6)
+//              function CellWithDegrees to obtain a VECTOR (G6)
 //              with lengths and angles as DEGREES. For consistency, a
 //              "Cell" object will never contain degrees.
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-Cell::Cell( const arma::vec6& v )
+Cell::Cell( const G6& v )
 {
-   m_cell[0] = sqrt( v[0] );
-   m_cell[1] = sqrt( v[1] );
-   m_cell[2] = sqrt( v[2] );
+   m_cell = V62Cell(v);
+}
 
-   const double cosalpha( 0.5*v[3]/(m_cell[1]*m_cell[2]) );
-   const double cosbeta ( 0.5*v[4]/(m_cell[0]*m_cell[2]) );
-   const double cosgamma( 0.5*v[5]/(m_cell[0]*m_cell[1]) );
-
-// compute the cell angles in radians
-   m_cell[3] = atan2( sqrt(1.0-pow(cosalpha,2)),cosalpha);
-   m_cell[4] = atan2( sqrt(1.0-pow(cosbeta ,2)),cosbeta );
-   m_cell[5] = atan2( sqrt(1.0-pow(cosgamma,2)),cosgamma);
+Cell::Cell(const D7& v7)
+{
+   (*this) = G6(v7);
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -86,6 +131,42 @@ Cell::~Cell(void)
 {
 }
 
+const double thirtyDegrees = 30.0 / 180.0 * 4 * atan( 1.0 );
+const double sixtyDegrees = 2.0*thirtyDegrees;
+const double ninetyDegrees = 3.0*thirtyDegrees;
+const double oneeightyDegrees = 6.0*thirtyDegrees;
+
+void Prepare2CellElements( const double minEdge, const double maxEdge, const size_t i, Cell& c ) {
+   static RHrand r;
+   const double range = std::fabs( minEdge - maxEdge );
+   const double d1 = r.urand( );
+   c[i] = range * d1 + std::sqrt( minEdge * maxEdge );
+   const double d2 = r.urand( );
+   c[i + 3] = d2 * oneeightyDegrees;
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+// Name: RandCell()
+// Description: Generate a cell with random edge lengths within the specified
+//              range and angles (in radians) in 60-120 degrees
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+Cell Cell::RandCell( const double minEdge, const double maxEdge )
+{
+   Cell c;
+   Prepare2CellElements( minEdge, maxEdge, 0, c );
+   Prepare2CellElements( minEdge, maxEdge, 1, c );
+   Prepare2CellElements( minEdge, maxEdge, 2, c );
+   return( c );
+}
+
+Cell Cell::RandCell( const double minEdgeA, const double maxEdgeA, const double minEdgeB, const double maxEdgeB, const double minEdgeC, const double maxEdgeC ) {
+   Cell c;
+   Prepare2CellElements( minEdgeA, maxEdgeA, 0, c );
+   Prepare2CellElements( minEdgeB, maxEdgeB, 1, c );
+   Prepare2CellElements( minEdgeC, maxEdgeC, 2, c );
+   return c;
+}
+
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Name: Volume()
 // Description: Return the E3 volume of a Cell
@@ -93,41 +174,69 @@ Cell::~Cell(void)
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 double Cell::Volume( void ) const
 {
-   const arma::vec6& c( m_cell );
+   const G6& c( m_cell );
    const double c3(cos(c[3]));
    const double c4(cos(c[4]));
    const double c5(cos(c[5]));
    const double volume( c[0]*c[1]*c[2] * sqrt( 1.0-pow(c3,2)-pow(c4,2)-pow(c5,2)
        + 2.0*c3*c4*c5 ) );
-   return( volume );
+   return volume;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Name: CellWithDegrees()
 // Description: Return the E3 cell with the angles as DEGREES in an
-//              arma::vec6 vector of doubles.
+//              G6 vector of doubles.
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-arma::vec6 Cell::CellWithDegrees( void ) const
+G6 Cell::CellWithDegrees( void ) const
 {
-   arma::vec6 v;
+   G6 v;
    v[0] = m_cell[0];
    v[1] = m_cell[1];
    v[2] = m_cell[2];
-   v[3] = RAD2ANGLE * m_cell[3];
-   v[4] = RAD2ANGLE * m_cell[4];
-   v[5] = RAD2ANGLE * m_cell[5];
+   v[3] = 57.2957795130823 * m_cell[3];
+   v[4] = 57.2957795130823 * m_cell[4];
+   v[5] = 57.2957795130823 * m_cell[5];
 
-   return( v );
+   return v;
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+// Name: CellWithDegrees()
+// Description: Return the E3 cell with the angles as DEGREES in an
+//              G6 vector of doubles.
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+G6 Cell::CellWithDegrees( const Cell& c )
+{
+   G6 v;
+   v[0] = c.m_cell[0];
+   v[1] = c.m_cell[1];
+   v[2] = c.m_cell[2];
+   v[3] = 57.2957795130823 *c.m_cell[3];
+   v[4] = 57.2957795130823 *c.m_cell[4];
+   v[5] = 57.2957795130823 *c.m_cell[5];
+
+   return v;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Name: operator[]()
 // Description: access function for the values in a Cell object
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-double Cell::operator[](const int& n) const
+double Cell::operator[](const size_t n) const
 {
-   const int nn( std::max(0,std::min(5,n)) );
-   return( m_cell[n] );
+   const size_t nn( std::max(size_t(0),std::min(size_t(5),n)) );
+   return m_cell[nn];
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+// Name: operator[]()
+// Description: access function for the values in a Cell object
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+double& Cell::operator[](const size_t n)
+{
+   const size_t nn( std::max(size_t(0),std::min(size_t(5),n)) );
+   return m_cell[nn];
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -166,17 +275,35 @@ Cell Cell::Inverse( void ) const
    cell.m_cell[4] = atan2( sqrt(1.0-pow(cosBetaStar ,2)), cosBetaStar );
    cell.m_cell[5] = atan2( sqrt(1.0-pow(cosGammaStar,2)), cosGammaStar);
 
-   return( cell );
+   return cell;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Name: Cell2V6()
 // Description: return the G6 vector of an input cell
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-arma::vec6 Cell::Cell2V6( void ) const
+G6 Cell::Cell2V6( void ) const
 {
    const Cell& c( *this );
-   arma::vec6 v;
+   G6 v;
+   v[0] = c[0]*c[0];
+   v[1] = c[1]*c[1];
+   v[2] = c[2]*c[2];
+   v[3] = 2.0*c[1]*c[2]*cos(c[3]);
+   v[4] = 2.0*c[0]*c[2]*cos(c[4]);
+   v[5] = 2.0*c[0]*c[1]*cos(c[5]);
+   for ( size_t i=3; i<6; ++i ) if ( std::fabs(v[i]) < 1.0E-10 ) v[i] = 0.0;
+
+   return v;
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+// Name: Cell2V6()
+// Description: return the G6 vector of an input cell
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+G6 Cell::Cell2V6( const Cell& c )
+{
+   G6 v;
    v[0] = c[0]*c[0];
    v[1] = c[1]*c[1];
    v[2] = c[2]*c[2];
@@ -184,315 +311,113 @@ arma::vec6 Cell::Cell2V6( void ) const
    v[4] = 2.0*c[0]*c[2]*cos(c[4]);
    v[5] = 2.0*c[0]*c[1]*cos(c[5]);
 
-   return( v );
+   return v;
 }
-
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Name: LatSymMat66(const std::string& latsym)
-// Description: return the mat66 matrix for a lattice symbol
+// Description: return the Mat66 matrix for a lattice symbol
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-arma::mat66 Cell::LatSymMat66( const std::string& latsym ) const
+Mat66 Cell::LatSymMat66( const std::string& latsym ) const
 {
-    arma::mat66 M;
-    arma::vec6 g;
-    double ge;
-    char LATSYM;
-    int i;
-    
-    M.zeros();
-    if (latsym.size()!=1) return(M);
-    LATSYM = latsym[0];
-    
-    switch(LATSYM){
-        case 'P':
-        case 'p':
-        case 'V':
-        case 'v':
-            M[fi[1]]=M[fi[8]]=M[fi[15]]=M[fi[22]]=M[fi[29]]=M[fi[36]]=1.;
-            break;
-            
-        case 'I':
-        case 'i':
-            M[fi[1]] = 1.;
-            M[fi[8]] = 1.;
-            for (i=13;i<=18;i++) {
-                M[fi[i]] = 0.25;
-            }
-            M[fi[20]] = 1.;
-            M[fi[22]] = 0.5;
-            M[fi[24]] = 0.5;
-            M[fi[25]] = 1.;
-            M[fi[29]] = 0.5;
-            M[fi[30]] = 0.5;
-            M[fi[36]] = 1.;
-            break;
+   if ( toupper( latsym[0] ) == 'P' ) return Mat66( ).Eye( );
+   else if ( toupper( latsym[0] ) == 'I' ) return Mat66( "1 0 0 0 0 0    0 1 0 0 0 0    .25 .25 .25 .25 .25 .25   0 1 0 .5 0 .5   1 0 0 0 .5 .5   0 0 0 0 0 1" ); // for monoclinic, assumes b unique
+   else if ( toupper( latsym[0] ) == 'A' ) return Mat66( "1 0 0 0 0 0   0 1 0 0 0 0   0 .25 .25 .25 0 0    0 1 0 .5 0 0   0 0 0 0 .5 .5   0 0 0 0 0 1" ); // for monoclinic, assumes b unique
+   else if ( toupper( latsym[0] ) == 'B' ) return Mat66( "1 0 0 0 0 0   0 1 0 0 0 0   .25 0 .25 0 .25 0   0 0 0 .5 0 .5   1 0 0 0 .5 0   0 0 0 0 0 1" ); // for monoclinic, assumes c unique
+   else if ( toupper( latsym[0] ) == 'C' ) return Mat66( "1 0 0 0 0 0   .25 .25 0 0 0 .25   0 0 1 0 0 0    0 0 0 .5 .5 0   0 0 0 0 1 0   1 0 0 0 0 .5" ); // for monoclinic, assumes b unique
+   else if ( toupper( latsym[0] ) == 'F' ) return Mat66( ".25 .25 0 0 0 .25     .25 0 .25 0 .25 0     0 .25 .25 .25  0 0    0 0 .5 .25 .25 .25     0 .5 0 .25 .25 .25     .5 0 0 .25 .25 .25" );
+   else if ( toupper( latsym[0] ) == 'R' && Cell::IsRhomobhedralAsHex( *this ) )
+      return (1.0 / 9.0)* Mat66( "1 1 1 1 -1 -1    4 1 1  1  2  2     1  4  1  -2  -1  2     -4  -4  2  -1  1  -5     2  -4  2  -1  -2  1     -4  2  2  2  1  1 " );
+   else if ( toupper( latsym[0] ) == 'R' ) return  Mat66().Eye();
+   else if ( latsym == "CCDC" ) return (1.0 / 9.0)* Mat66( "4  1  1  1  2  2    1  1  1  1 -1 -1     1  4  1 -2 -1  2    2 -4  2 -1 -2  1    -4 -4  2 -1  1 -5    -4  2  2  2  1  1 " ); // CCDC matrix for R
+   else return Mat66( ).Eye( );
+}
 
-        case 'F':
-        case 'f':
-            M[fi[1]] = 0.25;
-            M[fi[2]] = 0.25;
-            M[fi[6]] = 0.25;
-            M[fi[7]] = 0.25;
-            M[fi[9]] = 0.25;
-            M[fi[11]] = 0.25;
-            M[fi[14]] = 0.25;
-            M[fi[15]] = 0.25;
-            M[fi[16]] = 0.25;
-            M[fi[21]] = 0.5;
-            for (i=22;i<=24;i++) {
-                M[fi[i]] = 0.25;
-            }
-            M[fi[26]] = 0.5;
-            for (i=28;i<=30;i++) {
-                M[fi[i]] = 0.25;
-            }
-            M[fi[31]] = 0.5;
-            for (i=34;i<=36;i++) {
-                M[fi[i]] = 0.25;
-            }
-            break;
-            
-        case 'A':
-        case 'a':
-            M[fi[1]] = 1.;
-            M[fi[8]] = 1.;
-            M[fi[14]] = 0.25;
-            M[fi[15]] = 0.25;
-            M[fi[16]] = 0.25;
-            M[fi[20]] = 1.;
-            M[fi[22]] = 0.5;
-            M[fi[29]] = 0.5;
-            M[fi[30]] = 0.5;
-            M[fi[36]] = 1.;
-            break;
+Mat66 Cell::LatSymMat66( const std::string& latsym, const Cell& c ) {
+   return c.LatSymMat66( latsym );
+}
 
-            
-        case 'B':
-        case 'b':
-            M[fi[1]] = 1.;
-            M[fi[8]] = 1.;
-            M[fi[13]] = 0.25;
-            M[fi[15]] = 0.25;
-            M[fi[17]] = 0.25;
-            M[fi[22]] = 0.5;
-            M[fi[24]] = 0.5;
-            M[fi[25]] = 1.;
-            M[fi[29]] = 0.5;
-            M[fi[36]] = 1.;
-            break;
+const Mat66 HexPerp(Mat66().Eye() - Mat66( " 1 1 0 0 0 -1   1 1 0 0 0 -1   0 0 3 0 0 0   0 0 0 0 0 0   0 0 0 0 0 0   -1 -1 0 0 0 1 " ) );
+const Mat66 RhmPerp(Mat66().Eye() - Mat66( " 1 1 1 0 0 0   1 1 1 0 0 0   1 1 1 0 0 0   0 0 0 1 1 1    0 0 0 1 1 1    0 0 0 1 1 1 " ) );
 
-            
-        case 'C':
-        case 'c':
-            M[fi[1]] = 1.;
-            M[fi[7]] = 0.25;
-            M[fi[8]] = 0.25;
-            M[fi[12]] = 0.25;
-            M[fi[15]] = 1.;
-            M[fi[22]] = 0.5;
-            M[fi[23]] = 0.5;
-            M[fi[29]] = 1.;
-            M[fi[31]] = 1.;
-            M[fi[36]] = 0.5;
-            break;
+bool Cell::IsRhomobhedralAsHex( void ) const {
+   return IsRhomobhedralAsHex( (*this).Cell2V6() );
+}
 
-        case 'R':
-        case 'r':
-        {   arma::vec6 cwd=(*this).CellWithDegrees();
-            g = (*this).Cell2V6();
-            ge = arma::norm(g,2)*.005;
-            // For R, as distinct from H, detect primitive R cases
-            if (std::abs(g[0]-g[1])<ge) {
-                // (r,r,?,?,?,?)
-                if (std::abs(g[3]-g[4]) < ge
-                   &&  std::abs(g[4]-g[5]) < ge) {
-                // (r,r,?,s,s,s), (r,r,?,-s,-s,-s)
-                    if (std::abs(g[3]-g[0]) < ge
-                        || std::abs(g[1]-g[2]) < ge ) {
-                        arma::vec6 cwd=(*this).CellWithDegrees();
-                        // (r,r,s,r,r,r), (r,r,r,s,s,s), (r,r,r,-s,-s,-s)
-                        M[fi[1]]=M[fi[8]]=M[fi[15]]=M[fi[22]]=M[fi[29]]=M[fi[36]]=1.;
-                        //fprintf(stderr,"Treated non-hexagonal R as P: %g %g %g %g %g %g\n",
-                        //        cwd[0],cwd[1],cwd[2],cwd[3],cwd[4],cwd[5]);
-                        break;
-                    }
-                }
-            }
-            if (std::abs(g[1]-g[2]) < ge ) {
-                if (std::abs(3.*g[4]/2.+g[0]) < ge
-                    && std::abs(3.*g[5]/2.+g[0]) < ge
-                    && std::abs(3.*(g[3]+g[1])-g[0]) < ge){
-                    arma::vec6 cwd=(*this).CellWithDegrees();
-                    M[fi[1]]=M[fi[8]]=M[fi[15]]=M[fi[22]]=M[fi[29]]=M[fi[36]]=1.;
-                    // fprintf(stderr,"Treated non-hexagonal R as P: %g %g %g %g %g %g\n",
-                    //        cwd[0],cwd[1],cwd[2],cwd[3],cwd[4],cwd[5]);
-                    break;
-                }
-            }
-            /* fprintf(stderr,"Treated non-rhombodedral R as H: %g %g %g %g %g %g\n",
-                   cwd[0],cwd[1],cwd[2],cwd[3],cwd[4],cwd[5]); */
-        }
+/*static*/ bool Cell::IsRhomobhedralAsHex( const Cell& c ) {
+   return IsRhomobhedralAsHex( c.Cell2V6() );
+}
 
-        case 'H':
-        case 'h':
-            // from Andrews and Bernstein, 1988
-            M[fi[1]] = 1./9.;
-            M[fi[2]] = 1./9.;
-            M[fi[3]] = 1./9.;
-            M[fi[4]] = 1./9.;
-            M[fi[5]] = -1./9.;
-            M[fi[6]] = -1./9.;
 
-            M[fi[7]] = 4./9.;
-            M[fi[8]] = 1./9.;
-            M[fi[9]] = 1./9.;
-            M[fi[10]] = 1./9.;
-            M[fi[11]] = 2./9.;
-            M[fi[12]] = 2./9.;
-
-            M[fi[13]] = 1./9.;
-            M[fi[14]] = 4./9.;
-            M[fi[15]] = 1./9.;
-            M[fi[16]] = -2./9.;
-            M[fi[17]] = -1./9.;
-            M[fi[18]] = 2./9.;
-
-            M[fi[19]] = -4./9.;
-            M[fi[20]] = -4./9.;
-            M[fi[21]] = 2./9.;
-            M[fi[22]] = -1./9.;
-            M[fi[23]] = 1./9.;
-            M[fi[24]] = -5./9.;
-
-            M[fi[25]] = 2./9.;
-            M[fi[26]] = -4./9.;
-            M[fi[27]] = 2./9.;
-            M[fi[28]] = -1./9.;
-            M[fi[29]] = -2./9.;
-            M[fi[30]] = 1./9.;
-
-            M[fi[31]] = -4./9.;
-            M[fi[32]] = 2./9.;
-            M[fi[33]] = 2./9.;
-            M[fi[34]] = 2./9.;
-            M[fi[35]] = 1./9.;
-            M[fi[36]] = 1./9.;
-            break;
-    }
-   
-    return( M );
+// Assumes the cell EITHER has alpha=beta=gamma or a=b & alpha=beta=90 and gamma=120 (approximately)
+/*static*/ bool Cell::IsRhomobhedralAsHex( const G6& v ) {
+   return (HexPerp*v).norm() < (RhmPerp*v).norm();
 }
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Name: vvtorow(const double m,
 //               const int n1, const int n2,
-//               arma::mat33& v1, arma::mat33& v2,
+//               mat33& v1, mat33& v2,
 //               const int n3,
-//               arma::mat66& m6)
+//               Mat66& m6)
 // Description: Compute one row of a 6x6 matrix from
 //              2 rows of 2 3x3 matrices
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void vvtorow(const double m,
-                    const int n1, const int n2,
-                    const arma::mat33& v1, const arma::mat33& v2,
-                    const int n3,
-                    arma::mat66& m6) {
-    m6(n3,0) = m*v1(n1,0)*v2(n2,0);
-    m6(n3,1) = m*v1(n1,1)*v2(n2,1);
-    m6(n3,2) = m*v1(n1,2)*v2(n2,2);
-    m6(n3,3) = (m*v1(n1,1)*v2(n2,2) + m*v1(n1,2)*v2(n2,1)) / 2.0;
-    m6(n3,4) = (m*v1(n1,0)*v2(n2,2) + m*v1(n1,2)*v2(n2,0)) / 2.0;
-    m6(n3,5) = (m*v1(n1,0)*v2(n2,1) + m*v1(n1,1)*v2(n2,0)) / 2.0;
+
+Cell Cell::operator* ( const double d ) const {
+   Cell c(*this);
+   c[0] *= d;
+   c[1] *= d;
+   c[2] *= d;
+   return c;
 }
 
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-// Name: mat33tomat66(arma::mat33& m3)
-// Description: Compute a 6x6 matrix from a 3x3 matrix
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-arma::mat66 mat33tomat66(const arma::mat33& m3) {
-    arma::mat66 m6;
-    vvtorow(1.0,0,0,m3,m3,0,m6);
-    vvtorow(1.0,1,1,m3,m3,1,m6);
-    vvtorow(1.0,2,2,m3,m3,2,m6);
-    vvtorow(2.0,1,2,m3,m3,3,m6);
-    vvtorow(2.0,0,2,m3,m3,4,m6);
-    vvtorow(2.0,0,1,m3,m3,5,m6);
-    return m6;
+Cell Cell::operator+ (const Cell& c) const {
+   const G6 v1((*this).Cell2V6());
+   const G6 v2(c.Cell2V6());
+   return Cell(G6(v1 + v2));
 }
 
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-// Name: btos(int bits, arma::ivec s)
-// Description: return vector of signs of bits
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-void btos(int bits, arma::ivec& s) {
-    int i;
-    for (i=0; i < s.n_rows; i++) {
-        if (((bits >> i)&1) == 1) s[i] = -1;
-        else s[i] = 1;
-    }
+Cell Cell::operator- (const Cell& c) const {
+   const G6 v1((*this).Cell2V6());
+   const G6 v2(c.Cell2V6());
+   return Cell(G6(v1 - v2));
 }
 
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-// Name: mat66tomat33(arma::mat66& m6)
-// Description: return a 3x3 matrix for a 6x6 matrix
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-arma::mat33 mat66tomat33(const arma::mat66& m6) {
-    arma::mat33 m;
-    arma::mat33 m3;
-    arma::ivec9 signs;
-    arma::mat66 m6t;
-    double t1, t1min;
-    int bits, bitsmin;
-    int i, j, l;
-    
-    for (i = 0; i < 3; i++) {
-        for (j = 0; j < 3; j++) {
-            m3(i,j) = std::sqrt(m6(i,j));
-        }
-    }
-    
-    for (bits = 511; bits >=0; bits--) {
-        btos(bits,signs);
-        for (l = 0; l < 9; l++) {
-            i = l/3;
-            j = l - 3*i;
-            m(i,j) = signs(l)*m3(i,j);
-        }
-        m6t = mat33tomat66(m);
-        t1 = arma::norm((m6-m6t),2);
-        if (bits == 511) t1min=t1;
-        if (t1 <= t1min) {
-            t1min = t1;
-            bitsmin = bits;
-        }
-        if (t1 == 0.0) break;
-    }
-    if (t1 != 0.0) {
-        btos(bitsmin,signs);
-        for (l=0; l<9; l++) {
-            i = l/3;
-            j = l - 3*i;
-            m(i,j) = signs(l)*m(i,j);
-        }
-    }
-    /* if (arma::det(m,true)) { */
-    if (arma::det(m)) {
-        for (l=0; l<9; l++) {
-            i = l/3;
-            j = l - 3*i;
-            m(i,j) = -m(i,j);
-        }        
-    }
-    for (l=0; l<9; l++) {
-        i = l/3;
-        j = l - 3*i;
-        if (std::abs(m(i,j))< 1.e-8) m(i,j) = 0.;
-    }
-    return m;
+Cell operator* ( const double d, const Cell& c ) {
+   return c*d;
+}
+
+Cell& Cell::operator= (const G6& v) {
+   m_cell = V62Cell(v);
+   return *this;
+}
+
+Cell& Cell::operator= (const std::string& s) {
+   (*this) = Cell(s);
+   return *this;
+}
+
+Cell Cell::GetPrimitiveCell(const std::string& latsym, const Cell& c) {
+   return Cell(GetPrimitiveV6Vector(latsym, c));
+}
+
+G6 Cell::GetPrimitiveV6Vector(const std::string& latsym, const Cell& c) {
+   const Mat66 m66 = c.LatSymMat66(latsym);
+   return m66 * c.Cell2V6();
+}
+
+bool Cell::operator== (const Cell& c)
+{
+   bool breturn = true;
+   for (size_t i = 0; i < 6; ++i)
+      breturn = breturn && (*this)[i] == c[i];
+   return breturn;
+}
+
+bool Cell::operator!= (const Cell& c)
+{
+   return !((*this) == c);
 }
