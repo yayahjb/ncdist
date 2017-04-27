@@ -958,29 +958,36 @@ static void d7twoPminusI(double pg[7], double g[7], double gout[7]) {
 
 static double d7bddist(double gvec[7],int bdnum) {
     
-    double D7N_1x[7]={-19./sqrt(1106),-5./sqrt(1106),-12./sqrt(1106),-12./sqrt(1106),12./sqrt(1106),12./sqrt(1106),12./sqrt(1106)};
-    double D7N_2x[7]={-12./sqrt(1106),-19./sqrt(1106),-5./sqrt(1106),-12./sqrt(1106),12./sqrt(1106),12./sqrt(1106),12./sqrt(1106)};
-    double D7N_3x[7]={-12./sqrt(1106),-12./sqrt(1106),-19./sqrt(1106),-5./sqrt(1106),12./sqrt(1106),12./sqrt(1106),12./sqrt(1106)};
-    double D7N_4x[7]={-3./sqrt(39),1./sqrt(39),1./sqrt(39),-3./sqrt(39),-1./sqrt(39),3./sqrt(39),3./sqrt(39)};
-    double D7N_5x[7]={1./sqrt(39),-3./sqrt(39),-3./sqrt(39),1./sqrt(39),-1./sqrt(39),3./sqrt(39),3./sqrt(39)};
-    double D7N_6x[7]={0,-1./2.,0,-1./2.,1./2.,0,1./2};
-    double D7N_7x[7]={-3./sqrt(39),1./sqrt(39),-3./sqrt(39),1./sqrt(39),3./sqrt(39),-1./sqrt(39),3./sqrt(39)};
-    double D7N_8x[7]={-2./4.,-2./4.,-1./4.,-1./4.,1./4.,1./4.,2./4.};
-    double D7N_9x[7]={-3./sqrt(39),-3./sqrt(39),1./sqrt(39),1./sqrt(39),3./sqrt(39),3./sqrt(39),-1./sqrt(39)};
+    /* inward normals in D7 */
+    double D7N_1x[7]={-1./sqrt(2.),1./sqrt(2.),0.,0.,0.,0.,0.};
+    double D7N_2x[7]={0.,-1./sqrt(2.),1./sqrt(2.),0.,0.,0.,0.};
+    double D7N_3x[7]={0.,0.,-1./sqrt(2.),1./sqrt(2.),0.,0.,0.};
+    double D7N_4x[7]={-3/(2*sqrt(21)),2/sqrt(21),2/sqrt(21),-3/(2*sqrt(21)),
+                       -2/sqrt(21),3/(2*sqrt(21)),3/(2*sqrt(21))};
+    double D7N_5x[7]={2/sqrt(21),-3/(2*sqrt(21)),-3/(2*sqrt(21)),2/sqrt(21),
+                       -2/sqrt(21),3/(2*sqrt(21)),3/(2*sqrt(21))};
+    double D7N_6x[7]={2/sqrt(21),-3/(2*sqrt(21)),2/sqrt(21),-3/(2*sqrt(21)),
+                       3/(2*sqrt(21)),-2/sqrt(21),3/(2*sqrt(21))};
+    double D7N_7x[7]={-3/(2*sqrt(21)),2/sqrt(21),-3/(2*sqrt(21)),2/sqrt(21),
+                       3/(2*sqrt(21)),-2/sqrt(21),3/(2*sqrt(21))};
+    double D7N_8x[7]={2/sqrt(21),2/sqrt(21),-3/(2*sqrt(21)),-3/(2*sqrt(21)),
+                       3/(2*sqrt(21)),3/(2*sqrt(21)),-2/sqrt(21)};
+    double D7N_9x[7]={-3/(2*sqrt(21)),-3/(2*sqrt(21)),2/sqrt(21),2/sqrt(21),
+                       3/(2*sqrt(21)),3/(2*sqrt(21)),-2/sqrt(21)};
     
     
     if (bdnum < ND7BND) {
         
         switch(bdnum) {
-            case(P_1): return d7dotprod(D7N_1x,gvec); break;
-            case(P_2): return d7dotprod(D7N_2x,gvec); break;
-            case(P_3): return d7dotprod(D7N_3x,gvec); break;
-            case(P_4): return d7dotprod(D7N_4x,gvec); break;
-            case(P_5): return d7dotprod(D7N_5x,gvec); break;
-            case(P_6): return d7dotprod(D7N_6x,gvec); break;
-            case(P_7): return d7dotprod(D7N_7x,gvec); break;
-            case(P_8): return d7dotprod(D7N_8x,gvec); break;
-            case(P_9): return d7dotprod(D7N_9x,gvec); break;
+            case(P_1): return -d7dotprod(D7N_1x,gvec); break;
+            case(P_2): return -d7dotprod(D7N_2x,gvec); break;
+            case(P_3): return -d7dotprod(D7N_3x,gvec); break;
+            case(P_4): return -d7dotprod(D7N_4x,gvec); break;
+            case(P_5): return -d7dotprod(D7N_5x,gvec); break;
+            case(P_6): return -d7dotprod(D7N_6x,gvec); break;
+            case(P_7): return -d7dotprod(D7N_7x,gvec); break;
+            case(P_8): return -d7dotprod(D7N_8x,gvec); break;
+            case(P_9): return -d7dotprod(D7N_9x,gvec); break;
                 
             default: return DBL_MAX; break;
         }
@@ -1030,7 +1037,7 @@ static void d7bdmaps(double gvec[7],
     
     int jj, itemp, igap, idone;
     
-    double D7N_1x[7]={-19./sqrt(1106),-5./sqrt(1106),-12./sqrt(1106),-12./sqrt(1106),12./sqrt(1106),12./sqrt(1106),12./sqrt(1106)};
+    /* double D7N_1x[7]={-19./sqrt(1106),-5./sqrt(1106),-12./sqrt(1106),-12./sqrt(1106),12./sqrt(1106),12./sqrt(1106),12./sqrt(1106)};
     double D7N_2x[7]={-12./sqrt(1106),-19./sqrt(1106),-5./sqrt(1106),-12./sqrt(1106),12./sqrt(1106),12./sqrt(1106),12./sqrt(1106)};
     double D7N_3x[7]={-12./sqrt(1106),-12./sqrt(1106),-19./sqrt(1106),-5./sqrt(1106),12./sqrt(1106),12./sqrt(1106),12./sqrt(1106)};
     double D7N_4x[7]={-3./sqrt(39),1./sqrt(39),1./sqrt(39),-3./sqrt(39),-1./sqrt(39),3./sqrt(39),3./sqrt(39)};
@@ -1038,7 +1045,24 @@ static void d7bdmaps(double gvec[7],
     double D7N_6x[7]={0,-1./2.,0,-1./2.,1./2.,0,1./2};
     double D7N_7x[7]={-3./sqrt(39),1./sqrt(39),-3./sqrt(39),1./sqrt(39),3./sqrt(39),-1./sqrt(39),3./sqrt(39)};
     double D7N_8x[7]={-2./4.,-2./4.,-1./4.,-1./4.,1./4.,1./4.,2./4.};
-    double D7N_9x[7]={-3./sqrt(39),-3./sqrt(39),1./sqrt(39),1./sqrt(39),3./sqrt(39),3./sqrt(39),-1./sqrt(39)};
+    double D7N_9x[7]={-3./sqrt(39),-3./sqrt(39),1./sqrt(39),1./sqrt(39),3./sqrt(39),3./sqrt(39),-1./sqrt(39)}; */
+    
+    /* inward normals in D7 */
+    double D7N_1x[7]={-1./sqrt(2.),1./sqrt(2.),0.,0.,0.,0.,0.};
+    double D7N_2x[7]={0.,-1./sqrt(2.),1./sqrt(2.),0.,0.,0.,0.};
+    double D7N_3x[7]={0.,0.,-1./sqrt(2.),1./sqrt(2.),0.,0.,0.};
+    double D7N_4x[7]={-3/(2*sqrt(21)),2/sqrt(21),2/sqrt(21),-3/(2*sqrt(21)),
+                       -2/sqrt(21),3/(2*sqrt(21)),3/(2*sqrt(21))};
+    double D7N_5x[7]={2/sqrt(21),-3/(2*sqrt(21)),-3/(2*sqrt(21)),2/sqrt(21),
+                       -2/sqrt(21),3/(2*sqrt(21)),3/(2*sqrt(21))};
+    double D7N_6x[7]={2/sqrt(21),-3/(2*sqrt(21)),2/sqrt(21),-3/(2*sqrt(21)),
+                       3/(2*sqrt(21)),-2/sqrt(21),3/(2*sqrt(21))};
+    double D7N_7x[7]={-3/(2*sqrt(21)),2/sqrt(21),-3/(2*sqrt(21)),2/sqrt(21),
+                       3/(2*sqrt(21)),-2/sqrt(21),3/(2*sqrt(21))};
+    double D7N_8x[7]={2/sqrt(21),2/sqrt(21),-3/(2*sqrt(21)),-3/(2*sqrt(21)),
+                       3/(2*sqrt(21)),3/(2*sqrt(21)),-2/sqrt(21)};
+    double D7N_9x[7]={-3/(2*sqrt(21)),-3/(2*sqrt(21)),2/sqrt(21),2/sqrt(21),
+                       3/(2*sqrt(21)),3/(2*sqrt(21)),-2/sqrt(21)};
     
     
     dists[P_1] = fabs(d7dotprod(D7N_1x,gvec));
@@ -1082,6 +1106,137 @@ static void d7bdmaps(double gvec[7],
         imv7(gvec, D7MS[jj],mvecs[jj]);
         if (dists[jj] > maxdist) (*ngood)--;
     }
+    
+}
+
+/* Compute the minimal distance between gvec1 and gvec2 going
+ through bd1 and bd2, assuming rgvec1 and rgevc2 are their
+ reflections in those boundaries.
+ 
+ */
+static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
+                          double pg1[7], double mpg1[7], int bd1,
+                          double gvec2[7], double rgvec2[7],
+                          double pg2[7], double mpg2[7], int bd2,
+                          double dist) {
+    
+    double d11[4], d12[4], d21[4], d22[4];
+    double dg1g2[4];
+    double s1, s2, alpha1, alpha2;
+    double bdint1[7], bdint2[7], mbdint1[7], mbdint2[7];
+    double dbdi1bdi2;
+    double dist2;
+    double * rgv1[4];
+    double * rgv2[4];
+    int ii, jj;
+    
+    
+    d11[0] = d7bddist(gvec1, bd1);
+    d22[0] = d7bddist(gvec2, bd2);
+    
+    dist2 = fabs(d11[0]) + fabs(d22[0]) +
+    CD7M_min(CD7M_min(CD7M_min(
+                               CD7M_d71234dist(pg1, pg2),
+                               CD7M_d71234dist(pg1, mpg2)),
+                      CD7M_d71234dist(mpg1, pg2)),
+             CD7M_d71234dist(mpg1, mpg2)
+             );
+    dist = CD7M_min(dist, dist2);
+        
+    /* This is the general case, in which we must cross
+     boundary 1 and boundary 2
+     
+     The possibilities are that we may go from gvec1 to gvec2 and
+     do that, go from gvec1 to rgvec2 and do that, go from
+     rgvec1 to gvec2 and do that, or go from rgvec1 to rgvec2
+     and do that, or none of the above.
+     
+     rgv1   rgv2     d11        d12        d21        d22
+     0  gvec1  gvec2  gvec1-bd1  gvec1-bd2  gvec2-bd1  gvec2-bd2
+     1  gvec1 rgvec2  gvec1-bd1  gvec1-bd2 rgvec2-bd1 -gvec2+bd2
+     2 rgvec1 rgvec2 -gvec1+bd1 rgvec1-bd2 rgvec2-bd1 -gvec2+bd2
+     3 rgvec1  gvec2 -gvec1+bd1 rgvec1-bd2  gvec2-bd1  gvec2-bd2
+     
+     */
+    
+    rgv1[0] = rgv1[1] = gvec1;
+    rgv1[2] = rgv1[3] = rgvec1;
+    rgv2[0] = rgv2[3] = gvec2;
+    rgv2[1] = rgv2[2] = rgvec2;
+    
+    d12[0] = d11[0];
+    d21[0] = d22[0];
+    
+    if (bd1!= bd2) {
+        d12[0] = d7bddist(gvec1, bd2);
+        d21[0] = d7bddist(gvec2, bd1);
+    }
+    
+    d11[1] = d11[0];
+    d12[1] = d12[0];
+    d21[1] = d7bddist(rgvec2, bd1);
+    d22[1] = -d22[0];
+    
+    d11[2] = -d11[0];
+    d12[2] = d7bddist(rgvec1, bd2);
+    d21[2] = d21[1];
+    d22[2] = d22[1];
+    
+    d11[3] = d11[2];
+    d12[3] = d12[2];
+    d21[3] = d21[0];
+    d22[3] = d22[0];
+    
+    dg1g2[0] = CD7M_gdist(gvec1, gvec2);
+    dg1g2[1] = CD7M_gdist(gvec1, rgvec2);
+    dg1g2[2] = CD7M_gdist(rgvec1, rgvec2);
+    dg1g2[3] = CD7M_gdist(rgvec1, gvec2);
+    
+    for (jj = 0; jj < 4; jj++) {
+        
+        if (d11[jj] * d21[jj] <= 1.e-38 && d22[jj] * d12[jj] <= 1.e-38) {
+            /* (r)gvec1 and (r)gvec2 are on opposite sides of both
+             boundaries*/
+            if (fabs(d11[jj]) < 1.e-38) {
+                alpha1 = 0.;
+            }
+            else {
+                alpha1 = CD7M_min(1., fabs(d11[jj]) / (1.e-38 + fabs(d11[jj]) + fabs(d21[jj])));
+            }
+            if (fabs(d22[jj]) < 1.e-38) {
+                alpha2 = 0.;
+            }
+            else {
+                alpha2 = CD7M_min(1., fabs(d22[jj]) / (1.e-38 + fabs(d22[jj]) + fabs(d12[jj])));
+            }
+            s1 = alpha1*dg1g2[jj];
+            s2 = alpha2*dg1g2[jj];
+            for (ii = 0; ii < 6; ii++) {
+                bdint1[ii] = rgv1[jj][ii] + alpha1*(rgv2[jj][ii] - rgv1[jj][ii]);
+                bdint2[ii] = rgv2[jj][ii] + alpha2*(rgv1[jj][ii] - rgv2[jj][ii]);
+            }
+            imv7(bdint1, D7MS[bd1], mbdint1);
+            imv7(bdint2, D7MS[bd2], mbdint2);
+            s1 = CD7M_min(s1, CD7M_gdist(rgv1[jj], mbdint1));
+            s1 = CD7M_min(s1, fabs(d11[jj]) + CD7M_d71234dist(mpg1, bdint1));
+            s1 = CD7M_min(s1, fabs(d11[jj]) + CD7M_d71234dist(mpg1, mbdint1));
+            if (s1 > dist) return dist;
+            s2 = CD7M_min(s2, CD7M_gdist(rgv2[jj], mbdint2));
+            s2 = CD7M_min(s2, fabs(d22[jj]) + CD7M_d71234dist(mpg2, bdint2));
+            s2 = CD7M_min(s2, fabs(d22[jj]) + CD7M_d71234dist(mpg2, mbdint2));
+            if (s1 + s2 > dist) return dist;
+            
+            dbdi1bdi2 = CD7M_min(CD7M_min(CD7M_min(
+                                                   CD7M_d71234dist(bdint1, bdint2),
+                                                   CD7M_d71234dist(bdint1, mbdint2)),
+                                          CD7M_d71234dist(mbdint1, bdint2)),
+                                 CD7M_d71234dist(mbdint1, mbdint2));
+            dist = CD7M_min(dist, s1 + s2 + dbdi1bdi2);
+        }
+        
+    }
+    
+    return dist;
     
 }
 
@@ -1144,6 +1299,24 @@ double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
         }
     }
     
+    maxdist = fudge(dist);
+    for (jx1 = 0; jx1 < ngood1; jx1++) {
+        double d1;
+        j1 = iord1[jx1];
+        d1 = dists1[j1];
+        if (d1 < maxdist) {
+            for (jx2 = 0; jx2 < ngood2; jx2++) {
+                double d2;
+                j2 = iord2[jx2];
+                d2 = dists2[j2];
+                if (d2 < maxdist) {
+                    dist = D7Dist_2bds(gvec1, rgs1[j1], pgs1[j1], mpgs1[j1], j1,
+                                       gvec2, rgs2[j2], pgs2[j2], mpgs2[j2], j2, dist);
+                    
+                }
+            }
+        }
+    }
     return dist;
 }
 
