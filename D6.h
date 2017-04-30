@@ -6,7 +6,7 @@
 class Cell;
 class G6;
 class D7;
-class DelaunayTetrahedron;
+class DeloneTetrahedron;
 
 #include <ostream>
 #include <string>
@@ -19,10 +19,11 @@ public:
 
    D6(void);
    D6(const G6& v6);
-   D6( const D7& v7 );
+    D6(const double v[6]);
+   D6(const D7& v7 );
    D6(const Cell& c);
    D6(const std::string& s);
-   D6(const DelaunayTetrahedron& del);
+   D6(const DeloneTetrahedron& del);
       ~D6(void) {}
 
    D6 operator- (const D6& ds) const;

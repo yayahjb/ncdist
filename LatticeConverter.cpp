@@ -1,4 +1,4 @@
-#include "Delaunay.h"
+#include "Delone.h"
 #include "D6.h"
 #include "LatticeConverter.h"
 #include "MaximaTools.h"
@@ -63,12 +63,12 @@ LatticeConverter::LatticeConverter(const eOutputType type)
         Output(label, "P", reducedCell);
     }
 
-    Cell LatticeConverter::DelaunayReduceCell(const std::string& lattice, const Cell& cell) {
+    Cell LatticeConverter::DeloneReduceCell(const std::string& lattice, const Cell& cell) {
         const G6 g6 = cell.Cell2V6();
         const Mat66 mLattice = Cell::LatSymMat66(lattice, cell);
         Mat66 m66;
         G6 redVec;
-        const bool b = Delaunay::Delone(mLattice*g6, m66, redVec, 0.00000001);
+        const bool b = Delone::Reduce(mLattice*g6, m66, redVec, 0.00000001);
         if (b) {
             return Cell(redVec);;
         }
@@ -77,7 +77,7 @@ LatticeConverter::LatticeConverter(const eOutputType type)
         }
     }
 
-    void LatticeConverter::DelaunayReducedOutput(const std::string& label, const std::string& lattice, const Cell& cell) {
-        const Cell reducedCell = DelaunayReduceCell(lattice, cell);
+    void LatticeConverter::DeloneReducedOutput(const std::string& label, const std::string& lattice, const Cell& cell) {
+        const Cell reducedCell = DeloneReduceCell(lattice, cell);
         Output(label, "P", reducedCell);
     }

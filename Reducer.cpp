@@ -535,7 +535,7 @@ const Mat66 R12      ( "1 0 0 0 0 0   0 1 0 0 0 0   1 1 1 1 1 1   0 -2 0 -1 0 -1
       const Mat66 mtemp = m1*m;
       m = mtemp;
       Reporter( "vout after MKnorm at end of reduced cycle", vout, vin, m1 );
-      for ( unsigned int i=3; i<6; ++i )
+      for( size_t i=3; i<6; ++i )
          if ( std::fabs(vin[i]) < 1.0E-10 ) vin[i] = 0.0;
 
       if ( vin[0]<0.0 || vin[1]<0.0 || vin[2]<0.0 ) {
@@ -798,7 +798,7 @@ static const double degreesPerRad = 180.0 / ( 4.0 * atan(1.0) );
 //      m_basis[2] = amat*Vector_3(0.0,0.0,1.0);
 //   } // end of constructor
 //
-//   Vector_3 GetBasis( const unsigned int n ) { return m_basis[n]; }
+//   Vector_3 GetBasis( const size_t n ) { return m_basis[n]; }
 //
 //};  // end class Basis
 //
@@ -831,7 +831,7 @@ static const double degreesPerRad = 180.0 / ( 4.0 * atan(1.0) );
 //
 //
 //
-//G6 Reducer::Niggli2Delaunay( const G6& v )
+//G6 Reducer::Niggli2Delone( const G6& v )
 //{
 //   if ( v[3] <= 0.0 )
 //   {
@@ -868,13 +868,13 @@ static const double degreesPerRad = 180.0 / ( 4.0 * atan(1.0) );
 //
 //   double Norm( void ) const {
 //      double d;
-//      for ( unsigned int i=0; i<10; ++i )
+//      for( size_t i=0; i<10; ++i )
 //         d += m_v10[i]*m_v10[i];
 //      return d;
 //   }
 //   
 //   friend std::ostream& operator<< ( std::ostream& o, const Vector4D& v ) {
-//      for ( unsigned int i=0; i<10; ++i ) 
+//      for( size_t i=0; i<10; ++i ) 
 //         o << v.m_v10[i] << " ";
 //    return o;
 //}
@@ -890,7 +890,7 @@ static const double degreesPerRad = 180.0 / ( 4.0 * atan(1.0) );
       double precision A(4,4),A2(3,3),AC(6),AC2(6),AD(4,4),AV(4,4),AV2(3,3),AW(3,3),E(4,4),G(4,4),GG(3,3),GN(4,4),GS(7,7),GV(4,4),GV2(3,3),GW(3,3),O(7,7),PP(4,4,6),AAC,ACL,PN,SF,SIGR,SIGR1,SIGR2,SIGR3,SIGR4,TH,vc,vc1,ZW,ZW1,ZW2,ZW3,ZW4,ZW5,ZWX
 
 
-Delaunay reduction from DELOS90
+Delone reduction from DELOS90
 G is the metric tensor
 GN is a temporary copy of G so that the near zeros in G can be zeroed
 VC is the cell volume
@@ -920,7 +920,7 @@ PP/-1.,3*0.,1.,0.,1.,2*0.,1.,2*0.,1.,2*0.,1.,-1.,3*0.,2*1.,4*0.,1.,0.,1.,2*0.,1.
        enddo
       enddo
       
-      do I=1,3             ! extension on Delaunay-parameters
+      do I=1,3             ! extension on Delone-parameters
        do J=1,3
         G(4,4)=G(4,4)+G(I,J)
         G(I,4)=G(I,4)-G(I,J)
@@ -944,7 +944,7 @@ PP/-1.,3*0.,1.,0.,1.,2*0.,1.,2*0.,1.,2*0.,1.,-1.,3*0.,2*1.,4*0.,1.,0.,1.,2*0.,1.
         do K=1,4
          AD(I,J)=AD(I,J)+A(I,K)*PP(K,J,MC)
          do L=1,4
-          G(I,J)=G(I,J)+GN(K,L)*PP(K,I,MC)*PP(L,J,MC)     !Delaunay reduction
+          G(I,J)=G(I,J)+GN(K,L)*PP(K,I,MC)*PP(L,J,MC)     !Delone reduction
          enddo
         enddo
        enddo

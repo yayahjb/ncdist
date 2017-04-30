@@ -37,7 +37,7 @@
 //              you may need to decrease the hard-coded constant 1.0E-4 in
 //              function CleanupMatrix_SetNearZeroToZero
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-int ProjectorTools::InitCleanupList(void) {
+size_t ProjectorTools::InitCleanupList(void) {
    const long MAXDENOMINATOR = 30L;
    m_vCleanupList.push_back(0.0);
 
@@ -63,7 +63,7 @@ int ProjectorTools::InitCleanupList(void) {
 //   mat66 projector(projectorInput);
 //   const size_t n = m_vCleanupList.size();
 //   for (int iproj = 0; iproj < 36; ++iproj) {
-//      for (unsigned int i = 0; i < n; ++i) {
+//      for( size_t i = 0; i < n; ++i) {
 //         if (fabs(projector[iproj] - m_vCleanupList[i]) < 1.0E-4) {
 //            projector[iproj] = m_vCleanupList[i];
 //            break;
@@ -92,7 +92,7 @@ int ProjectorTools::InitCleanupList(void) {
 //std::vector<mat66> ProjectorTools::GeneratePrincipalProjectors(
 //      const std::vector<mat66>& perps) {
 //   std::vector<mat66> projectors;
-//   for (unsigned int i = 0; i < perps.size(); ++i)
+//   for( size_t i = 0; i < perps.size(); ++i)
 //      projectors.push_back(mat66::Eye() - perps[i]);
 //   return projectors;
 //}
@@ -147,8 +147,8 @@ void ProjectorTools::ConvertG6ToArray(const G6 & v, double a[6]) {
    a[5] = v[5];
 }
 
-D7 ProjectorTools::ConvertArrayToD7(const double a[]) {
-   D7 v;
+D7 ProjectorTools::ConvertArrayToD7(const double a[7]) {
+   G6 v;
    v[0] = a[0];
    v[1] = a[1];
    v[2] = a[2];
@@ -159,7 +159,7 @@ D7 ProjectorTools::ConvertArrayToD7(const double a[]) {
    return v;
 }
 
-void ProjectorTools::ConvertD7ToArray(const D7 & v, double a[]) {
+void ProjectorTools::ConvertD7ToArray(const D7 & v, double a[7]) {
    a[0] = v[0];
    a[1] = v[1];
    a[2] = v[2];
@@ -171,7 +171,7 @@ void ProjectorTools::ConvertD7ToArray(const D7 & v, double a[]) {
 
 //double ProjectorTools::DistanceToClosestBoundary( const G6& v, std::vector<NC_Boundary>& bounds ) {
 //   double minD = 0.0;
-//   for ( unsigned int i=0; i<bounds.size(); ++i ) minD = std::min(minD, bounds[i].Distance( v ));
+//   for( size_t i=0; i<bounds.size(); ++i ) minD = std::min(minD, bounds[i].Distance( v ));
 //    return minD;
 //}
 //

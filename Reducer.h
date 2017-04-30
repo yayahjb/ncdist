@@ -39,7 +39,7 @@ public:
    static bool NearRed( const G6& gvec, const double delta );
    static bool Near2Red( const G6& gvec, const double delta, G6& vout, double& dist );
    static void MKnorm( const G6& vi, Mat66& m, G6& vout, const double delta );
-   static G6 Niggli2Delaunay( const G6& v );
+   static G6 Niggli2Delone( const G6& v );
    std::vector<double> Get4D_Vector( const G6& v );
 
    template<typename TVEC, typename TMAT>

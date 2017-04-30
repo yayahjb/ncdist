@@ -6,7 +6,7 @@
 
 class D6;
 class D7;
-class DelaunayTetrahedron;
+class DeloneTetrahedron;
 class Cell;
 
 class G6 : public VecN {
@@ -15,18 +15,19 @@ public:
 
    G6(void);
    G6(const G6& v);
+   G6(const double v[6]);
    G6(const D7& v);
    G6(const Cell& c);
    G6(const VecN& v);
    G6(const D6& ds);
-   G6(const DelaunayTetrahedron& dt);
+   G6(const DeloneTetrahedron& dt);
    G6(const std::string& s);
    G6(const std::vector<double>& v);
 
    G6& operator= (const G6& v);
    G6& operator= (const D7& v);
    G6& operator= (const D6& v);
-   G6& operator= (const DelaunayTetrahedron& v);
+   G6& operator= (const DeloneTetrahedron& v);
    G6& operator= (const Cell& v);
    G6& operator= (const std::string& s);
    //G6& operator= ( const VecN& v );

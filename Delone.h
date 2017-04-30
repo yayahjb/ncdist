@@ -1,5 +1,5 @@
-#ifndef DELAUNAY_H
-#define DELAUNAY_H
+#ifndef Delone_H
+#define Delone_H
 
 #ifdef _MSC_VER
 #pragma once
@@ -13,12 +13,13 @@
 #include <ostream>
 #include <string>
 
-class Delaunay {
+class Delone {
 
 public:
-   static bool Delone( const G6& vi, Mat66& m, G6& vout, const double delta  );
+   static bool Reduce( const G6& vi, Mat66& m, G6& vout, const double delta  );
    static void sortN( G6& v, Mat66& m );
-   static G6 Delone( const G6& vi );
+   static G6 Reduce( const G6& vi );
+   static void Report( void );
    static bool IsAllMinus(const G6& v, const double delta);
    class Key {
    public:
@@ -55,7 +56,7 @@ public:
       std::pair<bool, double> key;
    };
    
-   static bool IsDelaunay( const D7& v, const double delta = 1.0E-6 );
+   static bool IsDelone( const D7& v, const double delta = 1.0E-6 );
 
 };
 

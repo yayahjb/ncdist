@@ -2,27 +2,32 @@
 #pragma once
 #endif
 
-#include "Delaunay.h"
+#include "Delone.h"
 #include "Reducer.h"
-#include "Vec_N.h"
+#include "VecN.h"
 #include "VectorTools.h"
 
 #include <algorithm>
 #include <cfloat>
-#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <utility>
 
-bool Delaunay::IsAllMinus(const G6& v, const double delta) {
+#include "StoreResults.h"
+
+StoreResults<Delone::Key, G6> g_sr(5);  // added for D7 so that samples of cells from 
+                                            // each boundary could be later displayed, and
+                                            // some idea of population density found.
+
+bool Delone::IsAllMinus(const G6& v, const double delta) {
    return v[3] <= delta && v[4] <= delta && v[5] <= delta;
 }
 
-G6 Delaunay::Delone( const G6& vi ) {
+G6 Delone::Reduce( const G6& vi ) {
    Mat66 m;
    G6 vout;
    const double cutoff = 5000.0*DBL_EPSILON*vi.norm();
-   Delone( vi, m, vout, cutoff );
+   Reduce( vi, m, vout, cutoff );
    return vout;
 }
 
@@ -46,7 +51,7 @@ G6 SortEdges( const G6& vin ) {
 const Mat66 mInterchange12( "0 1 0 0 0 0  1 0 0 0 0 0  0 0 1 0 0 0  0 0 0 0 1 0  0 0 0 1 0 0  0 0 0 0 0 1" );
 const Mat66 mInterchange23( "1 0 0 0 0 0  0 0 1 0 0 0  0 1 0 0 0 0  0 0 0 1 0 0  0 0 0 0 0 1  0 0 0 0 1 0" );
 
-void Delaunay::sortN( G6& v, Mat66& m ) {
+void Delone::sortN( G6& v, Mat66& m ) {
    for ( int i=0; i<2; ++i ) {
       if ( v[0] > v[1] ) {
          m = mInterchange12 * m;
@@ -61,19 +66,13 @@ void Delaunay::sortN( G6& v, Mat66& m ) {
    }
 }
 
-bool Delaunay::Delone( const G6& vi, Mat66& m, G6& vout, const double delta ) {
-    
-   /* 5.2.3a, g4 minimal, g2-g6 < g3-g5, b-a, -b, c, a-c */
+bool Delone::Reduce( const G6& vi, Mat66& m, G6& vout, const double delta ) {
    static const Mat66 mDEL3a( "1 1 0 0 0 -1   0 1 0 0 0 0   0 0 1 0 0 0   0 0 0 -1 0 0   0 0 0 1 -1 0   0 -2 0 0 0 1" );
-   /* 5.2.3b, g4 minimal, g2-g6 < g3-g5, a-c, -b, c, b-a */
    static const Mat66 mDEL3b( "1 0 1 0 -1 0   0 1 0 0 0 0   0 0 1 0 0 0   0 0 0 -1 0 0   0 0 -2 0 1 0   0 0 0 1 0 -1" );
-   /* 5.2.2a, g5 minimal, g1 - g6 < g3 - g4, a, b-a, -c, c-b */
    static const Mat66 mDEL4a( "1 0 0 0 0 0   1 1 0 0 0 -1   0 0 1 0 0 0   0 0 0 -1 1 0   0 0 0 0 -1 0   -2 0 0 0 0 1" );
-   /* 5.2.2b, g5 minimal, g1 - g6 > g3 - g4, a, c-b, -c, b-a */
    static const Mat66 mDEL4b( "1 0 0 0 0 0   0 1 1 -1 0 0    0 0 1 0 0 0   0 0 -2 1 0 0   0 0 0 0 -1 0   0 0 0 0 1 -1" );
-   /* 5.2.1a, g6 minimal, g2-g4 < g1-g5, a, -b, b-c, c-a */
+
    static const Mat66 mDEL5a( "1 0 0 0 0 0   0 1 0 0 0 0   0 1 1 -1 0 0   0 -2 0 1 0 0    0 0 0 0 -1 1    0 0 0 0 0 -1" );
-   /* 5.2.1b, g6 minimal, g2-g4 > g1-g5, a, -b, c-a, b-c */
    static const Mat66 mDEL5b( "1 0 0 0 0 0   0 1 0 0 0 0   1 0 1 0 -1 0   0 0 0 -1 0 1    -2 0 0 0 1 0    0 0 0 0 0 -1" );
    G6 vRed;
 
@@ -110,7 +109,7 @@ bool Delaunay::Delone( const G6& vi, Mat66& m, G6& vout, const double delta ) {
    else if ( mLocal == mDEL5b     ) label = 5.2;
 
    if ( !IsAllMinus( vout, 1.0E-12*vout.norm() ) ) {
-      std::cout << "Delaunay reduction did not give ---" << std::endl;
+      std::cout << "Delone reduction did not give ---" << std::endl;
       std::cout << "mDEL3a*vRed" << std::endl << mDEL3a*vRed << std::endl << std::endl;
       std::cout << "mDEL3b*vRed" << std::endl << mDEL3b*vRed << std::endl << std::endl;
       std::cout << "mDEL4a*vRed" << std::endl << mDEL4a*vRed << std::endl << std::endl;
@@ -122,13 +121,27 @@ bool Delaunay::Delone( const G6& vi, Mat66& m, G6& vout, const double delta ) {
       std::cout << "Niggli             " << vRed << std::endl;
       std::cout << "Failed to reduce   " << vi << std::endl;
       std::cout << "what resulted      " << vout << std::endl << std::endl;
+
+      if ( mLocal == mLocal.Eye() ) g_sr.Store( Key(std::make_pair(false,0.0)), vRed );
+      else if ( mLocal == mDEL3a )  g_sr.Store( Key(std::make_pair(false,3.1)), vRed );
+      else if ( mLocal == mDEL3b )  g_sr.Store( Key(std::make_pair(false,3.2)), vRed );
+      else if ( mLocal == mDEL4a )  g_sr.Store( Key(std::make_pair(false,4.1)), vRed );
+      else if ( mLocal == mDEL4b )  g_sr.Store( Key(std::make_pair(false,4.2)), vRed );
+      else if ( mLocal == mDEL5a )  g_sr.Store( Key(std::make_pair(false,5.1)), vRed );
+      else if ( mLocal == mDEL5b )  g_sr.Store( Key(std::make_pair(false,5.2)), vRed );
       return false;
    }
+
+   g_sr.Store( Key(std::make_pair(true,label)), vRed );
    return true;
 }
 
-bool Delaunay::IsDelaunay( const D7& v, const double delta ) {
-   const double delaunaysum = v[0]+v[1]+v[2]+v[3] -v[4]-v[5]-v[6];
-   return std::fabs( delaunaysum ) < delta;
+void Delone::Report( void ) {
+   if ( ! g_sr.empty() ) g_sr.ShowResults( );
+}
+
+bool Delone::IsDelone( const D7& v, const double delta ) {
+   const double Delonesum = v[0]+v[1]+v[2]+v[3] -v[4]-v[5]-v[6];
+   return std::fabs( Delonesum ) < delta;
 }
 

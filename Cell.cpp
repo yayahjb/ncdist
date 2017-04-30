@@ -51,7 +51,7 @@ Cell::Cell(const D6& ds)
    (*this) = G6(ds);
 }
 
-Cell::Cell(const DelaunayTetrahedron& dt)
+Cell::Cell(const DeloneTetrahedron& dt)
 {
    (*this) = G6(dt);
 }

@@ -15,9 +15,9 @@ bool newline( const char c );
 
 std::string MaximaFromString( const std::string& s );
 
-const std::string Retrieve_One_Matrix_Row( const unsigned int rowLength, const std::string& s );
+const std::string Retrieve_One_Matrix_Row( const size_t rowLength, const std::string& s );
 
-std::string MaximaFromString( const unsigned int rowLength, const std::string& s );
+std::string MaximaFromString( const size_t rowLength, const std::string& s );
 
 template<typename TMAT>
 std::string MaximaFromMat( const TMAT& m ) {

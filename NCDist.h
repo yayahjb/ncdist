@@ -19,8 +19,8 @@
 /* #define NCDIST_DEBUG */
 /* #define NCDIST_NO_OUTER_PASS */
 
-#include <cmath>
-#include <cfloat>
+#include <math.h>
+#include <float.h>
 
 static int changed=0;
 #ifdef NCDIST_DEBUG
@@ -2041,7 +2041,7 @@ static double NCDist_pass(double gvec1[6], double gvec2[6], double dist) {
 }
 
 
-static double NCDist(double gvec1[6], double gvec2[6]) {
+double NCDist(double * gvec1, double * gvec2) {
    double dist, dist1, dist2, distmin;
    double ndist1[24];
    double ndist2[24];

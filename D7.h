@@ -3,9 +3,8 @@
 
 #include "VecN.h"
 
-
 class D6;
-class DelaunayTetrahedron;
+class DeloneTetrahedron;
 class G6;
 class Cell;
 
@@ -15,10 +14,11 @@ public:
 
    D7( void );
    explicit D7( const D7& v );
+   explicit D7( const double v[7] );
    explicit D7( const G6& v );
    D7( const VecN& v );
    explicit D7(const D6& ds);
-   explicit D7(const DelaunayTetrahedron& dt);
+   explicit D7(const DeloneTetrahedron& dt);
    D7( const std::string& s );
    D7( const std::vector<double>& v );
    D7(const Cell& c);

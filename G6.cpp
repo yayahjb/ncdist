@@ -21,58 +21,68 @@ G6::G6( void )
 }
 
 G6::G6(const G6& v)
-   : VecN(6) {
-   m_vec = v.m_vec;
+: VecN(6) {
+    m_vec = v.m_vec;
+}
+
+G6::G6(const double v[6])
+: VecN(6) {
+    m_vec[0] = v[0];
+    m_vec[1] = v[1];
+    m_vec[2] = v[2];
+    m_vec[3] = v[3];
+    m_vec[4] = v[4];
+    m_vec[5] = v[5];
 }
 
 G6::G6(const Cell& c)
-   : VecN(6) {
-   m_vec[0] = c[0] * c[0];
-   m_vec[1] = c[1] * c[1];
-   m_vec[2] = c[2] * c[2];
-   m_vec[3] = 2.0 * c[1] * c[2] * cos(c[3]);
-   m_vec[4] = 2.0 * c[0] * c[2] * cos(c[4]);
-   m_vec[5] = 2.0 * c[0] * c[1] * cos(c[5]);
+: VecN(6) {
+    m_vec[0] = c[0] * c[0];
+    m_vec[1] = c[1] * c[1];
+    m_vec[2] = c[2] * c[2];
+    m_vec[3] = 2.0 * c[1] * c[2] * cos(c[3]);
+    m_vec[4] = 2.0 * c[0] * c[2] * cos(c[4]);
+    m_vec[5] = 2.0 * c[0] * c[1] * cos(c[5]);
 }
 
 G6::G6( const VecN& v )
 : VecN(6) {
-   if (m_dim != 6) {
-      G6 v6;
-      v6.m_dim = 6;
-      m_vec = v6.m_vec;
-   }
-   else {
-      m_vec = v.GetVector();
-   }
+    if (m_dim != 6) {
+        G6 v6;
+        v6.m_dim = 6;
+        m_vec = v6.m_vec;
+    }
+    else {
+        m_vec = v.GetVector();
+    }
 }
 
 G6::G6( const D6& ds ) {
-   m_dim = 6;
-   m_vec.resize(6);
-   const double& p = ds[0];
-   const double& q = ds[1];
-   const double& r = ds[2];
-   const double& s = ds[3];
-   const double& t = ds[4];
-   const double& u = ds[5];
-
-   double& g1 = m_vec[0];
-   double& g2 = m_vec[1];
-   double& g3 = m_vec[2];
-   double& g4 = m_vec[3];
-   double& g5 = m_vec[4];
-   double& g6 = m_vec[5];
-
-   g1 = -s-r-q;
-   g2 = -t-r-p;
-   g3 = -u-q-p;
-   g4 = 2.0*p;
-   g5 = 2.0*q;
-   g6 = 2.0*r;
+    m_dim = 6;
+    m_vec.resize(6);
+    const double& p = ds[0];
+    const double& q = ds[1];
+    const double& r = ds[2];
+    const double& s = ds[3];
+    const double& t = ds[4];
+    const double& u = ds[5];
+    
+    double& g1 = m_vec[0];
+    double& g2 = m_vec[1];
+    double& g3 = m_vec[2];
+    double& g4 = m_vec[3];
+    double& g5 = m_vec[4];
+    double& g6 = m_vec[5];
+    
+    g1 = -s-r-q;
+    g2 = -t-r-p;
+    g3 = -u-q-p;
+    g4 = 2.0*p;
+    g5 = 2.0*q;
+    g6 = 2.0*r;
 }
 
-G6::G6(const DelaunayTetrahedron& dt)
+G6::G6(const DeloneTetrahedron& dt)
 {
    (*this) = D6(dt);
 }
@@ -141,7 +151,7 @@ G6& G6::operator= (const D6& v)
 }
 
 
-G6& G6::operator= (const DelaunayTetrahedron& v)
+G6& G6::operator= (const DeloneTetrahedron& v)
 {
    (*this) = G6(v);
    return *this;

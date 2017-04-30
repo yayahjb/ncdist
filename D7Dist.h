@@ -20,39 +20,6 @@
 #include <math.h>
 #include <float.h>
 
-#ifdef NCDIST_DEBUG
-static double oldvalue;
-#include <cstdio>
-#define d7report_double(prolog, value, epilog) \
-oldvalue=value; fprintf(stderr, "%s%g%s", prolog, value, epilog);
-#define d7report_integer(prolog, value, epilog) \
-fprintf(stderr, "%s%d%s", prolog, value, epilog);
-#define d7report_double_if_changed(prolog, value, epilog) \
-changed=0; if (fabs(value-oldvalue)>1.e-8*(fabs(value)+fabs(oldvalue)+1.e-12)) {oldvalue=value; changed=1; fprintf(stderr, "%s%g%s", prolog, value, epilog);}
-#define also_if_changed_report(prolog, value, epilog) \
-if(changed) {fprintf(stderr, "%s%s%s", prolog, value, epilog);}
-#define also_if_changed_d7report_integer(prolog, value, epilog) \
-if(changed) {fprintf(stderr, "%s%d%s", prolog, value, epilog);}
-#define also_if_changed_d7report_double(prolog, value, epilog) \
-if(changed) {fprintf(stderr, "%s%g%s", prolog, value, epilog);}
-#define also_if_changed_d7report_double_vector(prolog, value, epilog) \
-if(changed) {fprintf(stderr, "%s[%g  %g  %g  %g  %g  %g]%s", prolog, value[0], value[1], value[2], value[3], value[4], value[5], epilog);}
-#define d7report_double_vector(prolog, value, epilog) \
-{fprintf(stderr, "%s[%g  %g  %g  %g  %g  %g]%s", prolog, value[0], value[1], value[2], value[3], value[4], value[5], epilog);}
-#else
-#define d7report_double(prolog, value, epilog)
-#define d7report_integer(prolog, value, epilog)
-#define d7report_double_if_changed(prolog, value, epilog)
-#define also_if_changed_report(prolog, value, epilog)
-#define also_if_changed_d7report_integer(prolog, value, epilog)
-#define also_if_changed_d7report_double(prolog, value, epilog)
-#define also_if_changed_d7report_double_vector(prolog, value, epilog)
-#define d7report_double_vector(prolog, value, epilog)
-#endif
-
-
-
-
 
 #define CD7M_min(a,b) (((a)<(b))?(a):(b))
 #define CD7M_max(a,b) (((a)<(b))?(b):(a))
@@ -777,30 +744,7 @@ static double d7eucldist(double v1[7], double v2[6]) {
 #define CD7M_d7eucldist(v1,v2) sqrt(CD7M_d7eucldistsq(v1,v2))
 
 
-/*   Macro version of g456dist
- Compute the best distance between 2 G6 vectors
- allowing for cell-preserving sign changes in
- g4,5,6
- */
 
-#define CD7M_g456distsq(v1,v2) \
-fabs( CD7M_gdistsq(v1,v2)+\
- 4.*CD7M_min(CD7M_min(CD7M_min(0.,       \
-                            v1[3]*v2[3]+v1[4]*v2[4]), \
-                    v1[3]*v2[3]+v1[5]*v2[5]), \
-             v1[4]*v2[4]+v1[5]*v2[5]))
-
-#define CD7M_g456dist(v1,v2) sqrt(CD7M_g456distsq(v1,v2))
-
-/*     Compute the best distance between 2 G6 vectors
- allowing for permulations of g1, g2, g3 as
- well as sign changes
- */
-
-#define CD7M_g456distsq_byelem(v11,v12,v13,v14,v15,v16,v21,v22,v23,v24,v25,v26) \
-fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
-(v14-v24)*(v14-v24)+(v15-v25)*(v15-v25)+(v16-v26)*(v16-v26) + \
-4.*CD7M_min(CD7M_min(CD7M_min(0.,v14*v24+v15*v25),v14*v24+v16*v26),v15*v25+v16*v26))
 
 
 
@@ -811,6 +755,9 @@ fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
 #define CD7M_d7eucldistsq_byelem(v11,v12,v13,v14,v15,v16,v17,v21,v22,v23,v24,v25,v26,v27) \
 fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
 (v14-v24)*(v14-v24)+(v15-v25)*(v15-v25)+(v16-v26)*(v16-v26) + (v16-v26)*(v16-v26))
+
+#define CD7M_d7prods_byelem(v11,v12,v13,v14,v15,v16,v17,v21,v22,v23,v24,v25,v26,v27) \
+2.*(v11*v21+v12*v22+v13*v23+v14*v24+v15*v25+v16*v26+v17*v27)
 
 #define CD7M_d71234distsq(v1,v2) \
 CD7M_min3(\
@@ -868,36 +815,49 @@ v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6])))
 
 #define CD7M_d71234dist(v1,v2) sqrt(CD7M_d71234distsq(v1,v2))
 
+static double d71234distsq(double v1[7], double v2[7]) {
+    double distsq;
+    double downby;
+    double dtrial[24];
+    int i;
+    distsq = v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2] + v1[3]*v1[3] + v1[4]*v1[4] + v1[5]*v1[5] + v1[6]*v1[6]
+    + v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2] + v2[3]*v2[3] + v2[4]*v2[4] + v2[5]*v2[5] + v2[6]*v2[6];
+    dtrial[0] = CD7M_d7prods_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[1] = CD7M_d7prods_byelem(v1[0],v1[1],v1[3],v1[2],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[2] = CD7M_d7prods_byelem(v1[0],v1[2],v1[1],v1[3],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[3] = CD7M_d7prods_byelem(v1[0],v1[2],v1[3],v1[1],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[4] = CD7M_d7prods_byelem(v1[0],v1[3],v1[1],v1[2],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[5] = CD7M_d7prods_byelem(v1[0],v1[3],v1[2],v1[1],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[6] = CD7M_d7prods_byelem(v1[2],v1[0],v1[1],v1[3],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[7] = CD7M_d7prods_byelem(v1[3],v1[0],v1[1],v1[2],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[8] = CD7M_d7prods_byelem(v1[1],v1[0],v1[2],v1[3],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[9] = CD7M_d7prods_byelem(v1[1],v1[0],v1[3],v1[2],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[10] = CD7M_d7prods_byelem(v1[1],v1[2],v1[0],v1[3],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[11] = CD7M_d7prods_byelem(v1[1],v1[2],v1[3],v1[0],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[12] = CD7M_d7prods_byelem(v1[1],v1[3],v1[0],v1[2],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[13] = CD7M_d7prods_byelem(v1[1],v1[3],v1[2],v1[0],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[14] = CD7M_d7prods_byelem(v1[2],v1[0],v1[3],v1[1],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[15] = CD7M_d7prods_byelem(v1[2],v1[1],v1[0],v1[3],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[16] = CD7M_d7prods_byelem(v1[2],v1[1],v1[3],v1[0],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[17] = CD7M_d7prods_byelem(v1[2],v1[3],v1[0],v1[1],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[18] = CD7M_d7prods_byelem(v1[2],v1[3],v1[1],v1[0],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[19] = CD7M_d7prods_byelem(v1[3],v1[0],v1[2],v1[1],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[20] = CD7M_d7prods_byelem(v1[3],v1[1],v1[0],v1[2],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[21] = CD7M_d7prods_byelem(v1[3],v1[1],v1[2],v1[0],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[22] = CD7M_d7prods_byelem(v1[3],v1[2],v1[0],v1[1],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[23] = CD7M_d7prods_byelem(v1[3],v1[2],v1[1],v1[0],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    downby = dtrial[0];
+    for (i = 1; i < 24; i++) if (dtrial[i] > downby) downby = dtrial[i];
+    return (fabs(distsq - downby));
+}
+
+#define d71234dist(v1,v2) sqrt(d71234distsq(v1,v2))
 
 
 /*     Compute the best distance between 2 G6 vectors
  allowing for permulations of g1, g2, g3 as
  well as sign changes
  */
-
-#define CD7M_g456pmdistsq_byelem(v11,v12,v13,v14,v15,v16,v21,v22,v23,v24,v25,v26) \
-fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
-v14*v14+v24*v24 + v15*v15+v25*v25 + v16*v16+v26*v26 + \
-2.*(CD7M_min3((fabs(v14*v24) - fabs(v15*v25) - fabs(v16*v26)), \
-          ( - fabs(v14*v24) + fabs(v15*v25) - fabs(v16*v26)), \
-          ( - fabs(v14*v24) - fabs(v15*v25) + fabs(v16*v26)))))
-
-
-#define FASTER
-/* #define FASTEST */
-#ifdef FASTEST
-#define CD7M_gtestdist(v1,v2) CD7M_gpmdist(v1,v2)
-#define CD7M_gtestdistsq(v1,v2) CD7M_gpmdistsq(v1,v2)
-#else
-#ifdef FASTER
-#define CD7M_gtestdist(v1,v2) CD7M_g456pmdist(v1,v2)
-#define CD7M_gtestdistsq(v1,v2) CD7M_g456pmdistsq(v1,v2)
-#else
-#define CD7M_gtestdist(v1,v2) CD7M_g123pmdist(v1,v2)
-#define CD7M_gtestdistsq(v1,v2) CD7M_g123pmdistsq(v1,v2)
-#endif
-#endif
-
 
 
 static void d7cpyvn(int n, double src[], double dst[] ) {
@@ -1135,14 +1095,13 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
     d22[0] = d7bddist(gvec2, bd2);
     
     dist2 = fabs(d11[0]) + fabs(d22[0]) +
-    CD7M_min(CD7M_min(CD7M_min(
-                               CD7M_d71234dist(pg1, pg2),
-                               CD7M_d71234dist(pg1, mpg2)),
-                      CD7M_d71234dist(mpg1, pg2)),
-             CD7M_d71234dist(mpg1, mpg2)
-             );
+    CD7M_min4(d71234dist(pg1, pg2),
+              d71234dist(pg1, mpg2),
+              d71234dist(mpg1, pg2),
+              d71234dist(mpg1, mpg2)
+              );
     dist = CD7M_min(dist, dist2);
-        
+    
     /* This is the general case, in which we must cross
      boundary 1 and boundary 2
      
@@ -1218,19 +1177,19 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
             imv7(bdint1, D7MS[bd1], mbdint1);
             imv7(bdint2, D7MS[bd2], mbdint2);
             s1 = CD7M_min(s1, CD7M_gdist(rgv1[jj], mbdint1));
-            s1 = CD7M_min(s1, fabs(d11[jj]) + CD7M_d71234dist(mpg1, bdint1));
-            s1 = CD7M_min(s1, fabs(d11[jj]) + CD7M_d71234dist(mpg1, mbdint1));
+            s1 = CD7M_min(s1, fabs(d11[jj]) + d71234dist(mpg1, bdint1));
+            s1 = CD7M_min(s1, fabs(d11[jj]) + d71234dist(mpg1, mbdint1));
             if (s1 > dist) return dist;
             s2 = CD7M_min(s2, CD7M_gdist(rgv2[jj], mbdint2));
-            s2 = CD7M_min(s2, fabs(d22[jj]) + CD7M_d71234dist(mpg2, bdint2));
-            s2 = CD7M_min(s2, fabs(d22[jj]) + CD7M_d71234dist(mpg2, mbdint2));
+            s2 = CD7M_min(s2, fabs(d22[jj]) + d71234dist(mpg2, bdint2));
+            s2 = CD7M_min(s2, fabs(d22[jj]) + d71234dist(mpg2, mbdint2));
             if (s1 + s2 > dist) return dist;
             
             dbdi1bdi2 = CD7M_min(CD7M_min(CD7M_min(
-                                                   CD7M_d71234dist(bdint1, bdint2),
-                                                   CD7M_d71234dist(bdint1, mbdint2)),
-                                          CD7M_d71234dist(mbdint1, bdint2)),
-                                 CD7M_d71234dist(mbdint1, mbdint2));
+                                                   d71234dist(bdint1, bdint2),
+                                                   d71234dist(bdint1, mbdint2)),
+                                          d71234dist(mbdint1, bdint2)),
+                                 d71234dist(mbdint1, mbdint2));
             dist = CD7M_min(dist, s1 + s2 + dbdi1bdi2);
         }
         
@@ -1255,7 +1214,7 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
 
 
 
-double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
+static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
     double dists1[ND7BND];
     double pgs1[ND7BND][7], rgs1[ND7BND][7], mpgs1[ND7BND][7], mvecs1[ND7BND][7];
     double dists2[ND7BND];
@@ -1285,7 +1244,7 @@ double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
             d1 = dists1[j1];
 
             if (d1 < maxdist){
-                dist = CD7M_min(dist,CD7M_d71234dist(gvec2,mpgs1[j1])+d1);
+                dist = CD7M_min(dist,d71234dist(gvec2,mpgs1[j1])+d1);
             }
         }
         for (jx2 = 0; jx2 < ngood2; jx2++) {
@@ -1293,7 +1252,7 @@ double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
             j2 = iord2[jx2];
             d2 = dists2[j2];
             if (d2 < maxdist) {
-                dist = CD7M_min(dist,(CD7M_d71234dist(gvec1,mpgs2[j2])+d2));
+                dist = CD7M_min(dist,(d71234dist(gvec1,mpgs2[j2])+d2));
                 
             }
         }
@@ -1331,16 +1290,13 @@ double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
 
 
 
-double D7Dist(double gvec1[7],double gvec2[7]) {
+double D7Dist(double * gvec1,double * gvec2) {
     double dist,dist1, dist2, distmin;
     dist1 = d7minbddist(gvec1);
     dist2 = d7minbddist(gvec2);
     distmin = CD7M_min(dist1,dist2);
-    dist = CD7M_d71234dist(gvec1,gvec2);
-    d7report_double("\n  Entered D7Dist d7dist = ",dist,", ");
+    dist = d71234dist(gvec1,gvec2);
     dist = D7Dist_pass(gvec1,gvec2,dist);
-    d7report_double("dist1 = ",dist1,", ");
-    d7report_double("dist2 = ",dist2,", ");
     return dist;
 }
 

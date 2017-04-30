@@ -30,7 +30,7 @@ public:
    explicit Cell(const G6& v6); // specialized for G6
    explicit Cell(const D7& v7); // specialized for d7
    explicit Cell(const D6& dt); // specialized for d7
-   explicit Cell(const DelaunayTetrahedron& ds); // specialized for Delaunay tetrahedron
+   explicit Cell(const DeloneTetrahedron& ds); // specialized for Delone tetrahedron
    ~Cell(void);
 
    double Volume(void) const;

@@ -6,7 +6,8 @@
 #include <cstdio>
 #include <time.h>
 
-#include "Delaunay.h"
+#include "Delone.h"
+#include "FollowerConstants.h"
 #include "ProjectorTools.h"
 #include "Reducer.h"
 
@@ -135,7 +136,7 @@ Cell GenRandG6DeloneReducedCell( void ) {
    vRan = G6(1000.0 * genRandG6V());
 
    bool btemp = false;
-   while (btemp =Delaunay::Delone(vRan, m, v, 0.0), !btemp) {
+   while (btemp =Delone::Reduce(vRan, m, v, 0.0), !btemp) {
       vRan = G6(1000.0 * genRandG6V());
    }
    return Cell(v);
@@ -185,7 +186,7 @@ bool GenRandDeloneReducedArray(double* a, double aRan[6]) {
    vRan = G6(1000.0 * genRandG6V());
 
    bool btemp = false;
-   while (btemp = Delaunay::Delone(vRan, m, v, 0.0), !btemp) {
+   while (btemp = Delone::Reduce(vRan, m, v, 0.0), !btemp) {
       vRan = G6(1000.0 * genRandG6V());
    }
    a[0] = v.at(0);

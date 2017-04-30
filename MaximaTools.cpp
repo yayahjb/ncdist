@@ -35,7 +35,7 @@ std::string MaximaTools::MaximaFromString( const std::string& s ) {
    return "[" + s_out + "]";
 }
 
-const std::string MaximaTools::Retrieve_One_Matrix_Row( const unsigned int rowLength, const std::string& s ) {
+const std::string MaximaTools::Retrieve_One_Matrix_Row( const size_t rowLength, const std::string& s ) {
    unsigned int count = 0;
 
    std::string::const_iterator it = s.begin();
@@ -47,8 +47,8 @@ const std::string MaximaTools::Retrieve_One_Matrix_Row( const unsigned int rowLe
    return std::string( s.begin( ), it );
 }
 
-std::string MaximaTools::MaximaFromString( const unsigned int rowLength, const std::string& s ) {
-   unsigned int pos = 0;
+std::string MaximaTools::MaximaFromString( const size_t rowLength, const std::string& s ) {
+   size_t pos = 0;
    std::string sFrag;
    while ( pos < s.length( ) ) {
       const std::string nextFrag = Retrieve_One_Matrix_Row( rowLength, s.substr( pos, s.length( ) ) );

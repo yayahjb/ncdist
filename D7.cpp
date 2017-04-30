@@ -23,6 +23,19 @@ D7::D7( const D7& v )
    m_valid = v.m_valid;
 }
 
+D7::D7( const double v[7] )
+: VecN( 7 ) {
+    m_dim = 7;
+    m_vec[0] = v[0];
+    m_vec[1] = v[1];
+    m_vec[2] = v[2];
+    m_vec[3] = v[3];
+    m_vec[4] = v[4];
+    m_vec[5] = v[5];
+    m_vec[6] = v[6];
+    m_valid = true;
+}
+
 double D7::DistanceBetween( const D7& v1, const D7& v2 ) {
    double sum = 0.0;
    const size_t size1 = sizeof(v1);
@@ -61,7 +74,7 @@ D7::D7(const D6& ds) {
    m_valid = true;
 }
 
-D7::D7(const DelaunayTetrahedron& dt) {
+D7::D7(const DeloneTetrahedron& dt) {
    m_dim = 7;
    (*this) = G6(dt);
    m_valid = true;

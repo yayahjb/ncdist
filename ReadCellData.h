@@ -9,8 +9,9 @@
 
 class ReadCellData : public CellInputData {
 public:
-   ReadCellData( void );
-
+   ReadCellData(void);
+   void CellReader(const std::string& s);
+   void CellReader(const std::string& lattice, const std::string& cell);
 };
 
 #endif

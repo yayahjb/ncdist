@@ -5,14 +5,14 @@
 #include <string>
 #include <vector>
 
-#include "D7Dist.h"
 #include "LatticeConverter.h"
-#include "NCDist.h"
+#include "D7Dist_.hpp"
 #include "NCDist_.hpp"
 #include "PrintTable.h"
 #include "ProjectorTools.h"
 #include "ReadCellData.h"
 #include "ToString.h"
+
 
 void Header( void ) {
    std::cout << "Input:" << std::endl;
@@ -50,7 +50,7 @@ void PrintModifiedTable( const PrintTable& tbl, const bool labelColumns, const b
 void ComputeArrays(const ReadCellData& cellDataList, double gArray[], double dArray[]) {
    LatticeConverter converter;
    const Cell niggliReducedCell1 = converter.NiggliReduceCell  (cellDataList.GetLattice(), cellDataList.GetCell());
-   const Cell deloneReducedCell1 = converter.DelaunayReduceCell(cellDataList.GetLattice(), cellDataList.GetCell());
+   const Cell deloneReducedCell1 = converter.DeloneReduceCell(cellDataList.GetLattice(), cellDataList.GetCell());
    ProjectorTools::ConvertG6ToArray(niggliReducedCell1.Cell2V6(), gArray);
    ProjectorTools::ConvertD7ToArray(D7(deloneReducedCell1.Cell2V6()), dArray);
 }
@@ -83,7 +83,7 @@ void OutputCellData( LatticeConverter& converter, const std::vector<ReadCellData
       std::cout << std::endl;
       converter.NiggliReducedOutput("Niggli Reduced", lattice, rcd.GetCell());
       std::cout << std::endl;
-      converter.DelaunayReducedOutput("Delaunay Reduced", lattice, rcd.GetCell());
+      converter.DeloneReducedOutput("Delaunay Reduced", lattice, rcd.GetCell());
       std::cout << std::endl;
    }
 }
@@ -98,8 +98,8 @@ void PrintDistanceData(const std::vector<ReadCellData>& cellDataList) {
          ComputeArrays(cellDataList[i1], g1, d1);
          for (size_t i2 = i1; i2 < cellDataList.size(); ++i2) {
             ComputeArrays(cellDataList[i2], g2, d2);
-            const double g12 = NCDist(g1, g2);
-            const double d12 = D7Dist(d1, d2);
+            const double g12 = NCDist_(g1, g2);
+            const double d12 = D7Dist_(d1, d2);
             gtbl.insert_center(i1, i2, g12);
             dtbl.insert_center(i1, i2, d12);
 

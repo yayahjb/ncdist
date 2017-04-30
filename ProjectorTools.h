@@ -120,7 +120,7 @@ public:
 
 protected:
    std::vector<double> m_vCleanupList;
-   int InitCleanupList(void);
+   size_t InitCleanupList(void);
    Mat66 CleanupMatrix_SetNearZeroToZero(const Mat66& projector) const;
    static double MatrixNorm(const Mat66& m);
    static std::vector<Mat66> GeneratePrincipalProjectors(

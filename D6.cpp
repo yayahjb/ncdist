@@ -1,6 +1,6 @@
 #include "Cell.h"
 #include "D6.h"
-#include "DelaunayTetrahedron.h"
+#include "DeloneTetrahedron.h"
 #include "Vec_N_Tools.h"
 #include "vector_3d.h"
 
@@ -35,6 +35,31 @@ D6::D6(const G6& v6) {
    u = (-g5 - g4 - 2.0*g3) / 2.0;
 }
 
+D6::D6(const double v[6] ){
+    (*this).resize(6);
+    double& p = (*this)[0];
+    double& q = (*this)[1];
+    double& r = (*this)[2];
+    double& s = (*this)[3];
+    double& t = (*this)[4];
+    double& u = (*this)[5];
+    
+    const double& g1 = v[0];
+    const double& g2 = v[1];
+    const double& g3 = v[2];
+    const double& g4 = v[3];
+    const double& g5 = v[4];
+    const double& g6 = v[5];
+    
+    p = g4 / 2.0;
+    q = g5 / 2.0;
+    r = g6 / 2.0;
+    s = (-2.0*g1 - g6 - g5) / 2.0;
+    t = (-g6 - 2.0*g2 - g4) / 2.0;
+    u = (-g5 - g4 - 2.0*g3) / 2.0;
+}
+
+
 D6::D6(const D7& v7) {
    (*this).resize(6);
    (*this) = G6(v7);
@@ -45,7 +70,7 @@ D6::D6(const Cell& c) {
    (*this) = G6(c.Cell2V6());
 }
 
-D6::D6( const DelaunayTetrahedron& del ) {
+D6::D6( const DeloneTetrahedron& del ) {
    (*this).resize( 6 );
    double& p = (*this)[0];
    double& q = (*this)[1];

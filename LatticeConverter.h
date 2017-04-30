@@ -21,7 +21,7 @@ public:
    void Output(const std::string& label, const std::string& lattice, const Cell& cell) const;
    Cell NiggliReduceCell(const std::string& lattice, const Cell& cell);
    void NiggliReducedOutput(const std::string& label, const std::string& lattice, const Cell& cell);
-   Cell DelaunayReduceCell(const std::string& lattice, const Cell& cell);
-   void DelaunayReducedOutput(const std::string& label, const std::string& lattice, const Cell& cell);
+   Cell DeloneReduceCell(const std::string& lattice, const Cell& cell);
+   void DeloneReducedOutput(const std::string& label, const std::string& lattice, const Cell& cell);
 };
 #endif //LATTICECONVERTER_H
