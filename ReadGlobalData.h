@@ -36,8 +36,8 @@ private:
    static std::string FormatGlobalDataAsString( const std::vector<ParseData>& parseData );
 };
 static std::string xxstrToupper(const std::string& s) {
-    std::string ss;
-    std::transform(s.begin(), s.end(), ss.begin(), ::toupper );
+    std::string ss(s);
+    std::transform(ss.begin(), ss.end(), ss.begin(), ::toupper );
     return( ss );
 }
 

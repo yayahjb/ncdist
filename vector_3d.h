@@ -277,7 +277,7 @@ Vector_3 ( const Vector_3& o )
     {
         return ( Vector_3(v[0]*v_other[0],v[1]*v_other[1],v[2]*v_other[2]) );
     }
-	
+
     Matrix_3x3 MatrixProduct ( const Vector_3& v_other ) const;
 
 //-----------------------------------------------------------------------------
