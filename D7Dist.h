@@ -1170,7 +1170,7 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
             }
             s1 = alpha1*dg1g2[jj];
             s2 = alpha2*dg1g2[jj];
-            for (ii = 0; ii < 6; ii++) {
+            for (ii = 0; ii < 7; ii++) {
                 bdint1[ii] = rgv1[jj][ii] + alpha1*(rgv2[jj][ii] - rgv1[jj][ii]);
                 bdint2[ii] = rgv2[jj][ii] + alpha2*(rgv1[jj][ii] - rgv2[jj][ii]);
             }
