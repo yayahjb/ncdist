@@ -14,8 +14,8 @@
 #define D7DIST_H
 
 
-/* #define NCDIST_DEBUG */
-#define NCDIST_NO_OUTER_PASS
+/* #define D7DIST_DEBUG */
+/* #define D7DIST_NO_OUTER_PASS */
 
 #include <math.h>
 #include <float.h>
@@ -907,8 +907,7 @@ static void d7twoPminusI(double pg[7], double g[7], double gout[7]) {
 /*     Map a G6 vector onto the boundaries after
        applying the 24-way unfolding */
 
-/* #define NCDIST_NO_OUTER_PASS */
-#ifdef NCDIST_NO_OUTER_PASS
+#ifdef D7DIST_NO_OUTER_PASS
 #define NREFL_OUTER_FULL 1
 #define NREFL_OUTER_MIN 1
 #else
@@ -1291,12 +1290,46 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
 
 
 double D7Dist(double * gvec1,double * gvec2) {
+    int rpasses, ir, irt;
     double dist,dist1, dist2, distmin;
+    double rgvec1[24][7], rgvec2[24][7];
+    double trgvec1[24][7], trgvec2[24][7];
+    double ndist1[24];
+    double ndist2[24];
     dist1 = d7minbddist(gvec1);
     dist2 = d7minbddist(gvec2);
     distmin = CD7M_min(dist1,dist2);
+    rpasses = NREFL_OUTER_MIN;
+    if (dist1+dist2 <  dist*.999 ) {
+        rpasses = NREFL_OUTER_FULL;
+    }
     dist = d71234dist(gvec1,gvec2);
     dist = D7Dist_pass(gvec1,gvec2,dist);
+#pragma omp parallel for schedule(dynamic)
+    for (ir = 1; ir < rpasses; ir++) {
+        d7cpyvn(7,gvec1,rgvec1[ir]);
+        d7cpyvn(7,gvec2,rgvec2[ir]);
+        for (irt=0; irt<8; irt++) {
+            if (D7Perm[ir][irt]==D7Refl_1) continue;
+            if (D7Perm[ir][irt]==D7Refl_term) break;
+            imv7(rgvec1[ir],D7Refl[D7Perm[ir][irt]],trgvec1[ir]);
+            imv7(rgvec2[ir],D7Refl[D7Perm[ir][irt]],trgvec2[ir]);
+            d7cpyvn(7,trgvec1[ir],rgvec1[ir]);
+            d7cpyvn(7,trgvec2[ir],rgvec2[ir]);
+        }
+        ndist1[ir] = D7Dist_pass(rgvec1[ir],gvec2,dist);
+#pragma omp flush(dist,ndist1)
+#pragma omp critical(distminimize)
+        {
+            if (ndist1[ir] < dist) dist = ndist1[ir];
+        }
+        ndist2[ir] = D7Dist_pass(gvec1,rgvec2[ir],dist);
+#pragma omp flush(dist,ndist2)
+#pragma omp critical(distminimize)
+        {
+            if (ndist2[ir] < dist) dist = ndist2[ir];
+        }
+    }
     return dist;
 }
 
