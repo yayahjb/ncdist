@@ -1109,7 +1109,7 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
      rgvec1 to gvec2 and do that, or go from rgvec1 to rgvec2
      and do that, or none of the above.
      
-     rgv1   rgv2     d11        d12        d21        d22
+         rgv1   rgv2     d11        d12        d21        d22
      0  gvec1  gvec2  gvec1-bd1  gvec1-bd2  gvec2-bd1  gvec2-bd2
      1  gvec1 rgvec2  gvec1-bd1  gvec1-bd2 rgvec2-bd1 -gvec2+bd2
      2 rgvec1 rgvec2 -gvec1+bd1 rgvec1-bd2 rgvec2-bd1 -gvec2+bd2
@@ -1159,13 +1159,13 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
                 alpha1 = 0.;
             }
             else {
-                alpha1 = CD7M_min(1., fabs(d11[jj]) / (1.e-38 + fabs(d11[jj]) + fabs(d21[jj])));
+                alpha1 = CD7M_min(1., fabs(d11[jj]) / (fabs(d11[jj]) + fabs(d21[jj])));
             }
             if (fabs(d22[jj]) < 1.e-38) {
                 alpha2 = 0.;
             }
             else {
-                alpha2 = CD7M_min(1., fabs(d22[jj]) / (1.e-38 + fabs(d22[jj]) + fabs(d12[jj])));
+                alpha2 = CD7M_min(1., fabs(d22[jj]) / (fabs(d22[jj]) + fabs(d12[jj])));
             }
             s1 = alpha1*dg1g2[jj];
             s2 = alpha2*dg1g2[jj];
@@ -1201,7 +1201,7 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
 
 
 
-#define DCUT 0.9995
+#define DCUT 0.999995
 #define fudge(d) DCUT*d
 
 

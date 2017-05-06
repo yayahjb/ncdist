@@ -10,19 +10,19 @@ using namespace RcppParallel;
 
 
 //*****************************************************************************
-arma::vec6 makeprimredprobe( std::string testlattice,
+G6 makeprimredprobe( std::string testlattice,
 	double a, double b, double c, double alpha, double beta, double gamma )
 {
     std::string latsym;
     char clatsym;
-    arma::vec6 v6cell;
-    arma::vec6 redprimcell;
-    arma::mat66 mc;
-    arma::mat66 m;
-    arma::vec6 primcell;
-    arma::vec6 recipcell;
-    arma::vec6 reducedBase;
-    arma::vec6 primredprobe;
+    G6 v6cell;
+    G6 redprimcell;
+    Mat66 mc;
+    Mat66 m;
+    G6 primcell;
+    G6 recipcell;
+    G6 reducedBase;
+    G6 primredprobe;
     double crootvol;
     Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
@@ -97,7 +97,7 @@ extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_,
                               SEXP alpha1_, SEXP beta1_, SEXP gamma1_,
 			      SEXP lat2_, SEXP a2_, SEXP b2_, SEXP c2_, 
                               SEXP alpha2_, SEXP beta2_, SEXP gamma2_) {
-    arma::vec6 prim1, prim2;
+    G6 prim1, prim2;
     double dprim1[6];
     double dprim2[6];
     size_t ii;
@@ -120,8 +120,8 @@ extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_,
     prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
     Cell cell1 = Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
     Cell cell2 = Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
-    arma::vec6 gv1 = arma::vec6(cell1.Cell2V6());
-    arma::vec6 gv2 = arma::vec6(cell2.Cell2V6());
+    G6 gv1 = G6(cell1.Cell2V6());
+    G6 gv2 = G6(cell2.Cell2V6());
     for (ii=0; ii < 6; ii++) {
       dprim1[ii] = gv1[ii];
       dprim2[ii] = gv2[ii];

@@ -1,30 +1,31 @@
 
 #include "Reducer.h"
+#include "Delone.h"
 #include "Cell.h"
 #include "NCDist.h"
 #define ARMA_DONT_USE_BLAS
 #define ARMA_DONT_USE_LAPACK
-#include <armadillo>
 #include <iostream>
+#include <cmath>
 #include <stdlib.h>
 
 //*****************************************************************************
-arma::vec6 makeprimredprobe( std::string testlattice,
+G6 makeprimredprobe( std::string testlattice,
 	double a, double b, double c, double alpha, double beta, double gamma )
 {
     std::string latsym;
     char clatsym;
-    arma::vec6 v6cell;
-    arma::vec6 redprimcell;
-    arma::vec6 dredprimcell;
-    arma::mat66 mc;
-    arma::mat66 m;
-    arma::mat66 dm;
-    arma::vec6 primcell;
-    arma::vec6 recipcell;
-    arma::vec6 reducedBase;
-    arma::vec6 primredprobe;
-    arma::vec6 dprimredprobe;
+    G6 v6cell;
+    G6 redprimcell;
+    G6 dredprimcell;
+    Mat66 mc;
+    Mat66 m;
+    Mat66 dm;
+    G6 primcell;
+    G6 recipcell;
+    G6 reducedBase;
+    G6 primredprobe;
+    G6 dprimredprobe;
     double crootvol;
     Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
@@ -72,7 +73,7 @@ arma::vec6 makeprimredprobe( std::string testlattice,
             break;
     }
     ret = Reducer::Reduce(primcell,m,redprimcell,0.0);
-    ret = Reducer::DReduce(primcell,dm,dredprimcell,0.0);
+    ret = Delone::Reduce(primcell,dm,dredprimcell,0.0);
     primredprobe = Cell(redprimcell).CellWithDegrees();
     dprimredprobe = Cell(dredprimcell).CellWithDegrees();
     std::cout << "Primitive Reduced Probe Cell: " <<
@@ -139,7 +140,7 @@ int main(int argc, char ** argv) {
     std::string lat1, lat2;
     double a1,b1,c1,alpha1,beta1,gamma1;
     double a2,b2,c2,alpha2,beta2,gamma2;
-    arma::vec6 prim1, prim2;
+    G6 prim1, prim2;
     double dprim1[6];
     double dprim2[6];
     size_t ii;
@@ -168,8 +169,8 @@ int main(int argc, char ** argv) {
     prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
     Cell cell1 = Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
     Cell cell2 = Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
-    arma::vec6 gv1 = arma::vec6(cell1.Cell2V6());
-    arma::vec6 gv2 = arma::vec6(cell2.Cell2V6());
+    G6 gv1 = G6(cell1.Cell2V6());
+    G6 gv2 = G6(cell2.Cell2V6());
     for (ii=0; ii < 6; ii++) {
       dprim1[ii] = gv1[ii];
       dprim2[ii] = gv2[ii];
