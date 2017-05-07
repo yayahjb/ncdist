@@ -1306,10 +1306,10 @@ double D7Dist(double * gvec1,double * gvec2) {
     dist2 = d7minbddist(gvec2);
     distmin = CD7M_min(dist1,dist2);
     rpasses = NREFL_OUTER_MIN;
+    dist = d71234dist(gvec1,gvec2);
     if (dist1+dist2 <  dist*.999 ) {
         rpasses = NREFL_OUTER_FULL;
     }
-    dist = d71234dist(gvec1,gvec2);
     ndists[0][0] = dist = D7Dist_pass(gvec1,gvec2,dist);
 /* Collect rpasses-1 transformed vectors */
 #pragma omp parallel for schedule(dynamic)
