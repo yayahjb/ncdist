@@ -97,3 +97,45 @@ D7Test:  Cell.cpp CellInputData.cpp D6.cpp D7.cpp D7Test.cpp Delone.cpp DeloneTe
 	ProjectorTools.cpp RandTools.cpp ReadCellData.cpp Reducer.cpp StringTools.cpp VecN.cpp \
 	Vec_N_Tools.cpp VectorTools.cpp inverse.cpp vector_3d.cpp -lpthread
 
+Follower: Cell.cpp CellInputData.cpp CreateFileName.cpp D6.cpp D7.cpp \
+	Delone.cpp DeloneTetrahedron.cpp FileOperations.cpp \
+	FollowerConstants.cpp FollowerIO.cpp FollowerTools.cpp \
+	Follower_main.cpp G6.cpp LinearAxis.cpp MapBoundaryStrings2Colors.cpp \
+	Mat66.cpp Mat7.cpp MatMN.cpp MatN.cpp MaximaTools.cpp \
+	ProjectorTools.cpp RandTools.cpp ReadCellData.cpp \
+	ReadGlobalData.cpp Reducer.cpp ReportTools.cpp \
+	SuperFastHash.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+	inverse.cpp vector_3d.cpp \
+	D7Dist.o NCDist.o \
+	Cell.h CellInputData.h CreateFileName.h D6.h D7.h \
+	D7Dist.h D7Dist_.hpp Delone.h DeloneTetrahedron.h \
+	FileOperations.h FileWriter.h Follow.h Follower.h \
+	FollowerConstants.h FollowerIO.h FollowerTools.h \
+	G6.h Glitch.h GlitchElement.h LinearAxis.h \
+	MapBoundaryStrings2Colors.h Mat66.h Mat7.h \
+	MatMN.h MatN.h MaximaTools.h NCDist.h NCDist_.hpp \
+	NormedInt.h ProjectorTools.h RandTools.h ReadCellData.h \
+	ReadGlobalData.h Reducer.h ReportTools.h Rn_Path.h \
+	SVG_CirclePlot.h SVG_DistancePlot.h SVG_Writer.h \
+	StoreResults.h SuperFastHash.h TNear.h Theta.h \
+	ToString.h VecN.h Vec_N_Tools.h VectorTools.h \
+	cqrlib.h inverse.h rhrand.h triple.h vector_3d.h
+	g++ $(CXXFLAGS) -o Follower \
+	Cell.cpp CellInputData.cpp CreateFileName.cpp D6.cpp D7.cpp \
+	Delone.cpp DeloneTetrahedron.cpp FileOperations.cpp \
+	FollowerConstants.cpp FollowerIO.cpp FollowerTools.cpp \
+	Follower_main.cpp G6.cpp LinearAxis.cpp MapBoundaryStrings2Colors.cpp \
+	Mat66.cpp Mat7.cpp MatMN.cpp MatN.cpp MaximaTools.cpp \
+	ProjectorTools.cpp RandTools.cpp ReadCellData.cpp \
+	ReadGlobalData.cpp Reducer.cpp ReportTools.cpp \
+	SuperFastHash.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+	inverse.cpp vector_3d.cpp \
+	D7Dist.o NCDist.o 
+
+clean:
+	-@rm -rf *.o
+	-@rm -rf *.so
+	-@rm -rf D7Test
+	-@rm -rf Follower
+
+

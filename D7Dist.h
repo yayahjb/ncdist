@@ -531,7 +531,7 @@ static int D7MS[9][49] = {
         0,0,0,0,0,1,0,
         0,0,0,0,1,0,0,
         0,0,0,1,0,0,0,
-        -2,-2,0,0,2,2,1,
+        0,0,2,2,0,0,-1,
         0,1,0,0,0,0,0,
         1,0,0,0,0,0,0}
 
@@ -912,7 +912,7 @@ static void d7twoPminusI(double pg[7], double g[7], double gout[7]) {
 #define NREFL_OUTER_MIN 1
 #else
 #define NREFL_OUTER_FULL 24
-#define NREFL_OUTER_MIN 6
+#define NREFL_OUTER_MIN 8
 #endif
 
 static double d7bddist(double gvec[7],int bdnum) {
@@ -1081,7 +1081,7 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
     
     double d11[4], d12[4], d21[4], d22[4];
     double dg1g2[4];
-    double s1, s2, alpha1, alpha2;
+    double s1, s2, s1par, s2par, s1mpar, s2mpar, alpha1, alpha2;
     double bdint1[7], bdint2[7], mbdint1[7], mbdint2[7];
     double dbdi1bdi2;
     double dist2;
@@ -1176,14 +1176,18 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
             imv7(bdint1, D7MS[bd1], mbdint1);
             imv7(bdint2, D7MS[bd2], mbdint2);
             s1 = CD7M_min(s1, CD7M_gdist(rgv1[jj], mbdint1));
-            s1 = CD7M_min(s1, fabs(d11[jj]) + d71234dist(mpg1, bdint1));
-            s1 = CD7M_min(s1, fabs(d11[jj]) + d71234dist(mpg1, mbdint1));
+            s1par = d71234dist(mpg1, bdint1);
+            s1mpar = d71234dist(mpg1, mbdint1);
+            if (s1mpar < s1par) s1par = s1mpar;
+            s1par = sqrt(d11[jj]*d11[jj]+s1par*s1par);
+            s1 = CD7M_min(s1, s1par);
             if (s1 > dist) return dist;
             s2 = CD7M_min(s2, CD7M_gdist(rgv2[jj], mbdint2));
-            s2 = CD7M_min(s2, fabs(d22[jj]) + d71234dist(mpg2, bdint2));
-            s2 = CD7M_min(s2, fabs(d22[jj]) + d71234dist(mpg2, mbdint2));
+            s2par = d71234dist(mpg2, bdint2);
+            s2mpar = d71234dist(mpg2, mbdint2);
+            if (s2mpar < s2par) s2par = s2mpar;
+            s2par = sqrt(d22[jj]*d22[jj]+s2par*s2par);
             if (s1 + s2 > dist) return dist;
-            
             dbdi1bdi2 = CD7M_min(CD7M_min(CD7M_min(
                                                    d71234dist(bdint1, bdint2),
                                                    d71234dist(bdint1, mbdint2)),
@@ -1291,9 +1295,11 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
 
 double D7Dist(double * gvec1,double * gvec2) {
     int rpasses, ir, irt;
+    int jr;
     double dist,dist1, dist2, distmin;
     double rgvec1[24][7], rgvec2[24][7];
     double trgvec1[24][7], trgvec2[24][7];
+    double ndists[24][24];
     double ndist1[24];
     double ndist2[24];
     dist1 = d7minbddist(gvec1);
@@ -1304,7 +1310,8 @@ double D7Dist(double * gvec1,double * gvec2) {
         rpasses = NREFL_OUTER_FULL;
     }
     dist = d71234dist(gvec1,gvec2);
-    dist = D7Dist_pass(gvec1,gvec2,dist);
+    ndists[0][0] = dist = D7Dist_pass(gvec1,gvec2,dist);
+/* Collect rpasses-1 transformed vectors */
 #pragma omp parallel for schedule(dynamic)
     for (ir = 1; ir < rpasses; ir++) {
         d7cpyvn(7,gvec1,rgvec1[ir]);
@@ -1317,17 +1324,22 @@ double D7Dist(double * gvec1,double * gvec2) {
             d7cpyvn(7,trgvec1[ir],rgvec1[ir]);
             d7cpyvn(7,trgvec2[ir],rgvec2[ir]);
         }
-        ndist1[ir] = D7Dist_pass(rgvec1[ir],gvec2,dist);
-#pragma omp flush(dist,ndist1)
-#pragma omp critical(distminimize)
-        {
-            if (ndist1[ir] < dist) dist = ndist1[ir];
+      ndists[ir][0] = D7Dist_pass(rgvec1[ir],gvec2,dist);
+      ndists[0][ir] = D7Dist_pass(gvec1,rgvec2[ir],dist);
+    }
+    
+#pragma omp parallel for collapse(2) schedule(dynamic)
+    for (ir = 1; ir < rpasses; ir++) {
+        for (jr = 1; jr < rpasses; jr++) {
+            ndists[ir][jr] = D7Dist_pass(rgvec1[ir],rgvec2[jr],dist);
         }
-        ndist2[ir] = D7Dist_pass(gvec1,rgvec2[ir],dist);
-#pragma omp flush(dist,ndist2)
+    }
+    
+#pragma omp flush(dist,ndists)
 #pragma omp critical(distminimize)
-        {
-            if (ndist2[ir] < dist) dist = ndist2[ir];
+    for (ir = 0; ir < rpasses; ir++) {
+        for (jr = 0; jr < rpasses; jr++) {
+            if (ndists[ir][jr] < dist) dist = ndists[ir][jr];
         }
     }
     return dist;
