@@ -6,10 +6,6 @@
 //
 //
 
-/* The projectors for the 15 base types (5-D boundaries
- in G6) plus a few extra for internal boundaries
- Note that the array indices are swapped from the
- Fortan versions */
 #ifndef D7DIST_H
 #define D7DIST_H
 
@@ -19,6 +15,38 @@
 
 #include <math.h>
 #include <float.h>
+
+/*#define D7DIST_DEBUG */
+#ifdef D7DIST_DEBUG
+static int changed=0;
+static double oldvalue;
+#include <stdio.h>
+#define report_double(prolog,value,epilog) \
+oldvalue=value; fprintf(stderr,"%s%g%s",prolog,value,epilog);
+#define report_integer(prolog,value,epilog) \
+fprintf(stderr,"%s%d%s",prolog,value,epilog);
+#define report_double_if_changed(prolog,value,epilog) \
+changed=0; if (fabs(value-oldvalue)>1.e-8*(fabs(value)+fabs(oldvalue)+1.e-12)) {oldvalue=value; changed=1; fprintf(stderr,"%s%g%s",prolog,value,epilog);}
+#define also_if_changed_report(prolog,value,epilog) \
+if(changed) {fprintf(stderr,"%s%s%s",prolog,value,epilog);}
+#define also_if_changed_report_integer(prolog,value,epilog) \
+if(changed) {fprintf(stderr,"%s%d%s",prolog,value,epilog);}
+#define also_if_changed_report_double(prolog,value,epilog) \
+if(changed) {fprintf(stderr,"%s%g%s",prolog,value,epilog);}
+#define also_if_changed_report_double_vector(prolog,value,epilog) \
+if(changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],value[6],epilog);}
+#define report_double_vector(prolog,value,epilog) \
+{fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],value[6],epilog);}
+#else
+#define report_double(prolog,value,epilog)
+#define report_integer(prolog,value,epilog)
+#define report_double_if_changed(prolog,value,epilog)
+#define also_if_changed_report(prolog,value,epilog)
+#define also_if_changed_report_integer(prolog,value,epilog)
+#define also_if_changed_report_double(prolog,value,epilog)
+#define also_if_changed_report_double_vector(prolog,value,epilog)
+#define report_double_vector(prolog,value,epilog)
+#endif
 
 
 #define CD7M_min(a,b) (((a)<(b))?(a):(b))
@@ -346,46 +374,211 @@ static double d7prj_perp[ND7BDPRJ][49]= {
  */
 
 #define D7Refl_1 0
-#define D7Refl_2 1
+#define D7Refl_2 6
 #define D7Refl_3 2
-#define D7Refl_4 3
+#define D7Refl_4 1
 #define D7Refl_term -1
 
-static int D7Refl[4][49] = {
-    /* D7Refl_1 {1,2,3,4,5,6,7},   Ident */
-    {1,0,0,0,0,0,0,
+
+static int D7Refl[24][49]={
+    /*D7Refl_1 {1,2,3,4,5,6,7},   Ident*/
+    /*DR_0*/ {
+        1,0,0,0,0,0,0,
         0,1,0,0,0,0,0,
         0,0,1,0,0,0,0,
         0,0,0,1,0,0,0,
         0,0,0,0,1,0,0,
         0,0,0,0,0,1,0,
         0,0,0,0,0,0,1},
-    /* D7Refl_2 {2,1,3,4,6,5,7},   a <-> b */
-    {0,1,0,0,0,0,0,
+    /*D7Refl_4 {1,2,4,3,6,5,7},   c <-> d */
+    /*DR_1*/ {
         1,0,0,0,0,0,0,
-        0,0,1,0,0,0,0,
+        0,1,0,0,0,0,0,
         0,0,0,1,0,0,0,
+        0,0,1,0,0,0,0,
         0,0,0,0,0,1,0,
         0,0,0,0,1,0,0,
         0,0,0,0,0,0,1},
-    /* D7Refl_3 {1,3,2,4,5,7,6},   b <-> c */
-    {1,0,0,0,0,0,0,
+    /*D7Refl_3 {1,3,2,4,5,7,6},   b <-> c */
+    /*DR_2*/ {
+        1,0,0,0,0,0,0,
         0,0,1,0,0,0,0,
         0,1,0,0,0,0,0,
         0,0,0,1,0,0,0,
         0,0,0,0,1,0,0,
         0,0,0,0,0,0,1,
         0,0,0,0,0,1,0},
-    /* D7Refl_4 {1,2,4,3,6,5,7},   c <-> d */
-    {1,0,0,0,0,0,0,
+    /*DR_3*/ {
+        1,0,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,1,0,0,0,
         0,1,0,0,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,1,0},
+    /*DR_4*/ {
+        1,0,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0},
+    /*DR_5*/ {
+        1,0,0,0,0,0,0,
         0,0,0,1,0,0,0,
         0,0,1,0,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,0,1,0,
+        0,0,0,0,1,0,0},
+    /*D7Refl_2 {2,1,3,4,6,5,7},   a <-> b */
+    /*DR_6*/ {
+        0,1,0,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,1,0,0,0,
         0,0,0,0,0,1,0,
         0,0,0,0,1,0,0,
         0,0,0,0,0,0,1},
-    
+    /*DR_7*/ {
+        0,1,0,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,0,0,1},
+    /*DR_8*/ {
+        0,1,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0},
+    /*DR_9*/ {
+        0,1,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,1,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,0,1,0,
+        0,0,0,0,1,0,0},
+    /*DR_10*/ {
+        0,1,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,0,1,0},
+    /*DR_11*/ {
+        0,1,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,0,1,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,1,0},
+    /*DR_12*/ {
+        0,0,1,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,1,0},
+    /*DR_13*/ {
+        0,0,1,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,0,1,0},
+    /*DR_14*/ {
+        0,0,1,0,0,0,0,
+        0,1,0,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,0,1,0,
+        0,0,0,0,1,0,0},
+    /*DR_15*/ {
+        0,0,1,0,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,0,1,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0},
+    /*DR_16*/ {
+        0,0,1,0,0,0,0,
+        0,0,0,1,0,0,0,
+        1,0,0,0,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,0,0,1}, 
+    /*DR_17*/ {
+        0,0,1,0,0,0,0,
+        0,0,0,1,0,0,0,
+        0,1,0,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,0,1}, 
+    /*DR_18*/ {
+        0,0,0,1,0,0,0,
+        1,0,0,0,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,0,1,0,
+        0,0,0,0,1,0,0}, 
+    /*DR_19*/ {
+        0,0,0,1,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0}, 
+    /*DR_20*/ {
+        0,0,0,1,0,0,0,
+        0,1,0,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,1,0}, 
+    /*DR_21*/ {
+        0,0,0,1,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,1,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,0,1,
+        0,0,0,0,0,1,0}, 
+    /*DR_22*/ {
+        0,0,0,1,0,0,0,
+        0,0,1,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,1,0,0,0,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,0,1}, 
+    /*DR_23*/ {
+        0,0,0,1,0,0,0,
+        0,0,1,0,0,0,0,
+        0,1,0,0,0,0,0,
+        1,0,0,0,0,0,0,
+        0,0,0,0,1,0,0,
+        0,0,0,0,0,1,0,
+        0,0,0,0,0,0,1}
 };
+
 
 /*  The 24 D7 permuations, the first 8 of which are seen in the
     boundary transforms */
@@ -490,9 +683,9 @@ static int D7MS[9][49] = {
         0,0,0,0,0,0,1,
         0,1,0,0,0,0,0,
         0,0,1,0,0,0,0,
-        0,-2,-2,0,1,2,2},
+        2,0,0,2,-1,0,0},
     
-    /* D7M_6 d2->d3, d3->d5, d4->d1, d5->d2, d6->d4, d6-2d1+2d3-d6
+    /* D7M_6 d2->d3, d3->d5, d4->d7, d5->d2, d6->d4, d6->2d1+2d3-d6
        and post permutations 1,2,3,4,5,6,7,8 */
     
     {1,0,0,0,0,0,0,
@@ -668,6 +861,29 @@ static int D7MS[9][49] = {
 
 
 
+/* Test if outside D7 region
+   return 0 if outside */
+
+int d7test(double g[7]) {
+    int retval = 0;
+    if ( fabs(g[0]+ g[1] + g[2] + g[3] - g[4] - g[5] - g[6]) > 1.e-5 ) retval |= 0x1;
+    if ( g[0] + g[3] < g[4] + 1.e-5 ) retval |= 0x2;
+    if ( g[1] + g[3] < g[5] + 1.e-5 ) retval |= 0x4;
+    if ( g[2] + g[3] < g[6] + 1.e-5 ) retval |= 0x8;
+    if ( g[1] + g[2] < g[4] + 1.e-5 ) retval |= 0x10;
+    if ( g[0] + g[2] < g[5] + 1.e-5 ) retval |= 0x20;
+    if ( g[0] + g[1] < g[6] + 1.e-5 ) retval |= 0x40;
+    if ( g[0] <  - 1.e-5 ) retval |= 0x80;
+    if ( g[1] <  - 1.e-5 ) retval |= 0x100;
+    if ( g[2] <  - 1.e-5 ) retval |= 0x200;
+    if ( g[3] <  - 1.e-5 ) retval |= 0x400;
+    if ( g[4] <  - 1.e-5 ) retval |= 0x800;
+    if ( g[5] <  - 1.e-5 ) retval |= 0x1000;
+    if ( g[6] <  - 1.e-5 ) retval |= 0x2000;
+
+    return retval;
+}
+
 
 /* Compute the dot product of 2 D7 vectors */
 
@@ -828,24 +1044,25 @@ static double d71234distsq(double v1[7], double v2[7]) {
     dtrial[3] = CD7M_d7prods_byelem(v1[0],v1[2],v1[3],v1[1],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[4] = CD7M_d7prods_byelem(v1[0],v1[3],v1[1],v1[2],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[5] = CD7M_d7prods_byelem(v1[0],v1[3],v1[2],v1[1],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[6] = CD7M_d7prods_byelem(v1[2],v1[0],v1[1],v1[3],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[7] = CD7M_d7prods_byelem(v1[3],v1[0],v1[1],v1[2],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[8] = CD7M_d7prods_byelem(v1[1],v1[0],v1[2],v1[3],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[9] = CD7M_d7prods_byelem(v1[1],v1[0],v1[3],v1[2],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[10] = CD7M_d7prods_byelem(v1[1],v1[2],v1[0],v1[3],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[11] = CD7M_d7prods_byelem(v1[1],v1[2],v1[3],v1[0],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[12] = CD7M_d7prods_byelem(v1[1],v1[3],v1[0],v1[2],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[13] = CD7M_d7prods_byelem(v1[1],v1[3],v1[2],v1[0],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[14] = CD7M_d7prods_byelem(v1[2],v1[0],v1[3],v1[1],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[15] = CD7M_d7prods_byelem(v1[2],v1[1],v1[0],v1[3],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[16] = CD7M_d7prods_byelem(v1[2],v1[1],v1[3],v1[0],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[17] = CD7M_d7prods_byelem(v1[2],v1[3],v1[0],v1[1],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
-    dtrial[18] = CD7M_d7prods_byelem(v1[2],v1[3],v1[1],v1[0],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[6] = CD7M_d7prods_byelem(v1[1],v1[0],v1[2],v1[3],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[7] = CD7M_d7prods_byelem(v1[1],v1[0],v1[3],v1[2],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[8] = CD7M_d7prods_byelem(v1[1],v1[2],v1[0],v1[3],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[9] = CD7M_d7prods_byelem(v1[1],v1[2],v1[3],v1[0],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[10] = CD7M_d7prods_byelem(v1[1],v1[3],v1[0],v1[2],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[11] = CD7M_d7prods_byelem(v1[1],v1[3],v1[2],v1[0],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[12] = CD7M_d7prods_byelem(v1[2],v1[0],v1[1],v1[3],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[13] = CD7M_d7prods_byelem(v1[2],v1[0],v1[3],v1[1],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[14] = CD7M_d7prods_byelem(v1[2],v1[1],v1[0],v1[3],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[15] = CD7M_d7prods_byelem(v1[2],v1[1],v1[3],v1[0],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[16] = CD7M_d7prods_byelem(v1[2],v1[3],v1[0],v1[1],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[17] = CD7M_d7prods_byelem(v1[2],v1[3],v1[1],v1[0],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    dtrial[18] = CD7M_d7prods_byelem(v1[3],v1[0],v1[1],v1[2],v1[6],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[19] = CD7M_d7prods_byelem(v1[3],v1[0],v1[2],v1[1],v1[5],v1[6],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[20] = CD7M_d7prods_byelem(v1[3],v1[1],v1[0],v1[2],v1[6],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[21] = CD7M_d7prods_byelem(v1[3],v1[1],v1[2],v1[0],v1[4],v1[6],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[22] = CD7M_d7prods_byelem(v1[3],v1[2],v1[0],v1[1],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[23] = CD7M_d7prods_byelem(v1[3],v1[2],v1[1],v1[0],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
+    
     downby = dtrial[0];
     for (i = 1; i < 24; i++) if (dtrial[i] > downby) downby = dtrial[i];
     return (fabs(distsq - downby));
@@ -1068,12 +1285,151 @@ static void d7bdmaps(double gvec[7],
     
 }
 
+/* revised D7Dist_2bds
+ 
+   Compute lengths of paths from gvec1 to gvec2 through bd1 and bd2
+ 
+ */
+
+static double D7Dist_2bds_rev(double gvec1[7], double gvec2[7],
+                           double pg11[7], double mpg11[7],
+                           double pg21[7], double mpg21[7], int bd1,
+                           double pg22[7], double mpg22[7],
+                           double pg12[7], double mpg12[7], int bd2,
+                           double dist) {
+    
+    double h11, h12, h21, h22;
+    double alpha11, alpha12, alpha21, alpha22;
+    double bdint11[7], bdint12[7], mbdint11[7], mbdint12[7];
+    double bdint21[7], bdint22[7], mbdint21[7], mbdint22[7];
+    int ii;
+    double d1bd11, d1mbd11, d1bd12, d1mbd12;
+    double d1bd21, d1mbd21, d1bd22, d1mbd22;
+    double d2bd11, d2mbd11, d2bd12, d2mbd12;
+    double d2bd21, d2mbd21, d2bd22, d2mbd22;
+    double d1bd11bd21, d1bd11mbd21;
+    double d1bd11bd22, d1bd11mbd22;
+    double d1mbd11bd21, d1mbd11mbd21;
+    double d1mbd11bd22, d1mbd11mbd22;
+    double bd11bd21, bd11mbd21, bd11bd22, bd11mbd22;
+    double mbd11bd21, mbd11mbd21, mbd11bd22, mbd11mbd22;
+
+    
+    /* distances from gvec1 and gvec2 to bd1 and bd1 */
+    
+    h11 = fabs(d7bddist(gvec1, bd1));
+    h12 = fabs(d7bddist(gvec1, bd2));
+    h21 = fabs(d7bddist(gvec2, bd1));
+    h22 = fabs(d7bddist(gvec2, bd2));
+    
+    /* the portions of a minimal mirror path off each boundary */
+    
+    if (h11+h21 < (h11+1.e-10)*1.e-10) {
+        alpha11 = 0.;
+    } else {
+        alpha11 = h11/(h11+h21);
+    }
+    if (h11+h21 < (h21+1.e-10)*1.e-10) {
+        alpha21 = 0.;
+    } else {
+        alpha21 = h21/(h11+h21);
+    }
+    if (h12+h22 < (h12+1.e-10)*1.e-10) {
+        alpha12 = 0.;
+    } else {
+        alpha12 = h12/(h12+h22);
+    }
+    if (h12+h22 < (h22+1.e-10)*1.e-10) {
+        alpha22 = 0.;
+    } else {
+        alpha22 = h22/(h12+h22);
+    }
+    
+    if (alpha11 > 1.) alpha11 = 1.;
+    if (alpha12 > 1.) alpha12 = 1.;
+    if (alpha21 > 1.) alpha21 = 1.;
+    if (alpha22 > 1.) alpha22 = 1.;
+    
+    
+    if (alpha11 + alpha21 < 0.9999) alpha11 = alpha21 = 0.5;
+    if (alpha12 + alpha22 < 0.9999) alpha21 = alpha22 = 0.5;
+    
+    for (ii = 0; ii < 7; ii++) {
+        bdint11[ii] = pg11[ii] + alpha11*(pg21[ii] - pg11[ii]);
+        bdint12[ii] = pg12[ii] + alpha12*(pg22[ii] - pg12[ii]);
+        bdint21[ii] = pg21[ii] - alpha21*(pg21[ii] - pg11[ii]);
+        bdint22[ii] = pg22[ii] - alpha12*(pg22[ii] - pg12[ii]);
+    }
+    imv7(bdint11, D7MS[bd1], mbdint11);
+    imv7(bdint12, D7MS[bd2], mbdint12);
+    imv7(bdint21, D7MS[bd1], mbdint21);
+    imv7(bdint22, D7MS[bd2], mbdint22);
+    
+    /* possible routes
+     gvec1 - bdint11 - gvec2
+     gvec1 - mbdint11 - gvec2
+     gvec1 - bdint12 - gvec2
+     gvec1 - mbdint12 - gvec2
+     
+     gvec1 - bdint21 - gvec2
+     gvec1 - mbdint21 - gvec2
+     gvec1 - bdint22 - gvec2
+     gvec1 - mbdint22 - gvec2
+     
+     gvec1 - bdint11, mbdint11 - gvec2
+     gvec1 - bdint21, mbdint21 - gvec2
+     
+     gvec1 - mbdint11, bdint11 - gvec2
+     gvec1 - mbdint11 - mbdint21 - gvec2
+     gvec1 - mbdint11 - bdint22 - gvec2
+     gvec1 - mbdint11 - mbdint22 - gvec2
+     
+     */
+    
+    
+    d1bd11 = d71234dist(gvec1,bdint11);
+    d1mbd11 = d71234dist(gvec1,mbdint11);
+    d1bd12 = d71234dist(gvec1,bdint12);
+    d1mbd12 = d71234dist(gvec1,mbdint12);
+    d1bd21 = d71234dist(gvec1,bdint21);
+    d1mbd21 = d71234dist(gvec1,bdint21);
+    d1bd22 = d71234dist(gvec1,bdint22);
+    d1mbd22 = d71234dist(gvec1,bdint22);
+    d2bd11 = d71234dist(gvec2,bdint11);
+    d2mbd11 = d71234dist(gvec2,mbdint11);
+    d2bd12 = d71234dist(gvec2,bdint12);
+    d2mbd12 = d71234dist(gvec2,mbdint12);
+    d2bd21 = d71234dist(gvec2,bdint21);
+    d2mbd21 = d71234dist(gvec2,bdint21);
+    d2bd22 = d71234dist(gvec2,bdint22);
+    d2mbd22 = d71234dist(gvec2,bdint22);
+    
+    
+    if (d1bd11 + d2bd11 < dist) dist = d1bd11 + d2bd11;
+    if (d1mbd11 + d2mbd11 < dist) dist = d1mbd11 + d2mbd11;
+    if (d1mbd11 + d2bd11 < dist) dist = d1mbd11 + d2bd11;
+    if (d1mbd11 + d2mbd11 < dist) dist = d1mbd11 + d2mbd11;
+    
+    if (d1bd12 + d2bd12 < dist) dist = d1bd12 + d2bd12;
+    if (d1mbd12 + d2mbd12 < dist) dist = d1mbd12 + d2mbd12;
+    if (d1mbd12 + d2bd12 < dist) dist = d1mbd12 + d2bd12;
+    if (d1mbd12 + d2mbd12 < dist) dist = d1mbd12 + d2mbd12;
+    
+    return dist;
+    
+}
+
+
+
+
+#include <stdio.h>
+
 /* Compute the minimal distance between gvec1 and gvec2 going
  through bd1 and bd2, assuming rgvec1 and rgevc2 are their
  reflections in those boundaries.
  
  */
-static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
+static double oD7Dist_2bds(double gvec1[7], double rgvec1[7],
                           double pg1[7], double mpg1[7], int bd1,
                           double gvec2[7], double rgvec2[7],
                           double pg2[7], double mpg2[7], int bd2,
@@ -1088,6 +1444,24 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
     double * rgv1[4];
     double * rgv2[4];
     int ii, jj;
+    
+/*     if (d7test(gvec1)
+        ||  d7test(gvec2)
+        ||  d7test(pg1)
+        ||  d7test(pg2)
+        ||  d7test(mpg1)
+        ||  d7test(mpg2)) {
+#pragma omp critical(distminimize)
+        {
+        fprintf(stderr,"d7test(gvec1) %x d7test(rgvec1) %x d7test(gvec2) %x d7test(rgvec2) %x d7test(pg1) %x !dttest(pg2) %x d7test(mpg1) %x dttest(mpg2) %x bd1 %d bd2 %x \n",
+                d7test(gvec1),d7test(rgvec1),d7test(gvec2),d7test(rgvec2),d7test(pg1),!d7test(pg2),d7test(mpg1),!d7test(mpg2), bd1, bd2 );
+        fprintf (stderr,"gvec1: [%g,%g,%g,%g,%g,%g,%g]\n", gvec1[0],gvec1[1],gvec1[2],gvec1[3],gvec1[4],gvec1[5],gvec1[6]);
+        fprintf (stderr,"rgvec1: [%g,%g,%g,%g,%g,%g,%g]\n", rgvec1[0],rgvec1[1],rgvec1[2],rgvec1[3],rgvec1[4],rgvec1[5],rgvec1[6]);
+        fprintf (stderr,"gvec2: [%g,%g,%g,%g,%g,%g,%g]\n", gvec2[0],gvec2[1],gvec2[2],gvec2[3],gvec2[4],gvec2[5],gvec2[6]);
+        fprintf (stderr,"rgvec2: [%g,%g,%g,%g,%g,%g,%g]\n", rgvec2[0],rgvec2[1],rgvec2[2],rgvec2[3],rgvec2[4],rgvec2[5],rgvec2[6]);
+        }
+    }
+ */
     
     
     d11[0] = d7bddist(gvec1, bd1);
@@ -1155,13 +1529,13 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
         if (d11[jj] * d21[jj] <= 1.e-38 && d22[jj] * d12[jj] <= 1.e-38) {
             /* (r)gvec1 and (r)gvec2 are on opposite sides of both
              boundaries*/
-            if (fabs(d11[jj]) < 1.e-38) {
+            if (fabs(d11[jj]) <= 1.e-6 *(dist + fabs(d11[jj]) + fabs(d21[jj]))) {
                 alpha1 = 0.;
             }
             else {
                 alpha1 = CD7M_min(1., fabs(d11[jj]) / (fabs(d11[jj]) + fabs(d21[jj])));
             }
-            if (fabs(d22[jj]) < 1.e-38) {
+            if (fabs(d22[jj]) < 1.e-6 *(dist + fabs(d22[jj]) + fabs(d12[jj]))) {
                 alpha2 = 0.;
             }
             else {
@@ -1179,14 +1553,14 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
             s1par = d71234dist(mpg1, bdint1);
             s1mpar = d71234dist(mpg1, mbdint1);
             if (s1mpar < s1par) s1par = s1mpar;
-            s1par = sqrt(d11[jj]*d11[jj]+s1par*s1par);
+            s1par = fabs(d11[jj])+fabs(s1par);
             s1 = CD7M_min(s1, s1par);
             if (s1 > dist) return dist;
             s2 = CD7M_min(s2, CD7M_gdist(rgv2[jj], mbdint2));
             s2par = d71234dist(mpg2, bdint2);
             s2mpar = d71234dist(mpg2, mbdint2);
             if (s2mpar < s2par) s2par = s2mpar;
-            s2par = sqrt(d22[jj]*d22[jj]+s2par*s2par);
+            s2par = fabs(d22[jj])+fabs(s2par);
             if (s1 + s2 > dist) return dist;
             dbdi1bdi2 = CD7M_min(CD7M_min(CD7M_min(
                                                    d71234dist(bdint1, bdint2),
@@ -1194,6 +1568,16 @@ static double D7Dist_2bds(double gvec1[7], double rgvec1[7],
                                           d71234dist(mbdint1, bdint2)),
                                  d71234dist(mbdint1, mbdint2));
             dist = CD7M_min(dist, s1 + s2 + dbdi1bdi2);
+            report_double_if_changed("\n ndists[ir][jr] ", dist, ", ");
+            also_if_changed_report_integer("jj =",jj,", ");
+            also_if_changed_report_double("s1 =",s1,"\n");
+            also_if_changed_report_double("s2 =",s2,"\n");
+            also_if_changed_report_double("dbdi1bdi2 =",dbdi1bdi2,"\n");
+            also_if_changed_report_double("d71234dist(bdint1, bdint2) =",d71234dist(bdint1, bdint2),"\n");
+            also_if_changed_report_double("d71234dist(bdint1, mbdint2) =",d71234dist(bdint1, mbdint2),"\n");
+            also_if_changed_report_double("d71234dist(mbdint1, bdint2) =",d71234dist(mbdint1, bdint2),"\n");
+            also_if_changed_report_double("d71234dist(mbdint1, mbdint2) =",d71234dist(mbdint1, mbdint2),"\n");
+
         }
         
     }
@@ -1225,7 +1609,7 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
     int iord1[ND7BND],iord2[ND7BND];
     double mindists1;
     double mindists2;
-    int jx1, jx2;
+    int jx1,jx2;
     int j1,j2;
     int ngood1,ngood2;
     double maxdist;
@@ -1244,6 +1628,7 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
         for (jx1 = 0; jx1 < ngood1; jx1++) {
             double d1;
             j1 = iord1[jx1];
+            if (j1 == P_7 || j1 == P_9) continue;
             d1 = dists1[j1];
 
             if (d1 < maxdist){
@@ -1253,6 +1638,7 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
         for (jx2 = 0; jx2 < ngood2; jx2++) {
             double d2;
             j2 = iord2[jx2];
+            if (j2 == P_7 || j2 == P_9) continue;
             d2 = dists2[j2];
             if (d2 < maxdist) {
                 dist = CD7M_min(dist,(d71234dist(gvec1,mpgs2[j2])+d2));
@@ -1265,15 +1651,17 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
     for (jx1 = 0; jx1 < ngood1; jx1++) {
         double d1;
         j1 = iord1[jx1];
+        if (j1 == P_7 || j1 == P_9 ) continue;
         d1 = dists1[j1];
         if (d1 < maxdist) {
             for (jx2 = 0; jx2 < ngood2; jx2++) {
                 double d2;
                 j2 = iord2[jx2];
+                if (j2 == P_7 || j2 == P_9 ) continue;
                 d2 = dists2[j2];
                 if (d2 < maxdist) {
-                    dist = D7Dist_2bds(gvec1, rgs1[j1], pgs1[j1], mpgs1[j1], j1,
-                                       gvec2, rgs2[j2], pgs2[j2], mpgs2[j2], j2, dist);
+                    dist = D7Dist_2bds_rev(gvec1, gvec2, pgs1[j1], mpgs1[j1], pgs2[j1], mpgs2[j1],j1,
+                                        pgs2[j2], mpgs2[j2], pgs1[j2], mpgs1[j2], j2, dist);
                     
                 }
             }
@@ -1302,11 +1690,15 @@ double D7Dist(double * gvec1,double * gvec2) {
     double ndists[24][24];
     double ndist1[24];
     double ndist2[24];
+    double temp[24];
     dist1 = d7minbddist(gvec1);
     dist2 = d7minbddist(gvec2);
     distmin = CD7M_min(dist1,dist2);
     rpasses = NREFL_OUTER_MIN;
     dist = d71234dist(gvec1,gvec2);
+    report_double("\n  Entered D7Dist gdist = ",dist,", ");
+    report_double_vector("gvec1 = ", gvec1,", ")
+    report_double_vector("gvec2 = ", gvec2,";")
     if (dist1+dist2 <  dist*.999 ) {
         rpasses = NREFL_OUTER_FULL;
     }
@@ -1314,18 +1706,10 @@ double D7Dist(double * gvec1,double * gvec2) {
 /* Collect rpasses-1 transformed vectors */
 #pragma omp parallel for schedule(dynamic)
     for (ir = 1; ir < rpasses; ir++) {
-        d7cpyvn(7,gvec1,rgvec1[ir]);
-        d7cpyvn(7,gvec2,rgvec2[ir]);
-        for (irt=0; irt<8; irt++) {
-            if (D7Perm[ir][irt]==D7Refl_1) continue;
-            if (D7Perm[ir][irt]==D7Refl_term) break;
-            imv7(rgvec1[ir],D7Refl[D7Perm[ir][irt]],trgvec1[ir]);
-            imv7(rgvec2[ir],D7Refl[D7Perm[ir][irt]],trgvec2[ir]);
-            d7cpyvn(7,trgvec1[ir],rgvec1[ir]);
-            d7cpyvn(7,trgvec2[ir],rgvec2[ir]);
-        }
-      ndists[ir][0] = D7Dist_pass(rgvec1[ir],gvec2,dist);
-      ndists[0][ir] = D7Dist_pass(gvec1,rgvec2[ir],dist);
+        imv7(gvec1,D7Refl[ir],rgvec1[ir]);
+        imv7(gvec2,D7Refl[ir],rgvec2[ir]);
+        ndists[ir][0] = D7Dist_pass(rgvec1[ir],gvec2,dist);
+        ndists[0][ir] = D7Dist_pass(gvec1,rgvec2[ir],dist);
     }
     
 #pragma omp parallel for collapse(2) schedule(dynamic)
@@ -1340,6 +1724,9 @@ double D7Dist(double * gvec1,double * gvec2) {
     for (ir = 0; ir < rpasses; ir++) {
         for (jr = 0; jr < rpasses; jr++) {
             if (ndists[ir][jr] < dist) dist = ndists[ir][jr];
+            report_double_if_changed("\n ndists[ir][jr] ", dist, ", ");
+            also_if_changed_report_integer("ir =",ir,", ");
+            also_if_changed_report_integer("jr =",jr,"\n");
         }
     }
     return dist;
