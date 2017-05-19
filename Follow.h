@@ -12,6 +12,7 @@
 #include "Cell.h"
 #include "CellInputData.h"
 #include "Delone.h"
+#include "DeloneTetrahedron.h"
 //#include "D7Dist.h"
 #include "D7Dist_.hpp"
 #include "FollowerConstants.h"
@@ -23,6 +24,7 @@
 
 #include <cassert>
 #include <list>
+#include <typeinfo>
 #include <utility>
 
 
@@ -60,31 +62,39 @@ public:
       Mat66 m;
       const double tend(double(m_steps - 1L));
 
-      const TVEC probe = m_rnPath.GetProbe();
-      TVEC reducedSecondProbe = m_rnPath.GetSecondProbe();
-      const D7 d7_1(reducedSecondProbe);
-      double ar6_1[6], ar7_1[7];
-      ProjectorTools::ConvertG6ToArray(reducedSecondProbe, ar6_1);
-      ProjectorTools::ConvertD7ToArray(d7_1, ar7_1);
+      TVEC probe;
+      probe = m_rnPath.GetProbe();
+      G6 niggliReduced_1;
+      niggliReduced_1 = m_rnPath.GetSecondProbe();
+      G6 test;
+      test = Reducer::Reduce(niggliReduced_1);
+      if (!test.GetValid()) throw;
+      G6 g6DeloneReduced_1;
+      const bool testtest = Delone::Reduce(niggliReduced_1, m, g6DeloneReduced_1, 0.0);   // for Delone::Reduce
+
+      double g6NiggliReducedArray_1[6], d7DeloneReducedArray_1[7];
+      double g6NiggliReducedArray_2[6], d7DeloneReducedArray_2[7];
+      ProjectorTools::ConvertG6ToArray(niggliReduced_1, g6NiggliReducedArray_1);
+      ProjectorTools::ConvertD7ToArray(D7(g6DeloneReduced_1), d7DeloneReducedArray_1);
 
       for (long istep = 0; istep < m_steps; ++istep) {
          const double t(double(istep) / tend);
-         const TVEC vNext(((1.0 - t)*probe) + (t*reducedSecondProbe));
-         G6 v6Red6, v6Red7;
-         const bool b6 = Reducer::Reduce(G6(vNext), m, v6Red6, 0.0);   // for Reducer::Reduce
-         const bool b7 = Delone::Reduce (G6(vNext), m, v6Red7, 0.0);   // for Delone::Reduce
+         TVEC vNext;
+         vNext = TVEC(TVEC((1.0 - t)*probe) + TVEC(t*niggliReduced_1));
+         G6 g6vNext(vNext);
+         G6 g6NiggliReduced_2, g6DeloneReduced_2;
+         const bool b6 = Reducer::Reduce(g6vNext, m, g6NiggliReduced_2, 0.0);   // for Reducer::Reduce
+         const bool b7 = Delone:: Reduce(g6vNext, m, g6DeloneReduced_2, 0.0);   // for Delone::Reduce
          if (b6&&b7) {
-            const D7 d7_2(v6Red6);
-            double ar6_2[6], ar7_2[7];
-            ProjectorTools::ConvertG6ToArray(v6Red6, ar6_2);
-            ProjectorTools::ConvertD7ToArray(d7_2, ar7_2);
-            const double dist7 = D7Dist_<double [7], double [7] >(ar7_1, ar7_2);
-            const double dist6 = NCDist_<double [6], double [6] >(ar6_1, ar6_2);
-            double dist7A = D7Dist_<D7, D7>(d7_1, d7_2);
+            ProjectorTools::ConvertG6ToArray(g6NiggliReduced_2, g6NiggliReducedArray_2);
+            ProjectorTools::ConvertD7ToArray(D7(g6DeloneReduced_2), d7DeloneReducedArray_2);
+            const double dist6 = NCDist_<double[6], double[6] >(g6NiggliReducedArray_1, g6NiggliReducedArray_2);
+            const double dist7 = D7Dist_<double[7], double[7] >(d7DeloneReducedArray_1, d7DeloneReducedArray_2);
+            //double dist7A = D7Dist_<D7, D7>(d7DeloneReduced_1, d7DeloneReduced_2);
 
             m_rnPath.AddDistance(dist6);
-            m_rnPath.AddDeloneDistance(dist7A);
-            m_rnPath.Add(vNext, TVEC(v6Red7));
+            m_rnPath.AddDeloneDistance(dist7);
+            m_rnPath.Add(vNext, TVEC(g6DeloneReduced_2));
          }
          else {
             std::cout << "Reduce failed in Procession " << vNext << std::endl;
@@ -144,8 +154,17 @@ public:
       assert(!m_rnPath.empty());
       return(m_rnPath.GetCirclePlotDiagonal());
    }
+
    const std::pair<int, int> GetWhichToPlot(void) const { return(m_whichComponentsToPlot); }
-   std::string               GetBoundaryString(const size_t n) const { return(m_rnPath.GetBoundaryString(n)); }
+
+   std::string GetBoundaryString(const size_t n) const {
+      if (typeid(TVEC) == typeid(G6))
+         return(m_rnPath.G6GetBoundaryString(n));
+      else if (typeid(TVEC) == typeid(D7))
+         return(m_rnPath.D7GetBoundaryString(n));
+      else
+         throw;
+   }
 
    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
    const std::vector<TVEC> GetProbeList(void) const {

@@ -5,8 +5,9 @@
 #include <iostream>
 
 //#include "NC_Boundary.h"
-#include "Mat66.h"
+#include "D7.h"
 #include "G6.h"
+#include "Mat66.h"
 #include "ProjectorTools.h"
 
 //mat66 ProjectorTools::ConvertStringToPerp(const std::string& s) {
@@ -147,8 +148,8 @@ void ProjectorTools::ConvertG6ToArray(const G6 & v, double a[6]) {
    a[5] = v[5];
 }
 
-D7 ProjectorTools::ConvertArrayToD7(const double a[7]) {
-   G6 v;
+D7 ProjectorTools::ConvertArrayToD7(const double a[]) {
+   D7 v;
    v[0] = a[0];
    v[1] = a[1];
    v[2] = a[2];

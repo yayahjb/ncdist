@@ -67,45 +67,6 @@ if(changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g, %g]%s",prolog,value[0],v
 #define ND7BDPRJ 9
 
 
-
-#define P_1   0
-#define P_2   1
-#define P_3   2
-#define P_4   3
-#define P_5   4
-#define P_6   5
-#define P_7   6
-#define P_8   7
-#define P_9   8
-#define P_A   9
-#define P_B  10
-#define P_C  11
-#define P_D  12
-#define P_E  13
-#define P_F  14
-#define P_6C 15
-#define P_67 16
-#define P_9A 17
-#define P_CD 18
-#define P_12 19
-#define P_8B 20
-#define P_8E 21
-#define P_8F 22
-#define P_BF 23
-#define P_EF 24
-#define P_28F 25
-#define P_2BF 26
-#define P_2EF 27
-#define P_269 28
-#define P_26C 29
-#define P_2F  30
-#define P_27  31
-#define P_2A  32
-#define P_2D  33
-#define P_28E  34
-#define P_28B  35
-
-
 /* D7Dist Boundary projectors */
 
 static double d7prj[ND7BDPRJ][49]= {
@@ -750,111 +711,6 @@ static int D7MS[9][49] = {
 #define M_E 13
 #define M_F 14
 
-#define bdf_P_2F 0
-#define bdf_M_2_P_2F  1           /* on 2F */
-#define bdf_M_F_M_2_P_2F 2        /* on 2F */
-#define bdf_M_F_P_2F 3            /* on 2F */
-#define bdf_M_2_M_F_P_2F 4        /* on 2F */
-
-#define bdf_P_69 1                /* on 69 */
-#define bdf_M_6_P_69 5            /* on 8F (+++--- tunnel) */
-#define bdf_M_9_P_69 6            /* on BF (+++--- tunnel) */
-#define bdf_M_F_M_6_P_69 7        /* in BF (+++--- tunnel) */
-#define bdf_M_F_M_9_P_69 8        /* in 8F (+++--- tunnel) */
-
-#define bdf_P_6C 2                /* on 6C */
-#define bdf_M_C_P_6C 9            /* on EF (+++--- tunnel) */
-#define bdf_M_F_M_C_P_6C 10       /* on EF (+++--- tunnel) */
-#define bdf_M_6_P_6C 11           /* on 8E (+++--- tunnel) */
-
-#define bdf_P_8B  3
-
-#define bdf_P_8E  4
-#define bdf_M_8_P_8E 12           /* on 8B */
-
-#define bdf_P_8F 5                /* on 8F */
-#define bdf_M_8_P_8F  13          /* on 69 (---+++ tunnel) */
-#define bdf_M_F_P_8F 14           /* on BF */
-#define bdf_M_B_M_F_P_8F  15      /* on 69 (---+++ tunnel) */
-
-#define bdf_P_BF 6                /* on BF */
-#define bdf_M_B_P_BF 16           /* on 69 (---+++ tunnel) */
-#define bdf_M_F_P_BF 17           /* on 8F */
-#define bdf_M_8_M_F_P_BF 18       /* on 69 (---+++ tunnel)*/
-
-#define bdf_P_EF 7                /* on EF */
-#define bdf_M_E_P_EF 19           /* on 6C (---+++ tunnel) */
-#define bdf_M_6_M_E_P_EF 20       /* on 8E */
-#define bdf_M_F_P_EF 21           /* on EF */
-
-#define bdf_P_269 8
-#define bdf_M_2_P_269 22          /* on 26C */
-#define bdf_M_6_P_269 23          /* on 28F */
-#define bdf_M_9_P_269 24          /* on 2BF */
-#define bdf_M_2_M_6_P_269 25      /* on 28F */
-#define bdf_M_2_M_9_P_269 26      /* on 2EF */
-
-
-#define bdf_P_26C 9
-#define bdf_M_2_P_26C 27          /* on 269 */
-#define bdf_M_6_P_26C 28          /* on 28E */
-#define bdf_M_C_P_26C 29          /* on 2EF */
-#define bdf_M_2_M_6_P_26C 30      /* on 28B */
-#define bdf_M_2_M_C_P_26C 31      /* on 2BF */
-
-#define bdf_P_28F 10
-#define bdf_M_2_P_28F 32          /* on 28F */
-#define bdf_M_8_P_28F 33          /* on 269 */
-#define bdf_M_F_P_28F 34          /* on 2BF */
-#define bdf_M_F_M_2_P_28F 35      /* on 2BF */
-#define bdf_M_2_M_F_M_2_P_28F 36  /* on 2EF */
-
-
-
-#define bdf_P_2BF 11
-#define bdf_M_2_P_2BF  37         /* on 2EF */
-#define bdf_M_B_P_2BF  38         /* on 28F */
-#define bdf_M_F_P_2BF  39         /* on 2BF */
-#define bdf_M_F_M_2_P_2BF 40      /* on 2EF */
-#define bdf_M_2_M_F_M_2_P_2BF 41  /* on 2BF */
-
-
-
-#define bdf_P_2EF 12
-#define bdf_M_2_P_2EF 42          /* on 2BF */
-#define bdf_M_E_P_2EF 43          /* on 26C */
-#define bdf_M_F_P_2EF 44          /* on 2EF */
-#define bdf_M_F_M_2_P_2EF 45      /* on 28F */
-#define bdf_M_2_M_F_M_2_P_2EF 46  /* on 28F */
-
-#define bdf_P_27 13
-#define bdf_M_2_P_27  47          /* on 27 */
-#define bdf_M_7_M_2_P_27 48       /* on 27 */
-#define bdf_M_7_P_27 49           /* on 27 */
-#define bdf_M_2_M_7_P_27 50       /* on 27 */
-
-#define bdf_P_2A 14
-#define bdf_M_2_P_2A 51           /* on 2D */
-#define bdf_M_D_M_2_P_2A 52       /* on 2D */
-#define bdf_M_A_P_2A 53           /* on 2A */
-#define bdf_M_2_M_A_P_2A 54       /* on 2D */
-
-#define bdf_P_2D 15
-#define bdf_M_2_P_2D 55           /* on 2A */
-#define bdf_M_A_M_2_P_2D 56       /* on 2A */
-#define bdf_M_D_P_2D 57           /* on 2D */
-#define bdf_M_2_M_D_P_2D 58       /* on 2A */
-
-#define bdf_P_28E 16
-#define bdf_M_2_P_28E  59         /* on 28B */
-#define bdf_M_8_P_28E  60         /* on 26C */
-#define bdf_M_2_M_8_P_28E 61      /* on 269 */
-
-#define bdf_P_28B 17
-#define bdf_M_2_P_28B 62          /* on 28E */
-#define bdf_M_8_M_2_P_28B 63      /* on 26C */
-#define bdf_M_2_M_8_M_2_P_28B 64  /* on 269 */
-
 
 #define NMPGS            65
 #define NPGS             18
@@ -1033,7 +889,7 @@ v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6])))
 
 static double d71234distsq(double v1[7], double v2[7]) {
     double distsq;
-    double downby;
+    double dwnby;
     double dtrial[24];
     int i;
     distsq = v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2] + v1[3]*v1[3] + v1[4]*v1[4] + v1[5]*v1[5] + v1[6]*v1[6]
@@ -1063,9 +919,9 @@ static double d71234distsq(double v1[7], double v2[7]) {
     dtrial[22] = CD7M_d7prods_byelem(v1[3],v1[2],v1[0],v1[1],v1[5],v1[4],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     dtrial[23] = CD7M_d7prods_byelem(v1[3],v1[2],v1[1],v1[0],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]);
     
-    downby = dtrial[0];
-    for (i = 1; i < 24; i++) if (dtrial[i] > downby) downby = dtrial[i];
-    return (fabs(distsq - downby));
+    dwnby = dtrial[0];
+    for (i = 1; i < 24; i++) if (dtrial[i] > dwnby) dwnby = dtrial[i];
+    return (fabs(distsq - dwnby));
 }
 
 #define d71234dist(v1,v2) sqrt(d71234distsq(v1,v2))
@@ -1155,15 +1011,15 @@ static double d7bddist(double gvec[7],int bdnum) {
     if (bdnum < ND7BND) {
         
         switch(bdnum) {
-            case(P_1): return -d7dotprod(D7N_1x,gvec); break;
-            case(P_2): return -d7dotprod(D7N_2x,gvec); break;
-            case(P_3): return -d7dotprod(D7N_3x,gvec); break;
-            case(P_4): return -d7dotprod(D7N_4x,gvec); break;
-            case(P_5): return -d7dotprod(D7N_5x,gvec); break;
-            case(P_6): return -d7dotprod(D7N_6x,gvec); break;
-            case(P_7): return -d7dotprod(D7N_7x,gvec); break;
-            case(P_8): return -d7dotprod(D7N_8x,gvec); break;
-            case(P_9): return -d7dotprod(D7N_9x,gvec); break;
+            case(D7P_1): return -d7dotprod(D7N_1x,gvec); break;
+            case(D7P_2): return -d7dotprod(D7N_2x,gvec); break;
+            case(D7P_3): return -d7dotprod(D7N_3x,gvec); break;
+            case(D7P_4): return -d7dotprod(D7N_4x,gvec); break;
+            case(D7P_5): return -d7dotprod(D7N_5x,gvec); break;
+            case(D7P_6): return -d7dotprod(D7N_6x,gvec); break;
+            case(D7P_7): return -d7dotprod(D7N_7x,gvec); break;
+            case(D7P_8): return -d7dotprod(D7N_8x,gvec); break;
+            case(D7P_9): return -d7dotprod(D7N_9x,gvec); break;
                 
             default: return DBL_MAX; break;
         }
@@ -1182,15 +1038,15 @@ static double d7minbddist(double gvec[7]) {
     int ii;
     double dists[9];
     double minbd;
-    dists[0] = fabs(d7bddist(gvec,P_1));
-    dists[1] = fabs(d7bddist(gvec,P_2));
-    dists[2] = fabs(d7bddist(gvec,P_3));
-    dists[3] = fabs(d7bddist(gvec,P_4));
-    dists[4] = fabs(d7bddist(gvec,P_5));
-    dists[5] = fabs(d7bddist(gvec,P_6));
-    dists[6] = fabs(d7bddist(gvec,P_7));
-    dists[7] = fabs(d7bddist(gvec,P_8));
-    dists[8] = fabs(d7bddist(gvec,P_9));
+    dists[0] = fabs(d7bddist(gvec,D7P_1));
+    dists[1] = fabs(d7bddist(gvec,D7P_2));
+    dists[2] = fabs(d7bddist(gvec,D7P_3));
+    dists[3] = fabs(d7bddist(gvec,D7P_4));
+    dists[4] = fabs(d7bddist(gvec,D7P_5));
+    dists[5] = fabs(d7bddist(gvec,D7P_6));
+    dists[6] = fabs(d7bddist(gvec,D7P_7));
+    dists[7] = fabs(d7bddist(gvec,D7P_8));
+    dists[8] = fabs(d7bddist(gvec,D7P_9));
     
     minbd = dists[0];
     for (ii=1; ii<9; ii++) {
@@ -1241,15 +1097,15 @@ static void d7bdmaps(double gvec[7],
                        3/(2*sqrt(21)),3/(2*sqrt(21)),-2/sqrt(21)};
     
     
-    dists[P_1] = fabs(d7dotprod(D7N_1x,gvec));
-    dists[P_2] = fabs(d7dotprod(D7N_2x,gvec));
-    dists[P_3] = fabs(d7dotprod(D7N_3x,gvec));
-    dists[P_4] = fabs(d7dotprod(D7N_4x,gvec));
-    dists[P_5] = fabs(d7dotprod(D7N_5x,gvec));
-    dists[P_6] = fabs(d7dotprod(D7N_6x,gvec));
-    dists[P_7] = fabs(d7dotprod(D7N_7x,gvec));
-    dists[P_8] = fabs(d7dotprod(D7N_8x,gvec));
-    dists[P_9] = fabs(d7dotprod(D7N_9x,gvec));
+    dists[D7P_1] = fabs(d7dotprod(D7N_1x,gvec));
+    dists[D7P_2] = fabs(d7dotprod(D7N_2x,gvec));
+    dists[D7P_3] = fabs(d7dotprod(D7N_3x,gvec));
+    dists[D7P_4] = fabs(d7dotprod(D7N_4x,gvec));
+    dists[D7P_5] = fabs(d7dotprod(D7N_5x,gvec));
+    dists[D7P_6] = fabs(d7dotprod(D7N_6x,gvec));
+    dists[D7P_7] = fabs(d7dotprod(D7N_7x,gvec));
+    dists[D7P_8] = fabs(d7dotprod(D7N_8x,gvec));
+    dists[D7P_9] = fabs(d7dotprod(D7N_9x,gvec));
                 
     
     for (jj=0; jj < ND7BND; jj++) {
@@ -1287,133 +1143,124 @@ static void d7bdmaps(double gvec[7],
 
 /* revised D7Dist_2bds
  
-   Compute lengths of paths from gvec1 to gvec2 through bd1 and bd2
+   Compute lengths of paths from g_lft to g_rgt through bd_up and bd_dwn
  
  */
 
-static double D7Dist_2bds_rev(double gvec1[7], double gvec2[7],
-                           double pg11[7], double mpg11[7],
-                           double pg21[7], double mpg21[7], int bd1,
-                           double pg22[7], double mpg22[7],
-                           double pg12[7], double mpg12[7], int bd2,
+static double D7Dist_2bds_rev(double g_lft[7], double g_rgt[7],
+                           double pg_lft_up[7], double mpg_lft_up[7],
+                           double pg_rgt_up[7], double mpg_rgt_up[7], int bd_up,
+                           double pg_rgt_dwn[7], double mpg_rgt_dwn[7],
+                           double pg_lft_dwn[7], double mpg_lft_dwn[7], int bd_dwn,
                            double dist) {
     
-    double h11, h12, h21, h22;
-    double alpha11, alpha12, alpha21, alpha22;
-    double bdint11[7], bdint12[7], mbdint11[7], mbdint12[7];
-    double bdint21[7], bdint22[7], mbdint21[7], mbdint22[7];
+    double bddist_lft_up, bddist_lft_dwn, bddist_right_up, bddist_right_dwn;
+    double alpha_lft_up, alpha_lft_dwn;
+    double bdint_lft_up[7], bdint_lft_dwn[7], mbdint_lft_up[7], mbdint_lft_dwn[7];
     int ii;
-    double d1bd11, d1mbd11, d1bd12, d1mbd12;
-    double d1bd21, d1mbd21, d1bd22, d1mbd22;
-    double d2bd11, d2mbd11, d2bd12, d2mbd12;
-    double d2bd21, d2mbd21, d2bd22, d2mbd22;
-    double d1bd11bd21, d1bd11mbd21;
-    double d1bd11bd22, d1bd11mbd22;
-    double d1mbd11bd21, d1mbd11mbd21;
-    double d1mbd11bd22, d1mbd11mbd22;
-    double bd11bd21, bd11mbd21, bd11bd22, bd11mbd22;
-    double mbd11bd21, mbd11mbd21, mbd11bd22, mbd11mbd22;
+    double gvec_lft_bd_lft_up, gvec_lft_mbd_lft_up, gvec_lft_bd_lft_dwn, gvec_lft_mbd_lft_dwn;
+    double gvec_lft_bd_rgt_dwn, gvec_lft_mbd_rgt_dwn;
+    double gvec_rgt_bd_lft_up, gvec_rgt_mbd_lft_up, gvec_rgt_bd_lft_dwn, gvec_rgt_mbd_lft_dwn;
+    double gvec_rgt_bd_rgt_dwn, gvec_rgt_mbd_rgt_dwn;
+    double gvec_lft_bd_lft_upbd_rgt_dwn, gvec_lft_bd_lft_upmbd_rgt_dwn;
+    double gvec_lft_mbd_lft_upbd_rgt_dwn, gvec_lft_mbd_lft_upmbd_rgt_dwn;
+    double bd_lft_upbd_rgt_dwn, bd_lft_upmbd_rgt_dwn;
+    double mbd_lft_upbd_rgt_dwn, mbd_lft_upmbd_rgt_dwn;
 
+    double dist_glft_bd_up, dist_grgt_bd_up;
+    double dist_glft_bd_dwn, dist_grgt_bd_dwn;
+    double dist_bd_up_bd_dwn, dist_bd_up_mbd_dwn, dist_mbd_up_bd_dwn, dist_mbd_up_mbd_dwn;
     
-    /* distances from gvec1 and gvec2 to bd1 and bd1 */
     
-    h11 = fabs(d7bddist(gvec1, bd1));
-    h12 = fabs(d7bddist(gvec1, bd2));
-    h21 = fabs(d7bddist(gvec2, bd1));
-    h22 = fabs(d7bddist(gvec2, bd2));
+    /* distances from g_lft and g_rgt to bd_up and bd_up */
+    
+    bddist_lft_up = fabs(d7bddist(g_lft, bd_up));
+    bddist_lft_dwn = fabs(d7bddist(g_lft, bd_dwn));
+    bddist_right_up = fabs(d7bddist(g_rgt, bd_up));
+    bddist_right_dwn = fabs(d7bddist(g_rgt, bd_dwn));
     
     /* the portions of a minimal mirror path off each boundary */
     
-    if (h11+h21 < (h11+1.e-10)*1.e-10) {
-        alpha11 = 0.;
+    if (bddist_lft_up+bddist_right_up < bddist_lft_up*1.e-10) {
+        alpha_lft_up = 0.;
     } else {
-        alpha11 = h11/(h11+h21);
+        alpha_lft_up = bddist_lft_up/(bddist_lft_up+bddist_right_up);
     }
-    if (h11+h21 < (h21+1.e-10)*1.e-10) {
-        alpha21 = 0.;
+    if (bddist_lft_dwn+bddist_right_dwn < bddist_lft_dwn*1.e-10) {
+        alpha_lft_dwn = 0.;
     } else {
-        alpha21 = h21/(h11+h21);
-    }
-    if (h12+h22 < (h12+1.e-10)*1.e-10) {
-        alpha12 = 0.;
-    } else {
-        alpha12 = h12/(h12+h22);
-    }
-    if (h12+h22 < (h22+1.e-10)*1.e-10) {
-        alpha22 = 0.;
-    } else {
-        alpha22 = h22/(h12+h22);
+        alpha_lft_dwn = bddist_lft_dwn/(bddist_lft_dwn+bddist_right_dwn);
     }
     
-    if (alpha11 > 1.) alpha11 = 1.;
-    if (alpha12 > 1.) alpha12 = 1.;
-    if (alpha21 > 1.) alpha21 = 1.;
-    if (alpha22 > 1.) alpha22 = 1.;
+    if (alpha_lft_up > 1.) alpha_lft_up = 1.;
+    if (alpha_lft_dwn > 1.) alpha_lft_dwn = 1.;
     
     
-    if (alpha11 + alpha21 < 0.9999) alpha11 = alpha21 = 0.5;
-    if (alpha12 + alpha22 < 0.9999) alpha21 = alpha22 = 0.5;
+    if (alpha_lft_up < 0.) alpha_lft_up = 0.;
+    if (alpha_lft_dwn < 0.) alpha_lft_dwn = 0.;
     
     for (ii = 0; ii < 7; ii++) {
-        bdint11[ii] = pg11[ii] + alpha11*(pg21[ii] - pg11[ii]);
-        bdint12[ii] = pg12[ii] + alpha12*(pg22[ii] - pg12[ii]);
-        bdint21[ii] = pg21[ii] - alpha21*(pg21[ii] - pg11[ii]);
-        bdint22[ii] = pg22[ii] - alpha12*(pg22[ii] - pg12[ii]);
+        bdint_lft_up[ii] = pg_lft_up[ii] + alpha_lft_up*(pg_rgt_up[ii] - pg_lft_up[ii]);
+        bdint_lft_dwn[ii] = pg_lft_dwn[ii] + alpha_lft_dwn*(pg_rgt_dwn[ii] - pg_lft_dwn[ii]);
     }
-    imv7(bdint11, D7MS[bd1], mbdint11);
-    imv7(bdint12, D7MS[bd2], mbdint12);
-    imv7(bdint21, D7MS[bd1], mbdint21);
-    imv7(bdint22, D7MS[bd2], mbdint22);
+    imv7(bdint_lft_up, D7MS[bd_up], mbdint_lft_up);
+    imv7(bdint_lft_dwn, D7MS[bd_dwn], mbdint_lft_dwn);
     
     /* possible routes
-     gvec1 - bdint11 - gvec2
-     gvec1 - mbdint11 - gvec2
-     gvec1 - bdint12 - gvec2
-     gvec1 - mbdint12 - gvec2
+     g_lft - bdint_lft_up - g_rgt
+     g_lft - mbdint_lft_up - g_rgt
+     g_lft - bdint_lft_dwn - g_rgt
+     g_lft - mbdint_lft_dwn - g_rgt
      
-     gvec1 - bdint21 - gvec2
-     gvec1 - mbdint21 - gvec2
-     gvec1 - bdint22 - gvec2
-     gvec1 - mbdint22 - gvec2
-     
-     gvec1 - bdint11, mbdint11 - gvec2
-     gvec1 - bdint21, mbdint21 - gvec2
-     
-     gvec1 - mbdint11, bdint11 - gvec2
-     gvec1 - mbdint11 - mbdint21 - gvec2
-     gvec1 - mbdint11 - bdint22 - gvec2
-     gvec1 - mbdint11 - mbdint22 - gvec2
+     min(g_lft - mbdint_lft_up, bdint_lft_up)+min(bdint_left_up - mdint_right_dn - g_rgt
+     g_lft - mbdint_lft_up - mbdint21 - g_rgt
+     g_lft - mbdint_lft_up - bdint22 - g_rgt
+     g_lft - mbdint_lft_up - mbdint22 - g_rgt
      
      */
+     
+     
+    gvec_lft_bd_lft_up = d71234dist(g_lft,bdint_lft_up);
+    gvec_lft_mbd_lft_up = d71234dist(g_lft,mbdint_lft_up);
+    gvec_lft_bd_lft_dwn = d71234dist(g_lft,bdint_lft_dwn);
+    gvec_lft_mbd_lft_dwn = d71234dist(g_lft,mbdint_lft_dwn);
+    gvec_rgt_bd_lft_up = d71234dist(g_rgt,bdint_lft_up);
+    gvec_rgt_mbd_lft_up = d71234dist(g_rgt,mbdint_lft_up);
+    gvec_rgt_bd_lft_dwn = d71234dist(g_rgt,bdint_lft_dwn);
+    gvec_rgt_mbd_lft_dwn = d71234dist(g_rgt,mbdint_lft_dwn);
+    
+    dist_bd_up_bd_dwn = d71234dist(bdint_lft_up,bdint_lft_dwn);
+    dist_bd_up_mbd_dwn = d71234dist(bdint_lft_up,mbdint_lft_dwn);
+    if (dist_bd_up_mbd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_bd_up_mbd_dwn;
+    dist_mbd_up_bd_dwn = d71234dist(mbdint_lft_up,bdint_lft_dwn);
+    if (dist_mbd_up_bd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_mbd_up_bd_dwn;
+    dist_mbd_up_mbd_dwn = d71234dist(mbdint_lft_up,mbdint_lft_dwn);
+    if (dist_mbd_up_mbd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_mbd_up_mbd_dwn;
     
     
-    d1bd11 = d71234dist(gvec1,bdint11);
-    d1mbd11 = d71234dist(gvec1,mbdint11);
-    d1bd12 = d71234dist(gvec1,bdint12);
-    d1mbd12 = d71234dist(gvec1,mbdint12);
-    d1bd21 = d71234dist(gvec1,bdint21);
-    d1mbd21 = d71234dist(gvec1,bdint21);
-    d1bd22 = d71234dist(gvec1,bdint22);
-    d1mbd22 = d71234dist(gvec1,bdint22);
-    d2bd11 = d71234dist(gvec2,bdint11);
-    d2mbd11 = d71234dist(gvec2,mbdint11);
-    d2bd12 = d71234dist(gvec2,bdint12);
-    d2mbd12 = d71234dist(gvec2,mbdint12);
-    d2bd21 = d71234dist(gvec2,bdint21);
-    d2mbd21 = d71234dist(gvec2,bdint21);
-    d2bd22 = d71234dist(gvec2,bdint22);
-    d2mbd22 = d71234dist(gvec2,bdint22);
+    if (gvec_lft_bd_lft_up + gvec_rgt_bd_lft_up < dist) dist = gvec_lft_bd_lft_up + gvec_rgt_bd_lft_up;
+    if (gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up < dist) dist = gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up;
+    if (gvec_lft_mbd_lft_up + gvec_rgt_bd_lft_up < dist) dist = gvec_lft_mbd_lft_up + gvec_rgt_bd_lft_up;
+    if (gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up < dist) dist = gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up;
+    
+    if (gvec_lft_bd_lft_dwn + gvec_rgt_bd_lft_dwn < dist) dist = gvec_lft_bd_lft_dwn + gvec_rgt_bd_lft_dwn;
+    if (gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn < dist) dist = gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn;
+    if (gvec_lft_mbd_lft_dwn + gvec_rgt_bd_lft_dwn < dist) dist = gvec_lft_mbd_lft_dwn + gvec_rgt_bd_lft_dwn;
+    if (gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn < dist) dist = gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn;
+    
+    dist_glft_bd_up = gvec_lft_bd_lft_up;
+    if (gvec_lft_mbd_lft_up < dist_glft_bd_up) dist_glft_bd_up = gvec_lft_mbd_lft_up;
+    dist_glft_bd_dwn = gvec_lft_bd_lft_dwn;
+    if (gvec_lft_mbd_lft_dwn < dist_glft_bd_dwn) dist_glft_bd_dwn = gvec_lft_mbd_lft_dwn;
+    dist_grgt_bd_up = gvec_rgt_bd_lft_up;
+    if (gvec_rgt_mbd_lft_up < dist_grgt_bd_up) dist_grgt_bd_up = gvec_rgt_mbd_lft_up;
+    dist_grgt_bd_dwn = gvec_rgt_bd_lft_dwn;
+    if (gvec_rgt_mbd_lft_dwn < dist_grgt_bd_dwn) dist_grgt_bd_dwn = gvec_rgt_mbd_lft_dwn;
+    
+    if (gvec_lft_mbd_lft_up + dist_bd_up_bd_dwn + dist_grgt_bd_dwn < dist ) dist = gvec_lft_mbd_lft_up + dist_bd_up_bd_dwn + dist_grgt_bd_dwn;
+    if (gvec_lft_mbd_lft_dwn + dist_bd_up_bd_dwn + dist_grgt_bd_up < dist ) dist = gvec_lft_mbd_lft_dwn + dist_bd_up_bd_dwn + dist_grgt_bd_up;
     
     
-    if (d1bd11 + d2bd11 < dist) dist = d1bd11 + d2bd11;
-    if (d1mbd11 + d2mbd11 < dist) dist = d1mbd11 + d2mbd11;
-    if (d1mbd11 + d2bd11 < dist) dist = d1mbd11 + d2bd11;
-    if (d1mbd11 + d2mbd11 < dist) dist = d1mbd11 + d2mbd11;
-    
-    if (d1bd12 + d2bd12 < dist) dist = d1bd12 + d2bd12;
-    if (d1mbd12 + d2mbd12 < dist) dist = d1mbd12 + d2mbd12;
-    if (d1mbd12 + d2bd12 < dist) dist = d1mbd12 + d2bd12;
-    if (d1mbd12 + d2mbd12 < dist) dist = d1mbd12 + d2mbd12;
     
     return dist;
     
@@ -1628,7 +1475,7 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
         for (jx1 = 0; jx1 < ngood1; jx1++) {
             double d1;
             j1 = iord1[jx1];
-            if (j1 == P_7 || j1 == P_9) continue;
+            if (j1 ==D7P_7 || j1 ==D7P_9) continue;
             d1 = dists1[j1];
 
             if (d1 < maxdist){
@@ -1638,7 +1485,7 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
         for (jx2 = 0; jx2 < ngood2; jx2++) {
             double d2;
             j2 = iord2[jx2];
-            if (j2 == P_7 || j2 == P_9) continue;
+            if (j2 ==D7P_7 || j2 ==D7P_9) continue;
             d2 = dists2[j2];
             if (d2 < maxdist) {
                 dist = CD7M_min(dist,(d71234dist(gvec1,mpgs2[j2])+d2));
@@ -1651,13 +1498,13 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
     for (jx1 = 0; jx1 < ngood1; jx1++) {
         double d1;
         j1 = iord1[jx1];
-        if (j1 == P_7 || j1 == P_9 ) continue;
+        if (j1 ==D7P_7 || j1 ==D7P_9 ) continue;
         d1 = dists1[j1];
         if (d1 < maxdist) {
             for (jx2 = 0; jx2 < ngood2; jx2++) {
                 double d2;
                 j2 = iord2[jx2];
-                if (j2 == P_7 || j2 == P_9 ) continue;
+                if (j2 ==D7P_7 || j2 ==D7P_9 ) continue;
                 d2 = dists2[j2];
                 if (d2 < maxdist) {
                     dist = D7Dist_2bds_rev(gvec1, gvec2, pgs1[j1], mpgs1[j1], pgs2[j1], mpgs2[j1],j1,

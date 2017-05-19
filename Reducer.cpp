@@ -47,8 +47,6 @@ private:
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
-
-double previousVolume = DBL_MAX;
 const bool DEBUG_REDUCER(false);
 
 //-----------------------------------------------------------------------------
@@ -336,6 +334,7 @@ G6 Reducer::Reduce(const G6& viv) {
    G6 v;
    Mat66 m;
    const bool result = Reduce(viv, m, v, 0.0);
+   v.SetValid(result);
    return v;
 }
 

@@ -54,14 +54,15 @@ bool WalkFromOnePointToAnother( const TVEC& v1, const TVEC& v2, const size_t nSt
    }
    else
    {
-      const std::list<double> distances( follow.GetDistances( ) );
+      //const std::list<double> distances(follow.GetDistances());
+      const std::list<double> distances(follow.GetDeloneDistances());
 
       std::vector<Glitch<TVEC> > glitches;
       glitches = follow.DetermineIfSomeDeltaIsTooLarge( distances ); // return the index for first glitch
 
       if ( FollowerConstants::globalPrintAllDistanceData || ! glitches.empty( ) )
       {
-         FileWriter<D7,Mat7>( s_BaseSVG_FileName + ".txt", follow, glitches ).Write();
+         FileWriter<TVEC,TMAT>( s_BaseSVG_FileName + ".txt", follow, glitches ).Write();
 
 //#define DisableForHJB
 #ifndef DisableForHJB
@@ -98,7 +99,7 @@ size_t ProbeOneRegion( const CellInputData& probe, const size_t nSteps, const st
 
       if ( bTestReduce && ! (m==Mat66().Eye()) )
       {
-         const bool bTestWalk = WalkFromOnePointToAnother<TVEC,TMAT>( v1, vR, nSteps, sBaseFileName, colorMap, goodCellCount );
+         const bool bTestWalk = WalkFromOnePointToAnother<TVEC,TMAT>( TVEC(v1), TVEC(vR), nSteps, sBaseFileName, colorMap, goodCellCount );
          if ( bTestWalk ) ++goodCellCount;
       } else if( ! bTestReduce ) {
          //std::cout << "Delone failed " << v1 << std::endl;

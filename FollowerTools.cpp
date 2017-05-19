@@ -360,120 +360,129 @@ std::pair<int,std::string> IdentifyNearbyBoundaries(const double v[6], const dou
    return std::make_pair( -1, (s1.empty()) ? "" : "(" + s1 + ") \t(" + s2 + ")" );
 }
 
-///*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-//std::pair<int, std::string> D7_IdentifyNearbyBoundaries(const D7& v, const double cutoff)
-///*-------------------------------------------------------------------------------------*/
-//{
-   //std::string s1, s2;
-   //int boundaryNumber= -1;
-   //const double& d1 = v[0];
-   //const double& d2 = v[1];
-   //const double& d3 = v[2];
-   //const double& d4 = v[3];
-   //const double& d5 = v[4];
-   //const double& d6 = v[5];
-   //const double& d7 = v[6];
-//
-//   if (std::abs(d1 - d2) < cutoff)
-//   {
-//      s1 += '1';
-//      s2 += '1';
-//      boundaryNumber = 1;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d2 - d3) < cutoff)
-//   {
-//      s1 += '2';
-//      s2 += '2';
-//      boundaryNumber = 2;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d3 - d4) < cutoff)
-//   {
-//      s1 += '3';
-//      s2 += '3';
-//      boundaryNumber = 3;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d2+d3-d5) < cutoff)
-//   {
-//      s1 += '4';
-//      s2 += '4';
-//      boundaryNumber = 4;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d1+d4-d5) < cutoff)
-//   {
-//      s1 += '5';
-//      s2 += '5';
-//      boundaryNumber = 5;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d1+d3-d6) < cutoff)
-//   {
-//      s1 += '6';
-//      s2 += '6';
-//      boundaryNumber = 6;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d2+d4-d6) < cutoff)
-//   {
-//      s1 += '7';
-//      s2 += '7';
-//      boundaryNumber = 7;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d1+d2-d7) < cutoff)
-//   {
-//      s1 += '8';
-//      s2 += '8';
-//      boundaryNumber = 8;
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//   if (std::abs(d3+d4-d7) < cutoff)
-//   {
-//      s1 += '9';
-//      boundaryNumber = 9;
-//      s2 += '9';
-//   }
-//   else
-//   {
-//      s2 += '.';
-//   }
-//
-//
-//   return std::make_pair( boundaryNumber, (s1.empty()) ? "" : "(" + s1 + ") \t(" + s2 + ")" );
-////}
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+std::pair<int, std::string> IdentifyNearbyBoundaries(const G6& v, const double cutoff)
+/*-------------------------------------------------------------------------------------*/
+{
+   double ar[6];
+   for (size_t i = 0; i<6; ++i) ar[i] = v[i];
+   return IdentifyNearbyBoundaries(ar, cutoff);
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+std::pair<int, std::string> D7_IdentifyNearbyBoundaries(const D7& v, const double cutoff)
+/*-------------------------------------------------------------------------------------*/
+{
+   std::string s1, s2;
+   int boundaryNumber= -1;
+   const double& d1 = v[0];
+   const double& d2 = v[1];
+   const double& d3 = v[2];
+   const double& d4 = v[3];
+   const double& d5 = v[4];
+   const double& d6 = v[5];
+   const double& d7 = v[6];
+
+   if (std::abs(d1 - d2) < cutoff)
+   {
+      s1 += '1';
+      s2 += '1';
+      boundaryNumber = 1;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d2 - d3) < cutoff)
+   {
+      s1 += '2';
+      s2 += '2';
+      boundaryNumber = 2;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d3 - d4) < cutoff)
+   {
+      s1 += '3';
+      s2 += '3';
+      boundaryNumber = 3;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d2+d3-d5) < cutoff)
+   {
+      s1 += '4';
+      s2 += '4';
+      boundaryNumber = 4;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d1+d4-d5) < cutoff)
+   {
+      s1 += '5';
+      s2 += '5';
+      boundaryNumber = 5;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d1+d3-d6) < cutoff)
+   {
+      s1 += '6';
+      s2 += '6';
+      boundaryNumber = 6;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d2+d4-d6) < cutoff)
+   {
+      s1 += '7';
+      s2 += '7';
+      boundaryNumber = 7;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d1+d2-d7) < cutoff)
+   {
+      s1 += '8';
+      s2 += '8';
+      boundaryNumber = 8;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d3+d4-d7) < cutoff)
+   {
+      s1 += '9';
+      boundaryNumber = 9;
+      s2 += '9';
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+
+   return std::make_pair( boundaryNumber, (s1.empty()) ? "" : "(" + s1 + ") \t(" + s2 + ")" );
+}
 
