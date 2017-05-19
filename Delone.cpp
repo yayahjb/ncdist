@@ -9,14 +9,15 @@
 
 #include <algorithm>
 #include <cfloat>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <utility>
 
-#include "StoreResults.h"
-
-StoreResults<Delone::Key, G6> g_sr(5);  // added for D7 so that samples of cells from 
-                                            // each boundary could be later displayed, and
+//#include "StoreResults.h"
+//
+//StoreResults<Delone::Key, G6> g_sr(5);  // added for D7 so that samples of cells from 
+//                                            // each boundary could be later displayed, and
                                             // some idea of population density found.
 
 bool Delone::IsAllMinus(const G6& v, const double delta) {
@@ -122,22 +123,10 @@ bool Delone::Reduce( const G6& vi, Mat66& m, G6& vout, const double delta ) {
       std::cout << "Failed to reduce   " << vi << std::endl;
       std::cout << "what resulted      " << vout << std::endl << std::endl;
 
-      if ( mLocal == mLocal.Eye() ) g_sr.Store( Key(std::make_pair(false,0.0)), vRed );
-      else if ( mLocal == mDEL3a )  g_sr.Store( Key(std::make_pair(false,3.1)), vRed );
-      else if ( mLocal == mDEL3b )  g_sr.Store( Key(std::make_pair(false,3.2)), vRed );
-      else if ( mLocal == mDEL4a )  g_sr.Store( Key(std::make_pair(false,4.1)), vRed );
-      else if ( mLocal == mDEL4b )  g_sr.Store( Key(std::make_pair(false,4.2)), vRed );
-      else if ( mLocal == mDEL5a )  g_sr.Store( Key(std::make_pair(false,5.1)), vRed );
-      else if ( mLocal == mDEL5b )  g_sr.Store( Key(std::make_pair(false,5.2)), vRed );
       return false;
    }
 
-   g_sr.Store( Key(std::make_pair(true,label)), vRed );
    return true;
-}
-
-void Delone::Report( void ) {
-   if ( ! g_sr.empty() ) g_sr.ShowResults( );
 }
 
 bool Delone::IsDelone( const D7& v, const double delta ) {

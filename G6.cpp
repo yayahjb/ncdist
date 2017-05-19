@@ -1,7 +1,10 @@
 
-#include <iostream>
 #include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <string>
 #include <sstream>
+#include <vector>
 
 #include "Cell.h"
 #include "D6.h"
@@ -11,22 +14,26 @@
 #include "D7.h"
 #include "vector_3d.h"
 
-#define Default6 6
-
-#include "G6.h"
 #include "Vec_N_Tools.h"
+
+#define Default6 6
 
 G6::G6( void )
 : VecN( 6 ) {
+   m_dim = 6;
+   m_valid = true;
 }
 
 G6::G6(const G6& v)
 : VecN(6) {
+   m_dim = 6;
     m_vec = v.m_vec;
+   m_valid = v.m_valid;
 }
 
 G6::G6(const double v[6])
 : VecN(6) {
+    m_dim = 6;
     m_vec[0] = v[0];
     m_vec[1] = v[1];
     m_vec[2] = v[2];
@@ -45,17 +52,6 @@ G6::G6(const Cell& c)
     m_vec[5] = 2.0 * c[0] * c[1] * cos(c[5]);
 }
 
-G6::G6( const VecN& v )
-: VecN(6) {
-    if (m_dim != 6) {
-        G6 v6;
-        v6.m_dim = 6;
-        m_vec = v6.m_vec;
-    }
-    else {
-        m_vec = v.GetVector();
-    }
-}
 
 G6::G6( const D6& ds ) {
     m_dim = 6;
@@ -87,6 +83,19 @@ G6::G6(const DeloneTetrahedron& dt)
    (*this) = D6(dt);
 }
 
+G6::G6( const VecN& v )
+: VecN(6) {
+    if (m_dim != 6) {
+        G6 v6;
+        v6.m_dim = 6;
+        m_vec = v6.m_vec;
+    }
+    else {
+        m_vec = v.GetVector();
+    }
+    m_valid = true;
+}
+
 G6::G6( const D7& v7 )
 : VecN( 6 ) {
    double& g1 = m_vec[0];
@@ -109,18 +118,15 @@ G6::G6( const D7& v7 )
    g5 = d6 - d1 - d3;
    g6 = d7 - d1 - d2;
 //   g4 = (d4 -g1 -g2 -g3 -g5 -g6 + d5 - g2 -g3)/2.0; 
+   m_valid = true;
 }
-//
-//G6::G6( const VecN& v )
-//: VecN( 6 ) {
-//   //   *this = v;
-//}
 
 G6::G6( const std::string& s ) 
 : VecN(6)
 {
   m_vec = Vec_N_Tools::FromString( s );
   m_dim = m_vec.size();
+   m_valid = true;
   if ( m_dim != 6 ) throw "bad dimension in G6 from a string";
 }
 
@@ -128,13 +134,26 @@ G6::G6( const std::vector<double>& v )
 : VecN( v.size() )
 {
   m_dim = v.size();
-  if ( m_dim != 6 ) throw "bad dimension in G6 from a string";
+   if ( m_dim != 6 ) throw "bad dimension in G6 from a vector";
   m_vec = v;
+   m_valid = true;
 }
 
+double G6::DistanceBetween( const G6& v1, const G6& v2 ) {
+   double sum = 0.0;
+   for( size_t i=0; i<6; ++i )  sum += (v1[i]-v2[i])*(v1[i]-v2[i]);
+   return sqrt( sum );
+}
 G6& G6::operator= ( const G6& v ) {
    m_vec = v.m_vec;
    m_dim = v.m_dim;
+   m_valid = v.m_valid;
+   return *this;
+}
+
+G6& G6::operator= (const std::string& s)
+{
+   (*this) = G6(s);
    return *this;
 }
 
@@ -165,12 +184,6 @@ G6& G6::operator= (const Cell& v)
 }
 
 
-
-G6& G6::operator= (const std::string& s)
-{
-   (*this) = G6(s);
-   return *this;
-}
 
 G6 G6::InverseG6Vector( void ) const {
    G6 v( *this );
@@ -206,6 +219,16 @@ G6 G6::InverseG6Vector( void ) const {
    vout[5] = 2.0*astar*bstar*cosgammastar;
 
    return vout;
+}
+
+std::ostream& operator<< ( std::ostream& o, const G6& v ) {
+   std::streamsize oldPrecision = o.precision();
+   o << std::fixed <<std::setprecision(3);
+   for( size_t i=0; i<v.size( ); ++i )
+      o << std::setw(9) << v[i] << " ";
+   o << std::setprecision(oldPrecision);
+   o.unsetf(std::ios::floatfield);
+   return o;
 }
 
 /*

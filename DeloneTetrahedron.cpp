@@ -68,9 +68,17 @@ DeloneTetrahedron& DeloneTetrahedron::operator= (const std::string& s)
 }
 
 DeloneTetrahedron DeloneTetrahedron::operator+ (const DeloneTetrahedron& dt) const {
-   const G6 v1(*this);
-   const G6 v2(dt);
-   return DeloneTetrahedron(G6(v1 + v2));
+   DeloneTetrahedron temp;
+   for (size_t i = 0; i<4; ++i)
+      temp[i] = (*this)[i] + dt[i];
+   return temp;
+}
+
+DeloneTetrahedron DeloneTetrahedron::operator- (const DeloneTetrahedron& dt) const {
+   DeloneTetrahedron temp;
+   for ( size_t i=0; i<4; ++i )
+   temp[i] = (*this)[i] - dt[i];
+   return temp;
 }
 
 DeloneTetrahedron DeloneTetrahedron::operator* (const double d) const
@@ -86,12 +94,6 @@ DeloneTetrahedron operator* (const double d, const DeloneTetrahedron& dt)
    return (dt*d);
 }
 
-DeloneTetrahedron DeloneTetrahedron::operator- (const DeloneTetrahedron& dt) const {
-   const G6 v1(*this);
-   const G6 v2(dt);
-   return DeloneTetrahedron(G6(v1 - v2));
-}
-
 bool DeloneTetrahedron::operator== (const DeloneTetrahedron& dt)
 {
    bool breturn = true;
@@ -103,4 +105,21 @@ bool DeloneTetrahedron::operator== (const DeloneTetrahedron& dt)
 bool DeloneTetrahedron::operator!= (const DeloneTetrahedron& dt)
 {
    return !((*this) == dt);
+}
+
+double DistanceBetween(const DeloneTetrahedron& v1, const DeloneTetrahedron& v2) {
+   return (v1 - v2).norm();
+}
+
+
+double DeloneTetrahedron::norm(void) const {
+   return norm(*this);
+}
+
+double DeloneTetrahedron::norm(const DeloneTetrahedron& dt) const {
+   const double norm1 = dt[0].Norm();
+   const double norm2 = dt[1].Norm();
+   const double norm3 = dt[2].Norm();
+   const double norm4 = dt[3].Norm();
+   return norm1 + norm2 + norm3 + norm4;
 }

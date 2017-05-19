@@ -88,11 +88,10 @@ void Add( const TVEC& probe, const TVEC& reduced ) {
    staticXprev = x;
    staticYprev = y;
 
-   //m_boundaries.push_back( D7_IdentifyNearbyBoundaries( D7(reduced), 0.01 ).second );
-
-   double ar[6];
-   for ( size_t i=0; i<6; ++i ) ar[i] = reduced[i];
-   m_boundaries.push_back( ::IdentifyNearbyBoundaries( ar, 0.01 ).second );
+      std::string G6Boundary = "G6:" + ::IdentifyNearbyBoundaries(reduced, 0.01).second;
+      std::string D7Boundary = "   D7:" + ::D7_IdentifyNearbyBoundaries(D7(reduced), 0.01).second;
+      m_G6Boundaries.push_back(G6Boundary);
+      m_D7Boundaries.push_back(D7Boundary);
 }
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void AddBoundaryString( const std::string& s )
@@ -126,6 +125,7 @@ void SetSlopeData( std::list<triple<double,double,double> >& slopeData ) {
 
    TVEC                                                    GetProbe( void ) const { return(m_probe); };
    TVEC                                                    GetSecondProbe( void ) const { return(m_secondProbe); }
+
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 long GetRunOrdinal ( void ) const {
    assert( 0 );
@@ -143,6 +143,18 @@ std::string GetBoundaryString ( void ) const {
    assert( 0 );
    return( "this is an error" );
 }
+
+   /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+   std::string G6GetBoundaryString(void) const {
+      assert(0);
+      return("this is an error");
+   }
+
+   /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+   std::string D7GetBoundaryString(void) const {
+      assert(0);
+      return("this is an error");
+   }
    const std::vector<TVEC>&                                GetProbeList      ( void ) const { return( m_probeList ); }
    const std::vector<TVEC>&                                GetSecondProbeList( void ) const { return( m_reducedList ); }
    const std::list<double>&                                      GetDistances      ( void ) const { return( m_distances ); }
@@ -184,10 +196,16 @@ std::pair<std::pair<double,double>,std::pair<double,double> >GetLimits( void )
 
    return( m_xyMinMax );
 }
+
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-std::string GetBoundaryString ( const size_t n ) const {
-   return m_boundaries.empty() ? "" : m_boundaries[n];
+   std::string G6GetBoundaryString(const size_t n) const {
+      return m_G6Boundaries.empty() ? "" : m_G6Boundaries[n];
 }
+
+   /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+   std::string D7GetBoundaryString(const size_t n) const {
+      return m_D7Boundaries.empty() ? "" : m_D7Boundaries[n];
+   }
 
    void SetWhichComponentsToPlot( const int c1, const int c2 )  { m_whichComponentsToPlot = std::make_pair( c1, c2 ); }
 
@@ -231,7 +249,8 @@ private:
    std::vector<TVEC> m_probeList;
    std::vector<TVEC> m_reducedList;
    std::vector<TVEC> m_bestMatchList;
-   std::vector<std::string> m_boundaries;
+   std::vector<std::string> m_G6Boundaries;
+   std::vector<std::string> m_D7Boundaries;
    std::vector<triple<double,double,double> > m_slopeData;  // the slope of a segment, and the ending x,y
    std::list<double> m_distances;
    std::list<double> m_Delonedistances;
