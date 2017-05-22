@@ -340,6 +340,8 @@ static double d7prj_perp[ND7BDPRJ][49]= {
 #define D7Refl_4 1
 #define D7Refl_term -1
 
+static D7Rord[24]= {0,1,2,3,4,5,12,18,6,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23};
+
 
 static int D7Refl[24][49]={
     /*D7Refl_1 {1,2,3,4,5,6,7},   Ident*/
@@ -369,6 +371,7 @@ static int D7Refl[24][49]={
         0,0,0,0,1,0,0,
         0,0,0,0,0,0,1,
         0,0,0,0,0,1,0},
+    /* {1,3,4,2,7,5,6} */
     /*DR_3*/ {
         1,0,0,0,0,0,0,
         0,0,1,0,0,0,0,
@@ -377,6 +380,7 @@ static int D7Refl[24][49]={
         0,0,0,0,0,0,1,
         0,0,0,0,1,0,0,
         0,0,0,0,0,1,0},
+    /* {1,4,2,3,6,7,5} */
     /*DR_4*/ {
         1,0,0,0,0,0,0,
         0,0,0,1,0,0,0,
@@ -385,6 +389,7 @@ static int D7Refl[24][49]={
         0,0,0,0,0,1,0,
         0,0,0,0,0,0,1,
         0,0,0,0,1,0,0},
+    /* {1,4,3,2,6.7,5} */
     /*DR_5*/ {
         1,0,0,0,0,0,0,
         0,0,0,1,0,0,0,
@@ -442,6 +447,7 @@ static int D7Refl[24][49]={
         0,0,0,0,0,0,1,
         0,0,0,0,1,0,0,
         0,0,0,0,0,1,0},
+    /* {3,1,2,4,7,5,6} */
     /*DR_12*/ {
         0,0,1,0,0,0,0,
         1,0,0,0,0,0,0,
@@ -983,8 +989,10 @@ static void d7twoPminusI(double pg[7], double g[7], double gout[7]) {
 #ifdef D7DIST_NO_OUTER_PASS
 #define NREFL_OUTER_FULL 1
 #define NREFL_OUTER_MIN 1
+#define NREFL_OUTER_MID 1
 #else
 #define NREFL_OUTER_FULL 24
+#define NREFL_OUTER_MID 16
 #define NREFL_OUTER_MIN 8
 #endif
 
@@ -1144,6 +1152,7 @@ static void d7bdmaps(double gvec[7],
 /* revised D7Dist_2bds
  
    Compute lengths of paths from g_lft to g_rgt through bd_up and bd_dwn
+ 
  
  */
 
@@ -1475,7 +1484,7 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
         for (jx1 = 0; jx1 < ngood1; jx1++) {
             double d1;
             j1 = iord1[jx1];
-            if (j1 ==D7P_7 || j1 ==D7P_9) continue;
+            if (j1 < D7P_4 || j1 ==D7P_7 || j1 ==D7P_9) continue;
             d1 = dists1[j1];
 
             if (d1 < maxdist){
@@ -1485,7 +1494,7 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
         for (jx2 = 0; jx2 < ngood2; jx2++) {
             double d2;
             j2 = iord2[jx2];
-            if (j2 ==D7P_7 || j2 ==D7P_9) continue;
+            if (j2 < D7P_4 || j2 ==D7P_7 || j2 ==D7P_9) continue;
             d2 = dists2[j2];
             if (d2 < maxdist) {
                 dist = CD7M_min(dist,(d71234dist(gvec1,mpgs2[j2])+d2));
@@ -1498,13 +1507,13 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
     for (jx1 = 0; jx1 < ngood1; jx1++) {
         double d1;
         j1 = iord1[jx1];
-        if (j1 ==D7P_7 || j1 ==D7P_9 ) continue;
+        if (j1 < D7P_4 || j1 ==D7P_7 || j1 ==D7P_9 ) continue;
         d1 = dists1[j1];
         if (d1 < maxdist) {
             for (jx2 = 0; jx2 < ngood2; jx2++) {
                 double d2;
                 j2 = iord2[jx2];
-                if (j2 ==D7P_7 || j2 ==D7P_9 ) continue;
+                if (j2 < D7P_4 || j2 ==D7P_7 || j2 ==D7P_9 ) continue;
                 d2 = dists2[j2];
                 if (d2 < maxdist) {
                     dist = D7Dist_2bds_rev(gvec1, gvec2, pgs1[j1], mpgs1[j1], pgs2[j1], mpgs2[j1],j1,
@@ -1519,9 +1528,9 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
 
 
 /*
-     Compute the minimal distance between two Niggli-reduced
-     vectors in the Niggli Cone following the embedding paths
-     to the 15 boundaries
+     Compute the minimal distance between two Delaunay-reduced
+     vectors in the D7 Cone following the embedding paths
+     to the 7 major boundaries
  */
 
 
@@ -1547,14 +1556,17 @@ double D7Dist(double * gvec1,double * gvec2) {
     report_double_vector("gvec1 = ", gvec1,", ")
     report_double_vector("gvec2 = ", gvec2,";")
     if (dist1+dist2 <  dist*.999 ) {
+        rpasses = NREFL_OUTER_MID;
+    }
+    if (dist1+dist2 <  dist*.5 ) {
         rpasses = NREFL_OUTER_FULL;
     }
     ndists[0][0] = dist = D7Dist_pass(gvec1,gvec2,dist);
 /* Collect rpasses-1 transformed vectors */
 #pragma omp parallel for schedule(dynamic)
     for (ir = 1; ir < rpasses; ir++) {
-        imv7(gvec1,D7Refl[ir],rgvec1[ir]);
-        imv7(gvec2,D7Refl[ir],rgvec2[ir]);
+        imv7(gvec1,D7Refl[D7Rord[ir]],rgvec1[ir]);
+        imv7(gvec2,D7Refl[D7Rord[ir]],rgvec2[ir]);
         ndists[ir][0] = D7Dist_pass(rgvec1[ir],gvec2,dist);
         ndists[0][ir] = D7Dist_pass(gvec1,rgvec2[ir],dist);
     }
