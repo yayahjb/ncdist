@@ -1,12 +1,12 @@
 ######################################################################
 #  CMakeLists.txt - cmake build file for make to create ncdist       #
 #                                                                    #
-# Version 1.0.0 03 Dec 2016                                          #
+# Version 1.0.1 07 Jan 2018                                          #
 #                                                                    #
 #         Herbert J. Bernstein (yayahjb@gmail.com)                   #
 #         Lawrence C Andrews                                         #
 #                                                                    #
-# (C) Copyright 2016 Herbert J. Bernstein, Lawrence C. Andrews       #
+# (C) Copyright 2016 - 2018 Herbert J. Bernstein, Lawrence C. Andrews#
 #                                                                    #
 ######################################################################
 
@@ -83,14 +83,33 @@ include_directories("${CMAKE_SOURCE_DIR}" "${R_INCLUDE_DIRS}"
 message("include RCPPPARA: "  ${RCPPPARA_INCLUDE_DIRS})
 
 set(NCDIST_SOURCES
-BasicDistance.cpp   BasicDistance.h     Cell.cpp    Cell.h
-Reducer.cpp         Reducer.h           NCDist.h    ncdist.cpp)
-
+ncdist.cpp 
+NCDist.h 
+Cell.cpp 
+Cell.h 
+D6.h D7.h 
+Delone.h 
+DeloneTetrahedron.h 
+D6.cpp 
+D7.cpp 
+Delone.cpp 
+Delone.h 
+DeloneTetrahedron.cpp 
+G6.cpp
+G6.h
+G6.h
+MatN.cpp MatMN.cpp Mat66.cpp 
+Reducer.cpp
+Reducer.h 
+VecN.cpp Vec_N_Tools.cpp VectorTools.cpp
+G6.h
+inverse.cpp 
+vector_3d.cpp  
+MatN.h MatMN.h Mat66.h Reducer.h 
+VecN.h Vec_N_Tools.h VectorTools.h 
+)
 set(RCPP_NCDIST_SOURCES
-BasicDistance.cpp   BasicDistance.h     Cell.cpp    Cell.h
-Reducer.cpp         Reducer.h           NCDist.h    rcpp_ncdist.cpp)
-
-
+rcpp_ncdist.cpp Reducer.h Cell.h NCDist.h)
 add_library(R_shared_lib INTERFACE IMPORTED GLOBAL)
 set_target_properties(R_shared_lib PROPERTIES INTERFACE_LINK_LIBRARIES ${R_LIBRARY} )
 add_library(RBLAS_shared_lib INTERFACE IMPORTED GLOBAL)
