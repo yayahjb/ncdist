@@ -8,7 +8,7 @@
 #include <list>
 #include <iostream>
 #include "cqrlib.h"
-#include "tNear.h"
+#include "TNear.h"
 #include "triple.h"
 #include <utility>
 #include <vector>

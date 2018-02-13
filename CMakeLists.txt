@@ -1,12 +1,12 @@
 ######################################################################
 #  CMakeLists.txt - cmake build file for make to create ncdist       #
 #                                                                    #
-# Version 1.0.1 12 Feb 2018                                          #
+# Version 1.0.2 12 Feb 2018                                          #
 #                                                                    #
 #         Herbert J. Bernstein (yayahjb@gmail.com)                   #
 #         Lawrence C Andrews                                         #
 #                                                                    #
-# (C) Copyright 2016 Herbert J. Bernstein, Lawrence C. Andrews       #
+# (C) Copyright 2016 - 2018 Herbert J. Bernstein, Lawrence C. Andrews#
 #                                                                    #
 ######################################################################
 
