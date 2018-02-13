@@ -2,7 +2,7 @@
 #include "Reducer.h"
 #include "Delone.h"
 #include "Cell.h"
-#include "NCDist.h"
+#include "D7Dist.h"
 #define ARMA_DONT_USE_BLAS
 #define ARMA_DONT_USE_LAPACK
 #include <iostream>
@@ -123,15 +123,15 @@ G6 makeprimredprobe( std::string testlattice,
         << primcell[5]<<std::endl;
     } else {
         std::cout << "raw G6 vector: "
-        << primredprobe[0]*primredprobe[0]<<" "
-        << primredprobe[1]*primredprobe[1]<<" "
-        << primredprobe[2]*primredprobe[2]<<" "
-        << 2.*primredprobe[1]*primredprobe[2]*cos(primredprobe[3]*std::atan(1.0)/45.)<<" "
-        << 2.*primredprobe[0]*primredprobe[2]*cos(primredprobe[4]*std::atan(1.0)/45.)<<" "
-        << 2.*primredprobe[0]*primredprobe[1]*cos(primredprobe[5]*std::atan(1.0)/45.)<<std::endl;
+        << dprimredprobe[0]*dprimredprobe[0]<<" "
+        << dprimredprobe[1]*dprimredprobe[1]<<" "
+        << dprimredprobe[2]*dprimredprobe[2]<<" "
+        << 2.*dprimredprobe[1]*dprimredprobe[2]*cos(dprimredprobe[3]*std::atan(1.0)/45.)<<" "
+        << 2.*dprimredprobe[0]*dprimredprobe[2]*cos(dprimredprobe[4]*std::atan(1.0)/45.)<<" "
+        << 2.*dprimredprobe[0]*dprimredprobe[1]*cos(dprimredprobe[5]*std::atan(1.0)/45.)<<std::endl;
     }
     std::cout << std::endl;
-    return primredprobe;
+    return dprimredprobe;
 }
 
 
@@ -141,8 +141,8 @@ int main(int argc, char ** argv) {
     double a1,b1,c1,alpha1,beta1,gamma1;
     double a2,b2,c2,alpha2,beta2,gamma2;
     G6 prim1, prim2;
-    double dprim1[6];
-    double dprim2[6];
+    double dprim1[7];
+    double dprim2[7];
     size_t ii;
          
     if (argc < 15) {
@@ -171,12 +171,22 @@ int main(int argc, char ** argv) {
     Cell cell2 = Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
     G6 gv1 = G6(cell1.Cell2V6());
     G6 gv2 = G6(cell2.Cell2V6());
-    for (ii=0; ii < 6; ii++) {
+    for (ii=0; ii < 3; ii++) {
       dprim1[ii] = gv1[ii];
       dprim2[ii] = gv2[ii];
     }
-    std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "<< dprim1[3] << ", " << dprim1[4] << ", " << dprim1[1] <<"]" << std::endl;
-    std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "<< dprim2[3] << ", " << dprim2[4] << ", " << dprim2[1] <<"]" << std::endl;
-    std::cout << 0.1*std::sqrt(NCDist(dprim1,dprim2)) << std::endl;
+    dprim1[3] = gv1[0]+gv1[1]+gv1[2]+gv1[3]+gv1[4]+gv1[5];
+    dprim2[3] = gv2[0]+gv2[1]+gv2[2]+gv2[3]+gv2[4]+gv2[5];
+    dprim1[4] =       +gv1[1]+gv1[2]+gv1[3];
+    dprim2[4] =       +gv2[1]+gv2[2]+gv2[3];
+    dprim1[5] = gv1[0]       +gv1[2]       +gv1[4];
+    dprim2[5] = gv2[0]       +gv2[2]       +gv2[4];
+    dprim1[6] = gv1[0]+gv1[1]                     +gv1[5];
+    dprim2[6] = gv2[0]+gv2[1]                     +gv2[5];
+    std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
+              << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] << ", " << dprim1[6]<< "]" << std::endl;
+    std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
+              << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] << ", " << dprim1[6]<< "]" << std::endl;
+    std::cout << 0.1*std::sqrt(D7Dist(dprim1,dprim2)) << std::endl;
     return 0;
 }
