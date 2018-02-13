@@ -1,7 +1,7 @@
 ######################################################################
 #  CMakeLists.txt - cmake build file for make to create ncdist       #
 #                                                                    #
-# Version 1.0.0 03 Dec 2016                                          #
+# Version 1.0.1 12 Feb 2018                                          #
 #                                                                    #
 #         Herbert J. Bernstein (yayahjb@gmail.com)                   #
 #         Lawrence C Andrews                                         #
@@ -83,12 +83,52 @@ include_directories("${CMAKE_SOURCE_DIR}" "${R_INCLUDE_DIRS}"
 message("include RCPPPARA: "  ${RCPPPARA_INCLUDE_DIRS})
 
 set(NCDIST_SOURCES
-BasicDistance.cpp   BasicDistance.h     Cell.cpp    Cell.h
-Reducer.cpp         Reducer.h           NCDist.h    ncdist.cpp)
+Cell.cpp        Cell.h 
+D6.cpp          D6.h
+D7.cpp          D7.h 
+Delone.cpp      Delone.h
+DeloneTetrahedron.cpp
+DeloneTetrahedron.h
+G6.cpp          G6.h 
+inverse.cpp inverse.h
+Mat66.cpp       Mat66.h 
+MatN.cpp        MatN.h
+MatMN.cpp       MatMN.h 
+Reducer.cpp     Reducer.h
+VecN.cpp        VecN.h 
+Vec_N_Tools.cpp Vec_N_Tools.h
+vector_3d.cpp   vector_3d.h
+VectorTools.cpp VectorTools.h 
+NCDist.h    ncdist.cpp)
 
 set(RCPP_NCDIST_SOURCES
-BasicDistance.cpp   BasicDistance.h     Cell.cpp    Cell.h
-Reducer.cpp         Reducer.h           NCDist.h    rcpp_ncdist.cpp)
+Cell.cpp        Cell.h
+Reducer.cpp     Reducer.h         
+NCDist.h        rcpp_ncdist.cpp)
+
+set(D7DIST_SOURCES
+Cell.cpp        Cell.h 
+D6.cpp          D6.h
+D7.cpp          D7.h 
+Delone.cpp      Delone.h
+DeloneTetrahedron.cpp
+DeloneTetrahedron.h
+G6.cpp          G6.h 
+inverse.cpp inverse.h
+Mat66.cpp       Mat66.h 
+MatN.cpp        MatN.h
+MatMN.cpp       MatMN.h 
+Reducer.cpp     Reducer.h
+VecN.cpp        VecN.h 
+Vec_N_Tools.cpp Vec_N_Tools.h
+vector_3d.cpp   vector_3d.h
+VectorTools.cpp VectorTools.h 
+D7Dist.h    d7dist.cpp)
+
+set(RCPP_D7DIST_SOURCES
+Cell.cpp        Cell.h
+Reducer.cpp     Reducer.h
+D7Dist.h        rcpp_d7dist.cpp)
 
 
 add_library(R_shared_lib INTERFACE IMPORTED GLOBAL)
@@ -98,12 +138,18 @@ set_target_properties(RBLAS_shared_lib PROPERTIES INTERFACE_LINK_LIBRARIES ${RBL
 add_library(RLAPACK_shared_lib INTERFACE IMPORTED GLOBAL)
 set_target_properties(RLAPACK_shared_lib PROPERTIES INTERFACE_LINK_LIBRARIES ${RLAPACK_LIBRARY} )
 add_library(rcpp_ncdist SHARED ${RCPP_NCDIST_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
+add_library(rcpp_d7dist SHARED ${RCPP_D7DIST_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
 #target_link_libraries(rcpp_ncdist R_shared_lib RBLAS_shared_lib RLAPACK_shared_lib)
 target_link_libraries(rcpp_ncdist)
 add_executable(ncdist ${NCDIST_SOURCES} )
 target_link_libraries(ncdist ${CMAKE_THREAD_LIBS_INIT} )
+target_link_libraries(rcpp_d7dist)
+add_executable(d7dist ${D7DIST_SOURCES} )
+target_link_libraries(d7dist ${CMAKE_THREAD_LIBS_INIT} )
 
 install(TARGETS ncdist DESTINATION bin)
 install(TARGETS rcpp_ncdist DESTINATION lib)
+install(TARGETS d7dist DESTINATION bin)
+install(TARGETS rcpp_d7dist DESTINATION lib)
 install(FILES license.txt DESTINATION share/ncdist/)
 

@@ -340,7 +340,7 @@ static double d7prj_perp[ND7BDPRJ][49]= {
 #define D7Refl_4 1
 #define D7Refl_term -1
 
-static D7Rord[24]= {0,1,2,3,4,5,12,18,6,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23};
+static int D7Rord[24]= {0,1,2,3,4,5,12,18,6,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23};
 
 
 static int D7Refl[24][49]={

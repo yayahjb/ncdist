@@ -3,7 +3,7 @@
 #include "Mat66.h"
 #include "Reducer.h"
 #include "ToString.h"
-#include "Vector_3d.h"
+#include "vector_3d.h"
 
 #include <cfloat>
 #include <cmath>

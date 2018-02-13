@@ -70,17 +70,17 @@ ifeq ($(uname_S), Darwin)
   RPATH_HEADERS ?= /Library/Frameworks/R.framework/Versions/3.3/Headers
   RPATH_LIBRARIES ?= /Library/Frameworks/R.framework/Versions/3.3/Resources/lib
 else
-  RCPP_HEADERS ?= /usr/lib/R/site-library/Rcpp/include
-  RCPPARMA_HEADERS ?= /usr/lib/R/site-library/RcppArmadillo/include
+  RCPP_HEADERS ?= /usr/local/lib/R/site-library/Rcpp/include
+  RCPPARMA_HEADERS ?= /usr/local/lib/R/site-library/RcppArmadillo/include
   RCPPPARA_HEADERS ?= /usr/local/lib/R/site-library/RcppParallel/include
   RPATH_HEADERS ?= /usr/share/R/include
   RPATH_LIBRARIES ?= /usr/lib/R/lib
 endif
 
-CFLAGS ?= -g -O3 -fopenmp
-CXXFLAGS ?= -g -O3 -fopenmp
+CFLAGS ?= -g -O3 -fPIC -fopenmp
+CXXFLAGS ?= -g -O3 -fPIC -fopenmp
 
-all:  ncdist D7Test Follower rcpp_ncdist.so
+all:  ncdist D7Test Follower rcpp_ncdist.so  rcpp_d7dist.so
 
 ncdist_.o:  ncdist.cpp Reducer.h Delone.h Cell.h NCDist.h VecN.h Vec_N_Tools.h
 	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) ncdist.cpp -o ncdist_.o
@@ -98,11 +98,33 @@ ncdist:  ncdist_.o \
 	MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
 	inverse.cpp vector_3d.cpp  -lpthread
 
+d7dist_.o:  d7dist.cpp Reducer.h Delone.h Cell.h NCDist.h VecN.h Vec_N_Tools.h
+	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) d7dist.cpp -o d7dist_.o
+
+d7dist:  d7dist_.o \
+	Cell.cpp D6.cpp D7.cpp Delone.cpp DeloneTetrahedron.cpp G6.cpp \
+	MatN.cpp MatMN.cpp Mat66.cpp Reducer.cpp \
+	VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+	inverse.cpp vector_3d.cpp \
+	Cell.h D6.h D7.h Delone.h DeloneTetrahedron.h G6.h \
+        MatN.h MatMN.h Mat66.h Reducer.h \
+	VecN.h Vec_N_Tools.h VectorTools.h inverse.cpp vector_3d.cpp 
+	g++ $(CXXFLAGS) -o d7dist d7dist_.o -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
+	Reducer.cpp D6.cpp D7.cpp Delone.cpp DeloneTetrahedron.cpp Cell.cpp G6.cpp \
+	MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+	inverse.cpp vector_3d.cpp  -lpthread
+
 rcpp_ncdist_.o:  rcpp_ncdist.cpp Reducer.h Cell.h NCDist.h
 	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
 	 -I$(RCPP_HEADERS) \
 		-I$(RCPPPARA_HEADERS) \
 		-I$(RCPPARMA_HEADERS) -c rcpp_ncdist.cpp -o rcpp_ncdist_.o
+
+rcpp_d7dist_.o:  rcpp_d7dist.cpp Reducer.h Cell.h D7Dist.h
+	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
+	 -I$(RCPP_HEADERS) \
+		-I$(RCPPPARA_HEADERS) \
+		-I$(RCPPARMA_HEADERS) -c rcpp_d7dist.cpp -o rcpp_d7dist_.o
 
 Reducer.o:  Reducer.cpp Reducer.h Cell.h NCDist.h
 	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
@@ -125,6 +147,12 @@ Cell.o:  Cell.cpp Reducer.h Cell.h NCDist.h
 
 rcpp_ncdist.so:	rcpp_ncdist_.o Reducer.o Cell.o
 	g++ $(CXXFLAGS) -shared -o rcpp_ncdist.so rcpp_ncdist_.o -I $(RCPPPARA_HEADERS) \
+        Reducer.cpp D6.cpp D7.cpp Delone.cpp DeloneTetrahedron.cpp Cell.cpp G6.cpp \
+        MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+        inverse.cpp vector_3d.cpp -L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
+
+rcpp_d7dist.so:	rcpp_d7dist_.o Reducer.o Cell.o
+	g++ $(CXXFLAGS) -shared -o rcpp_d7dist.so rcpp_d7dist_.o -I $(RCPPPARA_HEADERS) \
         Reducer.cpp D6.cpp D7.cpp Delone.cpp DeloneTetrahedron.cpp Cell.cpp G6.cpp \
         MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
         inverse.cpp vector_3d.cpp -L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
@@ -200,6 +228,6 @@ distclean:  clean
 	-@rm -rf bin
 	-@rm -rf lib
 	-@rm -rf build
-
-
+	-@rm -rf ncdist
+	-@rm -rf d7dist
 

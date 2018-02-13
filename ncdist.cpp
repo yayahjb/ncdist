@@ -175,8 +175,10 @@ int main(int argc, char ** argv) {
       dprim1[ii] = gv1[ii];
       dprim2[ii] = gv2[ii];
     }
-    std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "<< dprim1[3] << ", " << dprim1[4] << ", " << dprim1[1] <<"]" << std::endl;
-    std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "<< dprim2[3] << ", " << dprim2[4] << ", " << dprim2[1] <<"]" << std::endl;
+    std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
+              << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] <<"]" << std::endl;
+    std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
+              << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[6] <<"]" << std::endl;
     std::cout << 0.1*std::sqrt(NCDist(dprim1,dprim2)) << std::endl;
     return 0;
 }
