@@ -95,7 +95,7 @@ G6 makeprimredprobe( std::string testlattice,
     return dprimredprobe;
 }
 
-extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_, 
+extern "C" SEXP rcpp_d7dist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_, 
                               SEXP alpha1_, SEXP beta1_, SEXP gamma1_,
 			      SEXP lat2_, SEXP a2_, SEXP b2_, SEXP c2_, 
                               SEXP alpha2_, SEXP beta2_, SEXP gamma2_) {
