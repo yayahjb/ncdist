@@ -2,16 +2,16 @@
 #include <iostream>
 #include <cmath>
 #include <cfloat>
+#include <iomanip>
 #include <sstream>
 
 #include "VecN.h"
 
-#include "MatN.h"
 #include "Vec_N_Tools.h"
 #include "vector_3d.h"
 
-#include <iomanip>
-
+#pragma warning( disable : 4100) //  unreferenced formal parameter
+#pragma warning( disable : 4702) //  unreachable code
 
 std::ostream& operator<< ( std::ostream& o, const VecN& v ) {
    std::streamsize oldPrecision = o.precision();
@@ -24,10 +24,12 @@ std::ostream& operator<< ( std::ostream& o, const VecN& v ) {
 }
 
 VecN::VecN( const size_t dim )
-: m_dim( dim )
-, m_vec( dim, 19191.1 ) 
-, m_valid( true )
+   : m_vec(dim)
+   , m_dim(dim)
+   , m_valid(true)
 {
+   m_dim = dim;
+   m_valid = true;
 }
 
 VecN::VecN( const Matrix_3x3& m )
@@ -62,7 +64,7 @@ VecN::VecN( const std::string& s ) {
 
 VecN::VecN( const std::vector<double>& v ) {
    m_vec = v;
-   m_dim = m_vec.size();
+   m_dim = (size_t)m_vec.size();
    m_valid = true;
 }
 
@@ -139,8 +141,9 @@ double& VecN::operator[]( const size_t i ) {
 
 VecN& VecN::operator= ( const VecN& v2 ) {
    m_vec = v2.m_vec;
-   const size_t size1 = m_vec.size( );
-   const size_t size2 = v2.m_vec.size( );
+   m_dim = v2.m_dim;
+   const size_t size1 = (size_t) (m_vec.size( ));
+   const size_t size2 = (size_t) (v2.m_vec.size( ));
    return *this;
 }
 

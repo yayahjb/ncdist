@@ -1,13 +1,13 @@
 #ifndef VEC_N_H
 #define VEC_N_H
 
+#include <cmath>
 #include <string>
-
+#include <vector>
 #include "MatN.h"
 
 class MatN;
 class Matrix_3x3;
-
 //#define Default6 6
 
 class VecN {
@@ -22,9 +22,11 @@ public:
    VecN( const Matrix_3x3& m );
    VecN( const VecN& v );
    VecN( const std::vector<double>& v );
+   void resize(const size_t n) { m_vec.resize(n); m_dim = n; }
    virtual ~VecN( void );
 
    virtual std::vector<double> GetVector( void ) const { return m_vec; }
+   const double* data() const { return m_vec.data(); }
 
    virtual VecN operator* ( const VecN& v2 ) const;
    virtual VecN operator+ ( const VecN& v2 ) const;
@@ -41,10 +43,17 @@ public:
    virtual bool operator!= ( const VecN& v2 ) const;
    virtual VecN operator- ( void );
 
+   VecN operator- (void) const {
+      std::vector<double> v;
+      for (size_t i = 0; i < v.size(); ++i)
+         v.push_back(-m_vec[i]);
+      return *this; // unary
+   }
+
    void SetValid( const bool b ) { m_valid = b; }
    bool GetValid( void ) const { return m_valid; }
 
-   virtual size_t size( void ) const { return m_vec.size( ); }
+   virtual size_t size( void ) const { return (size_t)(m_vec.size( )); }
    virtual void clear( void ) { m_vec.clear( ); }
    virtual double norm( void ) const;
    virtual double Norm( void ) const;

@@ -832,7 +832,7 @@ static double d7eucldist(double v1[7], double v2[6]) {
 
 #define CD7M_d7eucldistsq_byelem(v11,v12,v13,v14,v15,v16,v17,v21,v22,v23,v24,v25,v26,v27) \
 fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
-(v14-v24)*(v14-v24)+(v15-v25)*(v15-v25)+(v16-v26)*(v16-v26) + (v17-v27)*(v17-v27))
+(v14-v24)*(v14-v24)+(v15-v25)*(v15-v25)+(v16-v26)*(v16-v26) + (v16-v26)*(v16-v26))
 
 #define CD7M_d7prods_byelem(v11,v12,v13,v14,v15,v16,v17,v21,v22,v23,v24,v25,v26,v27) \
 2.*(v11*v21+v12*v22+v13*v23+v14*v24+v15*v25+v16*v26+v17*v27)
