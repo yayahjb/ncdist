@@ -218,6 +218,17 @@ Follower: Cell.cpp CellInputData.cpp CreateFileName.cpp D6.cpp D7.cpp \
 	inverse.cpp vector_3d.cpp \
 	D7Dist.o NCDist.o 
 
+MinimalS6Dist:  cqrlib.c     MatN.cpp           S6.cpp      Selling.cpp  \
+	VecN.h	cqrlib.h     MatN.h             S6Dist.cpp  Selling.h    \
+	Vec_N_Tools.cpp	     inverse.cpp        MinimalS6Dist.cpp \
+	S6Dist.h             TNear.h            Vec_N_Tools.h \
+	inverse.h            S6.h               triple.h     \
+	vector_3d.cpp        rhrand.h           VecN.cpp    vector_3d.h
+	g++ $(CXXFLAGS) -o   MinimalS6Dist \
+	MinimalS6Dist.cpp \
+	inverse.cpp          S6Dist.cpp         VecN.cpp    vector_3d.cpp \
+	MatN.cpp             S6.cpp             Selling.cpp Vec_N_Tools.cpp 
+
 clean:
 	-@rm -rf *.o
 	-@rm -rf *.so
