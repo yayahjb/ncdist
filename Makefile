@@ -1,12 +1,12 @@
 ######################################################################
 #  Makefile - makefile to create sfdist                              #
 #                                                                    #
-# Version 1.0.0 07 January 2016                                      #
+# Version 1.0.1 01 April 2018                                        #
 #                                                                    #
 #         Herbert J. Bernstein (yayahjb@gmail.com)                   #
 #         Lawrence C Andrews                                         #
 #                                                                    #
-# (C) Copyright 2016 - 2017 Herbert J. Bernstein, Lawrence C. Andrews#
+# (C) Copyright 2016 - 2018 Herbert J. Bernstein, Lawrence C. Andrews#
 #                                                                    #
 ######################################################################
 
@@ -80,7 +80,26 @@ endif
 CFLAGS ?= -g -O3 -fPIC -fopenmp
 CXXFLAGS ?= -g -O3 -fPIC -fopenmp
 
-all:  ncdist D7Test Follower rcpp_ncdist.so  rcpp_d7dist.so
+all:  ncdist D7Test Follower rcpp_ncdist.so  rcpp_d7dist.so rcpp_s6dist.so
+
+S6Dist_func_.o:  S6Dist_func.cpp S6.h S6Dist.h Selling.h \
+	S6Dist_func.h Reducer.h Delone.h Cell.h NCDist.h VecN.h Vec_N_Tools.h 
+	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) S6Dist_func.cpp -o S6Dist_func_.o
+
+s6dist_app:  S6Dist_func_.o s6dist_app.cpp \
+	Cell.cpp D6.cpp D7.cpp Delone.cpp DeloneTetrahedron.cpp G6.cpp \
+	MatN.cpp MatMN.cpp Mat66.cpp Reducer.cpp \
+	VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+	inverse.cpp vector_3d.cpp \
+	Cell.h D6.h D7.h Delone.h DeloneTetrahedron.h G6.h \
+        MatN.h MatMN.h Mat66.h Reducer.h \
+	VecN.h Vec_N_Tools.h VectorTools.h inverse.cpp vector_3d.cpp 
+	g++ $(CXXFLAGS) -o s6dist_app  s6dist_app.cpp S6Dist_func_.o \
+	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
+	Reducer.cpp D6.cpp D7.cpp S6.cpp Selling.cpp S6Dist.cpp \
+	Delone.cpp DeloneTetrahedron.cpp Cell.cpp G6.cpp \
+	MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+	inverse.cpp vector_3d.cpp  -lpthread
 
 ncdist_.o:  ncdist.cpp Reducer.h Delone.h Cell.h NCDist.h VecN.h Vec_N_Tools.h
 	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) ncdist.cpp -o ncdist_.o
@@ -114,11 +133,18 @@ d7dist:  d7dist_.o \
 	MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
 	inverse.cpp vector_3d.cpp  -lpthread
 
+rcpp_s6dist_.o:  rcpp_s6dist.cpp G6.h D7.h S6.h Delone.h Reducer.h Cell.h D7Dist.h
+	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
+	 -I$(RCPP_HEADERS) \
+		-I$(RCPPPARA_HEADERS) \
+		-I$(RCPPARMA_HEADERS) -c rcpp_s6dist.cpp -o rcpp_s6dist_.o
+
 rcpp_ncdist_.o:  rcpp_ncdist.cpp Reducer.h Cell.h NCDist.h
 	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
 	 -I$(RCPP_HEADERS) \
 		-I$(RCPPPARA_HEADERS) \
 		-I$(RCPPARMA_HEADERS) -c rcpp_ncdist.cpp -o rcpp_ncdist_.o
+
 
 rcpp_d7dist_.o:  rcpp_d7dist.cpp Reducer.h Cell.h D7Dist.h
 	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
@@ -145,9 +171,19 @@ Cell.o:  Cell.cpp Reducer.h Cell.h NCDist.h
 		-I$(RCPPPARA_HEADERS) \
 		-I$(RCPPARMA_HEADERS) -c Cell.cpp -o Cell.o
 
+rcpp_s6dist.so:	rcpp_s6dist_.o Reducer.o Cell.o S6Dist.h Reducer.h D6.h D7.h S6.h \
+	S6Dist.cpp Reducer.cpp D6.cpp D7.cpp S6.cpp Selling.cpp Delone.cpp DeloneTetrahedron.cpp \
+        Cell.cpp G6.cpp MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+        inverse.cpp vector_3d.cpp S6Dist_func.cpp
+	g++ $(CXXFLAGS) -shared -o rcpp_s6dist.so rcpp_s6dist_.o -I $(RCPPPARA_HEADERS) \
+        S6Dist.cpp Reducer.cpp D6.cpp D7.cpp S6.cpp Selling.cpp Delone.cpp DeloneTetrahedron.cpp \
+	Cell.cpp G6.cpp MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
+        inverse.cpp vector_3d.cpp S6Dist_func.cpp -L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
+
+
 rcpp_ncdist.so:	rcpp_ncdist_.o Reducer.o Cell.o
 	g++ $(CXXFLAGS) -shared -o rcpp_ncdist.so rcpp_ncdist_.o -I $(RCPPPARA_HEADERS) \
-        Reducer.cpp D6.cpp D7.cpp Delone.cpp DeloneTetrahedron.cpp Cell.cpp G6.cpp \
+        Reducer.cpp D6.cpp D7.cpp S6.cpp Delone.cpp DeloneTetrahedron.cpp Cell.cpp G6.cpp \
         MatN.cpp MatMN.cpp Mat66.cpp VecN.cpp Vec_N_Tools.cpp VectorTools.cpp \
         inverse.cpp vector_3d.cpp -L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
