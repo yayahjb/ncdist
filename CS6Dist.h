@@ -171,7 +171,7 @@ static double s6prj_perp[NS6BDPRJ][36]= {
 /* The following matrices are the transformation
  matrices that may be applied at the associated
  boundaries.  *** An addition post permutation may
- be needed to preserve S6 ordering *** */
+ be needed to preserve S6 ordering *** 
  */
 
 static int S6Rord[24]= {0,1,2,3,4,5,12,18,6,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23};
@@ -431,12 +431,12 @@ static int S6Refl[24][36]={
 static int preserve1[3]={S6_Refl_3,S6_Refl_22,S6_Refl_24};
 static int preserve2[3]={S6_Refl_6,S6_Refl_15,S6_Refl_17};
 static int preserve3[3]={S6_Refl_2,S6_Refl_7,S6_Refl_8};
-static int preserve4[3]={S6_Refl_3,S6_Refl_22,S6_Refl_24}
-static int preserve2[3]={S6_Refl_6,S6_Refl_15,S6_Refl_17};
-static int preserve3[3]={S6_Refl_2,S6_Refl_7,S6_Refl_8};
+static int preserve4[3]={S6_Refl_3,S6_Refl_22,S6_Refl_24};
+static int preserve5[3]={S6_Refl_6,S6_Refl_15,S6_Refl_17};
+static int preserve6[3]={S6_Refl_2,S6_Refl_7,S6_Refl_8};
 
 
-static int D6MS[6][36] = {
+static int S6MS[6][36] = {
 
     /* D6M_1 s3<->s5 {1,2,5,4,3,6} */
     {1,0,0,0,0,0,
@@ -484,11 +484,11 @@ static int D6MS[6][36] = {
 
     /* D6M_6  s1<-s2 {2,1,3,4,5,6} */
 
-    {0,1,0,0,0,0],
-     1,0,0,0,0,0],
-     0,0,1,0,0,0],
-     0,0,0,1,0,0],
-     0,0,0,0,1,0],
+    {0,1,0,0,0,0,
+     1,0,0,0,0,0,
+     0,0,1,0,0,0,
+     0,0,0,1,0,0,
+     0,0,0,0,1,0,
      0,0,0,0,0,1}
 };
 
@@ -605,7 +605,7 @@ static double s6eucldist(double v1[6], double v2[6]) {
 fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
 (v14-v24)*(v14-v24)+(v15-v25)*(v15-v25)+(v16-v26)*(v16-v26))
 
-#define CS6M_s6prods_byelem(v11,v12,v13,v14,v15,v16,v17,v21,v22,v23,v24,v25,v26,v27) \
+#define CS6M_s6prods_byelem(v11,v12,v13,v14,v15,v16,v21,v22,v23,v24,v25,v26) \
 2.*(v11*v21+v12*v22+v13*v23+v14*v24+v15*v25+v16*v26)
 
 #define CS6M_s61234distsq(v1,v2) \
@@ -671,6 +671,10 @@ static double s61234distsq(double v1[6], double v2[6]) {
     int i;
     distsq = v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2] + v1[3]*v1[3] + v1[4]*v1[4] + v1[5]*v1[5] 
     + v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2] + v2[3]*v2[3] + v2[4]*v2[4] + v2[5]*v2[5];
+#pragma omp parallel sections
+    {
+#pragma omp section
+    {
     dtrial[0] = CS6M_s6prods_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[1] = CS6M_s6prods_byelem(v1[4],v1[3],v1[2],v1[1],v1[0],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[2] = CS6M_s6prods_byelem(v1[0],v1[2],v1[1],v1[3],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
@@ -678,7 +682,10 @@ static double s61234distsq(double v1[6], double v2[6]) {
     dtrial[4] = CS6M_s6prods_byelem(v1[4],v1[2],v1[3],v1[1],v1[5],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[5] = CS6M_s6prods_byelem(v1[5],v1[1],v1[3],v1[2],v1[4],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[6] = CS6M_s6prods_byelem(v1[1],v1[0],v1[2],v1[4],v1[3],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[6] = CS6M_s6prods_byelem(v1[3],v1[4],v1[2],v1[1],v1[1],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[7] = CS6M_s6prods_byelem(v1[3],v1[4],v1[2],v1[1],v1[1],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    }
+#pragma omp section
+    {
     dtrial[8] = CS6M_s6prods_byelem(v1[1],v1[2],v1[0],v1[4],v1[5],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[9] = CS6M_s6prods_byelem(v1[5],v1[4],v1[0],v1[2],v1[1],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[10] = CS6M_s6prods_byelem(v1[3],v1[2],v1[4],v1[0],v1[5],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
@@ -687,6 +694,9 @@ static double s61234distsq(double v1[6], double v2[6]) {
     dtrial[13] = CS6M_s6prods_byelem(v1[3],v1[5],v1[1],v1[0],v1[2],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[14] = CS6M_s6prods_byelem(v1[2],v1[1],v1[0],v1[5],v1[4],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[15] = CS6M_s6prods_byelem(v1[4],v1[5],v1[0],v1[1],v1[2],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    }
+#pragma omp section
+    {
     dtrial[16] = CS6M_s6prods_byelem(v1[3],v1[1],v1[5],v1[0],v1[4],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[17] = CS6M_s6prods_byelem(v1[4],v1[0],v1[5],v1[1],v1[3],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[18] = CS6M_s6prods_byelem(v1[2],v1[4],v1[3],v1[5],v1[1],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
@@ -695,6 +705,8 @@ static double s61234distsq(double v1[6], double v2[6]) {
     dtrial[21] = CS6M_s6prods_byelem(v1[0],v1[5],v1[4],v1[3],v1[2],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[22] = CS6M_s6prods_byelem(v1[1],v1[3],v1[5],v1[4],v1[0],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     dtrial[23] = CS6M_s6prods_byelem(v1[0],v1[4],v1[5],v1[3],v1[1],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    }
+}
     
     dwnby = dtrial[0];
     for (i = 1; i < 24; i++) if (dtrial[i] > dwnby) dwnby = dtrial[i];
@@ -702,12 +714,6 @@ static double s61234distsq(double v1[6], double v2[6]) {
 }
 
 #define s61234dist(v1,v2) sqrt(s61234distsq(v1,v2))
-
-
-/*     Compute the best distance between 2 G6 vectors
- allowing for permulations of g1, g2, g3 as
- well as sign changes
- */
 
 
 static void s6cpyvn(int n, double src[], double dst[] ) {
@@ -1093,7 +1099,7 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
 
 
 
-double S6Dist(double * gvec1,double * gvec2) {
+double CS6Dist(double gvec1[6],double gvec2[6]) {
     int rpasses, ir, irt;
     int jr;
     double dist,dist1, dist2, distmin;
@@ -1108,7 +1114,7 @@ double S6Dist(double * gvec1,double * gvec2) {
     distmin = CS6M_min(dist1,dist2);
     rpasses = NREFL_OUTER_MIN;
     dist = s61234dist(gvec1,gvec2);
-    report_double("\n  Entered S6Dist gdist = ",dist,", ");
+    report_double("\n  Entered CS6Dist gdist = ",dist,", ");
     report_double_vector("gvec1 = ", gvec1,", ")
     report_double_vector("gvec2 = ", gvec2,";")
     if (dist1+dist2 <  dist*.999 ) {
