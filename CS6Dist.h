@@ -10,13 +10,12 @@
 #define CS6DIST_H
 
 
-/* #define S6DIST_DEBUG */
+#define S6DIST_DEBUG  
 #define S6DIST_NO_OUTER_PASS 
 
 #include <math.h>
 #include <float.h>
 
-/*#define S6DIST_DEBUG */
 #ifdef S6DIST_DEBUG
 static int changed=0;
 static double oldvalue;
@@ -34,9 +33,9 @@ if(changed) {fprintf(stderr,"%s%d%s",prolog,value,epilog);}
 #define also_if_changed_report_double(prolog,value,epilog) \
 if(changed) {fprintf(stderr,"%s%g%s",prolog,value,epilog);}
 #define also_if_changed_report_double_vector(prolog,value,epilog) \
-if(changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],value[6],epilog);}
+if(changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],epilog);}
 #define report_double_vector(prolog,value,epilog) \
-{fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],value[6],epilog);}
+{fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],epilog);}
 #else
 #define report_double(prolog,value,epilog)
 #define report_integer(prolog,value,epilog)
@@ -174,7 +173,7 @@ static double s6prj_perp[NS6BDPRJ][36]= {
  be needed to preserve S6 ordering *** 
  */
 
-static int S6Rord[24]= {0,1,2,3,4,5,12,18,6,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23};
+static int S6Rord[24]= {0,1,2,5,6,7,3,4,14,16,21,23,8,9,10,11,12,13,15,17,18,19,20,22};
 
 #define S6_Refl_1 0
 #define S6_Refl_2 1
@@ -205,7 +204,7 @@ static int S6Rord[24]= {0,1,2,3,4,5,12,18,6,7,8,9,10,11,13,14,15,16,17,19,20,21,
 static int S6Refl[24][36]={
 
 /*S6Refl_1 { 1 , 2 , 3 , 4 } */
-/*S6_0* identity/
+/*S6_0* identity */
    {1, 0, 0, 0, 0, 0,
     0, 1, 0, 0, 0, 0,
     0, 0, 1, 0, 0, 0,
@@ -232,7 +231,7 @@ static int S6Refl[24][36]={
     0, 0, 0, 0, 1, 0},
 
 /*S6Refl_4 { 1 , 3 , 4 , 2 } */
-/*S6_3 * preserves no boundaries /
+/*S6_3  preserves no boundaries */
    {0, 0, 0, 0, 0, 1,
     0, 0, 0, 1, 0, 0,
     0, 1, 0, 0, 0, 0,
@@ -394,7 +393,7 @@ static int S6Refl[24][36]={
     0, 1, 0, 0, 0, 0},
 
 /*S6Refl_22 { 4 , 2 , 3 , 1 } */
-/*S6_21* preserves boundaries 1 and 4/
+/*S6_21 preserves boundaries 1 and 4 */
    {1, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 1,
     0, 0, 0, 0, 1, 0,
@@ -423,17 +422,6 @@ static int S6Refl[24][36]={
 };
 
 
-    /* S6 Boundary transformations -- These are permutations
-       produced by reduction transforms of S6 vectors on 
-       each boundary.  The boundary-preserving refections
-       should also be applied. */
-
-static int preserve1[3]={S6_Refl_3,S6_Refl_22,S6_Refl_24};
-static int preserve2[3]={S6_Refl_6,S6_Refl_15,S6_Refl_17};
-static int preserve3[3]={S6_Refl_2,S6_Refl_7,S6_Refl_8};
-static int preserve4[3]={S6_Refl_3,S6_Refl_22,S6_Refl_24};
-static int preserve5[3]={S6_Refl_6,S6_Refl_15,S6_Refl_17};
-static int preserve6[3]={S6_Refl_2,S6_Refl_7,S6_Refl_8};
 
 
 static int S6MS[6][36] = {
@@ -764,13 +752,13 @@ static void s6twoPminusI(double pg[6], double g[6], double gout[6]) {
        applying the 24-way unfolding */
 
 #ifdef S6DIST_NO_OUTER_PASS
-#define NREFL_OUTER_FULL 8
+#define NREFL_OUTER_FULL 12
 #define NREFL_OUTER_MIN 1
-#define NREFL_OUTER_MID 1
+#define NREFL_OUTER_MID 6
 #else
 #define NREFL_OUTER_FULL 24
-#define NREFL_OUTER_MID 16
-#define NREFL_OUTER_MIN 8
+#define NREFL_OUTER_MID 12
+#define NREFL_OUTER_MIN 6
 #endif
 
 static double s6bddist(double gvec[6],int bdnum) {
@@ -1116,7 +1104,7 @@ double CS6Dist(double gvec1[6],double gvec2[6]) {
     dist = s61234dist(gvec1,gvec2);
     report_double("\n  Entered CS6Dist gdist = ",dist,", ");
     report_double_vector("gvec1 = ", gvec1,", ")
-    report_double_vector("gvec2 = ", gvec2,";")
+    report_double_vector("gvec2 = ", gvec2,"\n")
     if (dist1+dist2 <  dist*.999 ) {
         rpasses = NREFL_OUTER_MID;
     }
@@ -1137,6 +1125,14 @@ double CS6Dist(double gvec1[6],double gvec2[6]) {
     for (ir = 1; ir < rpasses; ir++) {
         for (jr = 1; jr < rpasses; jr++) {
             ndists[ir][jr] = S6Dist_pass(rgvec1[ir],rgvec2[jr],dist);
+            if (ndists[ir][jr] < 00.01) {
+            report_double("\n  ***ZERO*** gdist = ",dist,", ");
+            report_integer("ir = ",ir,", ")
+            report_integer("jr = ",jr,", ")
+            report_double_vector("rgvec1 = ", gvec1,", ")
+            report_double_vector("rgvec2 = ", gvec2,"\n")
+               
+            }
         }
     }
     
@@ -1145,9 +1141,6 @@ double CS6Dist(double gvec1[6],double gvec2[6]) {
     for (ir = 0; ir < rpasses; ir++) {
         for (jr = 0; jr < rpasses; jr++) {
             if (ndists[ir][jr] < dist) dist = ndists[ir][jr];
-            report_double_if_changed("\n ndists[ir][jr] ", dist, ", ");
-            also_if_changed_report_integer("ir =",ir,", ");
-            also_if_changed_report_integer("jr =",jr,"\n");
         }
     }
     return dist;

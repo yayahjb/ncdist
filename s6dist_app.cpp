@@ -13,10 +13,10 @@
 #include <iostream>
 #include <cmath>
 #include <stdlib.h>
-
+#include <ctype.h>
 //*****************************************************************************
 S6 makeprimredcell( std::string testlattice,
-	double a, double b, double c, double alpha, double beta, double gamma )
+	double a, double b, double c, double alpha, double beta, double gamma, double extra )
 {
     std::string latsym;
     char clatsym;
@@ -72,6 +72,24 @@ S6 makeprimredcell( std::string testlattice,
 	    primcell[4] = beta;
 	    primcell[5] = gamma;
             break;
+        case 'D':
+        case 'd':
+           primcell[0] = a;
+           primcell[1] = b;
+           primcell[2] = c;
+           primcell[3] = beta-b-c;
+           primcell[4] = gamma-a-c;
+           primcell[5] = extra-a-b;
+           break;
+        case 'S':
+        case 's':
+           primcell[3] = 2.*a;
+           primcell[4] = 2.*b;
+           primcell[5] = 2.*c;
+           primcell[0] = -alpha-c-b;
+           primcell[1] = -beta-c-a;
+           primcell[2] = -gamma-b-a;
+           break;
         default:
             std::cerr << "Unrecognized lattice symbol "<< testlattice<<" treated as P" << std::endl;
             latsym = "P";
@@ -163,46 +181,79 @@ S6 makeprimredcell( std::string testlattice,
 }
 
 
+
+
 int main(int argc, char ** argv) {
 
     std::string lat1, lat2;
-    double a1,b1,c1,alpha1,beta1,gamma1;
-    double a2,b2,c2,alpha2,beta2,gamma2;
+    double a1,b1,c1,alpha1,beta1,gamma1,extra1;
+    double a2,b2,c2,alpha2,beta2,gamma2,extra2;;
     S6 prim1, prim2;
     double dprim1[6];
     double dprim2[6];
     size_t ii;
+    char clatsym;
+    int argoff;
+
          
     if (argc < 15) {
         std::cerr 
-		<< "Usage: ncdist lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2" 
+		<< "Usage: cs6dist_app lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2" 
 		<< std::endl;
         return -1;
     }
+    clatsym=((std::string(argv[8])).substr(0,1))[0];
+    argoff = 1;
+    if (isalpha(clatsym)) argoff = 0;
+    extra1 = 0.;
+    extra2 = 0.;
     lat1 = std::string(argv[1]);
-    lat2 = std::string(argv[8]);
+    clatsym= lat1.substr(0,1)[0];
+    if (clatsym == 'D' || clatsym == 'd') {
+        argoff = 1;
+        if (argc < 16) {
+            std::cerr 
+                << "Usage: cs6dist_app lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2" 
+                << std::endl;
+            return -1;
+        }
+        extra1 = atof(argv[8]);
+    }
+    lat2 = std::string(argv[8+argoff]);
+    clatsym= lat2.substr(0,2)[0];
+    if (clatsym == 'D' || clatsym == 'd') {
+        if (argc < 16+argoff){
+            std::cerr 
+                << "Usage: cs6dist_app lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2" 
+                << std::endl;
+            return -1;
+        }
+        extra2 = atof(argv[15+argoff]);
+    }
+
     a1 = atof(argv[2]);
-    a2 = atof(argv[9]);
+    a2 = atof(argv[9+argoff]);
     b1 = atof(argv[3]);
-    b2 = atof(argv[10]);
+    b2 = atof(argv[10+argoff]);
     c1 = atof(argv[4]);
-    c2 = atof(argv[11]);
+    c2 = atof(argv[11+argoff]);
     alpha1 = atof(argv[5]);
-    alpha2 = atof(argv[12]);
+    alpha2 = atof(argv[12+argoff]);
     beta1 = atof(argv[6]);
-    beta2 = atof(argv[13]);
+    beta2 = atof(argv[13+argoff]);
     gamma1 = atof(argv[7]);
-    gamma2 = atof(argv[14]);
-    prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1);
-    prim2 = makeprimredcell(lat2,a2,b2,c2,alpha2,beta2,gamma2);
+    gamma2 = atof(argv[14+argoff]);
+    
+    prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1,extra1);
+    prim2 = makeprimredcell(lat2,a2,b2,c2,alpha2,beta2,gamma2,extra2);
     for (ii=0; ii < 6; ii++) {
       dprim1[ii] = prim1[ii];
       dprim2[ii] = prim2[ii];
     }
     std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
-              << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] << ", " <<  "]" << std::endl;
+              << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] <<  "]" << std::endl;
     std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
-              << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] << ", " <<  "]" << std::endl;
+              << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] <<  "]" << std::endl;
     std::cout << 0.1*std::sqrt(S6Dist_func(dprim1,dprim2)) << std::endl;
     return 0;
 }
