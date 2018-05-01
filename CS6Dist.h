@@ -10,9 +10,9 @@
 #define CS6DIST_H
 
 
-/* #define S6DIST_TESTS */
-/* #define S6DIST_DEBUG */  
-/* #define S6DIST_NO_OUTER_PASS  */
+/* #define S6DIST_TESTS */ 
+/* #define S6DIST_DEBUG */   
+/* #define S6DIST_NO_OUTER_PASS */ 
 
 #include <math.h>
 #include <float.h>
@@ -366,7 +366,7 @@ static int S6Refl[24][36]={
     0, 0, 1, 0, 0, 0},
 
 /*S6Refl_19 B4: { 4 , 1 , 2 , 3 } S6: { 3, 5, 4, 6, 2, 1 } */
-/*S6_18* preserves no boundaries/
+/*S6_18* preserves no boundaries */
    {0, 0, 1, 0, 0, 0,
     0, 0, 0, 0, 1, 0,
     0, 0, 0, 1, 0, 0,
@@ -592,7 +592,7 @@ static int S6MSX[12][36] = {
 /* Test if outside S6 region
    return 0 if outside */
 
-int s6test(double s[6]) {
+static int s6test(double s[6]) {
     int retval = 0;
     if (s[0] > 0. ) retval |= 0x1;
     if (s[1] > 0. ) retval |= 0x2;
@@ -1100,7 +1100,7 @@ static double S6Dist_2bds_rev(double g_lft[6], double g_rgt[6],
 
 
 /*
- Compute tminimal distance between two Delaunay-reduced
+ Compute minimal distance between two Delaunay-reduced
  vectors in the Delaunay Cone following the embedding paths
  to the 6 boundaries
  */
@@ -1146,7 +1146,6 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
             d2 = dists2[j2];
             if (d2 < maxdist) {
                 dist = CS6M_min(dist,(s61234dist(gvec1,mpgs2[j2])+d2));
-                
             }
         }
     }
@@ -1205,7 +1204,7 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
 
 
 
-double CS6Dist(double gvec1[6],double gvec2[6]) {
+static double CS6Dist(double gvec1[6],double gvec2[6]) {
     int rpasses, ir, irt;
     int jr;
     double dist,dist1, dist2, distmin;
