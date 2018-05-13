@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-//*****************************************************************************
+// *****************************************************************************
 S6 makeprimredcell( std::string testlattice,
 	double a, double b, double c, double alpha, double beta, double gamma, double extra )
 {
@@ -209,7 +209,7 @@ int main(int argc, char ** argv) {
     extra2 = 0.;
     lat1 = std::string(argv[1]);
     clatsym= lat1.substr(0,1)[0];
-    std::cerr <<  "clatsym, argoff " << clatsym << " " << argoff <<  std::endl;
+    /* std::cerr <<  "clatsym, argoff " << clatsym << " " << argoff <<  std::endl; */
     if (clatsym == 'D' || clatsym == 'd') {
         argoff = 1;
         if (argc < 16) {
