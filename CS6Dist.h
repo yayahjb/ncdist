@@ -717,9 +717,6 @@ static double s6eucldist(double v1[6], double v2[6]) {
 fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
 (v14-v24)*(v14-v24)+(v15-v25)*(v15-v25)+(v16-v26)*(v16-v26))
 
-#ifndef apply2
-#define apply2(func,arg1,arg2) func(arg1,arg2)
-#endif
 
 #define CS6M_s6prods_byelem(v11,v12,v13,v14,v15,v16,v21,v22,v23,v24,v25,v26) \
 2.*(v11*v21+v12*v22+v13*v23+v14*v24+v15*v25+v16*v26)
@@ -727,32 +724,32 @@ fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
 #define CS6M_s61234distsq(v1,v2) \
 CS6M_min3(\
 CS6M_min8(\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_1(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_2(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_3(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_4(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_5(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_6(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_7(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_8(v1),CS6M_S6Perm_1(v2))),\
+CS6M_s6eucldistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[4],v1[3],v1[2],v1[1],v1[0],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[0],v1[2],v1[1],v1[3],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[5],v1[3],v1[1],v1[2],v1[0],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[4],v1[2],v1[3],v1[1],v1[5],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[5],v1[1],v1[3],v1[2],v1[4],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[1],v1[0],v1[2],v1[4],v1[3],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[3],v1[4],v1[2],v1[0],v1[1],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5])),\
 CS6M_min8(\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_9(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_10(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_11(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_12(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_13(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_14(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_15(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_16(v1),CS6M_S6Perm_1(v2))),\
+CS6M_s6eucldistsq_byelem(v1[1],v1[2],v1[0],v1[4],v1[5],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[5],v1[4],v1[0],v1[2],v1[1],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[3],v1[2],v1[4],v1[0],v1[5],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[5],v1[0],v1[4],v1[2],v1[3],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[2],v1[0],v1[1],v1[5],v1[3],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[3],v1[5],v1[1],v1[0],v1[2],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[2],v1[1],v1[0],v1[5],v1[4],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[4],v1[5],v1[0],v1[1],v1[2],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5])),\
 CS6M_min8(\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_17(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_18(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_19(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_20(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_21(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_22(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_23(v1),CS6M_S6Perm_1(v2)),\
-apply2(CS6M_s6eucldistsq_byelem,CS6M_S6Perm_24(v1),CS6M_S6Perm_1(v2))))
+CS6M_s6eucldistsq_byelem(v1[3],v1[1],v1[5],v1[0],v1[4],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[4],v1[0],v1[5],v1[1],v1[3],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[2],v1[4],v1[3],v1[5],v1[1],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[1],v1[5],v1[3],v1[4],v1[2],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[2],v1[3],v1[4],v1[5],v1[0],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[0],v1[5],v1[4],v1[3],v1[2],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[1],v1[3],v1[5],v1[4],v1[0],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]),\
+CS6M_s6eucldistsq_byelem(v1[0],v1[4],v1[5],v1[3],v1[1],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5])))
 
 #define CS6M_s61234dist(v1,v2) sqrt(CS6M_s61234distsq(v1,v2))
 
@@ -767,36 +764,36 @@ static double s61234distsq(double v1[6], double v2[6]) {
     {
 #pragma omp section
     {
-    dtrial[0] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_1(v1),CS6M_S6Perm_1(v2));
-    dtrial[1] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_2(v1),CS6M_S6Perm_1(v2));
-    dtrial[2] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_3(v1),CS6M_S6Perm_1(v2));
-    dtrial[3] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_4(v1),CS6M_S6Perm_1(v2));
-    dtrial[4] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_5(v1),CS6M_S6Perm_1(v2));
-    dtrial[5] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_6(v1),CS6M_S6Perm_1(v2));
-    dtrial[6] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_7(v1),CS6M_S6Perm_1(v2));
-    dtrial[7] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_8(v1),CS6M_S6Perm_1(v2));
+    dtrial[0] = CS6M_s6prods_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[1] = CS6M_s6prods_byelem(v1[4],v1[3],v1[2],v1[1],v1[0],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[2] = CS6M_s6prods_byelem(v1[0],v1[2],v1[1],v1[3],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[3] = CS6M_s6prods_byelem(v1[5],v1[3],v1[1],v1[2],v1[0],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[4] = CS6M_s6prods_byelem(v1[4],v1[2],v1[3],v1[1],v1[5],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[5] = CS6M_s6prods_byelem(v1[5],v1[1],v1[3],v1[2],v1[4],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[6] = CS6M_s6prods_byelem(v1[1],v1[0],v1[2],v1[4],v1[3],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[7] = CS6M_s6prods_byelem(v1[3],v1[4],v1[2],v1[0],v1[1],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     }
 #pragma omp section
     {
-    dtrial[8] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_9(v1),CS6M_S6Perm_1(v2));
-    dtrial[9] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_10(v1),CS6M_S6Perm_1(v2));
-    dtrial[10] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_11(v1),CS6M_S6Perm_1(v2));
-    dtrial[11] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_12(v1),CS6M_S6Perm_1(v2));
-    dtrial[12] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_13(v1),CS6M_S6Perm_1(v2));
-    dtrial[13] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_14(v1),CS6M_S6Perm_1(v2));
-    dtrial[14] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_15(v1),CS6M_S6Perm_1(v2));
-    dtrial[15] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_16(v1),CS6M_S6Perm_1(v2));
+    dtrial[8] = CS6M_s6prods_byelem(v1[1],v1[2],v1[0],v1[4],v1[5],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[9] = CS6M_s6prods_byelem(v1[5],v1[4],v1[0],v1[2],v1[1],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[10] = CS6M_s6prods_byelem(v1[3],v1[2],v1[4],v1[0],v1[5],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[11] = CS6M_s6prods_byelem(v1[5],v1[0],v1[4],v1[2],v1[3],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[12] = CS6M_s6prods_byelem(v1[2],v1[0],v1[1],v1[5],v1[3],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[13] = CS6M_s6prods_byelem(v1[3],v1[5],v1[1],v1[0],v1[2],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[14] = CS6M_s6prods_byelem(v1[2],v1[1],v1[0],v1[5],v1[4],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[15] = CS6M_s6prods_byelem(v1[4],v1[5],v1[0],v1[1],v1[2],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     }
 #pragma omp section
     {
-    dtrial[16] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_17(v1),CS6M_S6Perm_1(v2));
-    dtrial[17] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_18(v1),CS6M_S6Perm_1(v2));
-    dtrial[18] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_19(v1),CS6M_S6Perm_1(v2));
-    dtrial[19] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_20(v1),CS6M_S6Perm_1(v2));
-    dtrial[20] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_21(v1),CS6M_S6Perm_1(v2));
-    dtrial[21] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_22(v1),CS6M_S6Perm_1(v2));
-    dtrial[22] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_23(v1),CS6M_S6Perm_1(v2));
-    dtrial[23] = apply2(CS6M_s6prods_byelem,CS6M_S6Perm_24(v1),CS6M_S6Perm_1(v2));
+    dtrial[16] = CS6M_s6prods_byelem(v1[3],v1[1],v1[5],v1[0],v1[4],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[17] = CS6M_s6prods_byelem(v1[4],v1[0],v1[5],v1[1],v1[3],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[18] = CS6M_s6prods_byelem(v1[2],v1[4],v1[3],v1[5],v1[1],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[19] = CS6M_s6prods_byelem(v1[1],v1[5],v1[3],v1[4],v1[2],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[20] = CS6M_s6prods_byelem(v1[2],v1[3],v1[4],v1[5],v1[0],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[21] = CS6M_s6prods_byelem(v1[0],v1[5],v1[4],v1[3],v1[2],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[22] = CS6M_s6prods_byelem(v1[1],v1[3],v1[5],v1[4],v1[0],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[23] = CS6M_s6prods_byelem(v1[0],v1[4],v1[5],v1[3],v1[1],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
     }
 }
     
