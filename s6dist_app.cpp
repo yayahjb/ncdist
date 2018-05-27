@@ -191,6 +191,7 @@ int main(int argc, char ** argv) {
     S6 prim1, prim2;
     double dprim1[6];
     double dprim2[6];
+    double rawdist;
     size_t ii;
     char clatsym;
     int argoff;
@@ -254,6 +255,8 @@ int main(int argc, char ** argv) {
               << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] <<  "]" << std::endl;
     std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
               << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] <<  "]" << std::endl;
-    std::cout << 0.1*std::sqrt(S6Dist_func(dprim1,dprim2)) << std::endl;
+    rawdist = S6Dist_func(dprim1,dprim2);
+    std::cout << "rawdist: "<< rawdist << std::endl;
+    std::cout << 0.1*std::sqrt(rawdist) << std::endl;
     return 0;
 }

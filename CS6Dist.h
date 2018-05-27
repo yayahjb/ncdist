@@ -434,7 +434,7 @@ static int S6Refl[24][36]={
 #define CS6M_S6Perm_10(v) /* B4:{ 2 , 3 , 4 , 1 }*/  v[5],v[4],v[0],v[2],v[1],v[3]
 #define CS6M_S6Perm_11(v) /* B4:{ 2 , 4 , 1 , 3 }*/  v[3],v[2],v[4],v[0],v[5],v[1]
 #define CS6M_S6Perm_12(v) /* B4:{ 2 , 4 , 3 , 1 }*/  v[5],v[0],v[4],v[2],v[3],v[1]
-#define CS6M_S6Perm_13(v) /* B4:{ 3 , 1 , 2 , 3 }*/  v[2],v[0],v[1],v[5],v[3],v[5]
+#define CS6M_S6Perm_13(v) /* B4:{ 3 , 1 , 2 , 4 }*/  v[2],v[0],v[1],v[5],v[3],v[4]
 #define CS6M_S6Perm_14(v) /* B4:{ 3 , 1 , 4 , 2 }*/  v[3],v[5],v[1],v[0],v[2],v[4]
 #define CS6M_S6Perm_15(v) /* B4:{ 3 , 2 , 1 , 4 }*/  v[2],v[1],v[0],v[5],v[4],v[3]
 #define CS6M_S6Perm_16(v) /* B4:{ 3 , 2 , 4 , 1 }*/  v[4],v[5],v[0],v[1],v[2],v[3]
@@ -448,9 +448,8 @@ static int S6Refl[24][36]={
 #define CS6M_S6Perm_24(v) /* B4:{ 4 , 3 , 2 , 1 }*/  v[0],v[4],v[5],v[3],v[1],v[2]
 
 
-
 static int bdryprsv [6][4] = {
-  {0, 2,22,23},
+  {0, 2,21,23},
   {0, 5,14,16},
   {0, 1,6,7},
   {0, 2,21,23},
@@ -799,6 +798,7 @@ static double s61234distsq(double v1[6], double v2[6]) {
     
     dwnby = dtrial[0];
     for (i = 1; i < 24; i++) if (dtrial[i] > dwnby) dwnby = dtrial[i];
+    if (dwnby > distsq) dwnby = distsq;
     return (fabs(distsq - dwnby));
 }
 
@@ -886,33 +886,9 @@ static void s6twoPminusI(double pg[6], double g[6], double gout[6]) {
 #endif
 
 static double s6bddist(double gvec[6],int bdnum) {
-    
-    /* inward normals in S6 */
-    double S6N_1x[6]={-1.,0. ,0. ,0. ,0. ,0. };
-    double S6N_2x[6]={0. ,-1.,0. ,0. ,0. ,0. };
-    double S6N_3x[6]={0. ,0. ,-1.,0. ,0. ,0. };
-    double S6N_4x[6]={0. ,0. ,0. ,-1.,0. ,0. };
-    double S6N_5x[6]={0. ,0. ,0. ,0. ,-1.,0. };
-    double S6N_6x[6]={0. ,0. ,0. ,0. ,0. ,-1.};
-    
-    if (bdnum < NS6BND) {
-        
-        switch(bdnum) {
-            case(S6P_1): return -s6dotprod(S6N_1x,gvec); break;
-            case(S6P_2): return -s6dotprod(S6N_2x,gvec); break;
-            case(S6P_3): return -s6dotprod(S6N_3x,gvec); break;
-            case(S6P_4): return -s6dotprod(S6N_4x,gvec); break;
-            case(S6P_5): return -s6dotprod(S6N_5x,gvec); break;
-            case(S6P_6): return -s6dotprod(S6N_6x,gvec); break;
-                
-            default: return DBL_MAX; break;
-        }
-        
+    if (bdnum < 0 || bdnum  > 5) return DBL_MAX;
+    return gvec[bdnum];
     }
-    
-    return DBL_MAX;
-}
-
 
 
 
