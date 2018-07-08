@@ -17,34 +17,34 @@
 #include <float.h>
 
 #ifdef S6DIST_DEBUG
-static int changed=0;
+static int CS6M_changed=0;
 static double oldvalue;
 #include <stdio.h>
-#define report_double(prolog,value,epilog) \
+#define CSM_report_double(prolog,value,epilog) \
 oldvalue=value; fprintf(stderr,"%s%g%s",prolog,value,epilog);
-#define report_integer(prolog,value,epilog) \
+#define CSM_report_integer(prolog,value,epilog) \
 fprintf(stderr,"%s%d%s",prolog,value,epilog);
-#define report_double_if_changed(prolog,value,epilog) \
-changed=0; if (fabs(value-oldvalue)>1.e-8*(fabs(value)+fabs(oldvalue)+1.e-12)) {oldvalue=value; changed=1; fprintf(stderr,"%s%g%s",prolog,value,epilog);}
-#define also_if_changed_report(prolog,value,epilog) \
-if(changed) {fprintf(stderr,"%s%s%s",prolog,value,epilog);}
-#define also_if_changed_report_integer(prolog,value,epilog) \
-if(changed) {fprintf(stderr,"%s%d%s",prolog,value,epilog);}
-#define also_if_changed_report_double(prolog,value,epilog) \
-if(changed) {fprintf(stderr,"%s%g%s",prolog,value,epilog);}
-#define also_if_changed_report_double_vector(prolog,value,epilog) \
-if(changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],epilog);}
-#define report_double_vector(prolog,value,epilog) \
+#define CSM_report_double_if_changed(prolog,value,epilog) \
+CS6M_changed=0; if (fabs(value-oldvalue)>1.e-8*(fabs(value)+fabs(oldvalue)+1.e-12)) {oldvalue=value; CS6M_changed=1; fprintf(stderr,"%s%g%s",prolog,value,epilog);}
+#define CS6M_also_if_changed_report(prolog,value,epilog) \
+if(CS6M_changed) {fprintf(stderr,"%s%s%s",prolog,value,epilog);}
+#define CS6M_also_if_changed_report_integer(prolog,value,epilog) \
+if(CS6M_changed) {fprintf(stderr,"%s%d%s",prolog,value,epilog);}
+#define CS6M_also_if_changed_report_double(prolog,value,epilog) \
+if(CS6M_changed) {fprintf(stderr,"%s%g%s",prolog,value,epilog);}
+#define CS6M_also_if_changed_report_double_vector(prolog,value,epilog) \
+if(CS6M_changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],epilog);}
+#define CSM_report_double_vector(prolog,value,epilog) \
 {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],epilog);}
 #else
-#define report_double(prolog,value,epilog)
-#define report_integer(prolog,value,epilog)
-#define report_double_if_changed(prolog,value,epilog)
-#define also_if_changed_report(prolog,value,epilog)
-#define also_if_changed_report_integer(prolog,value,epilog)
-#define also_if_changed_report_double(prolog,value,epilog)
-#define also_if_changed_report_double_vector(prolog,value,epilog)
-#define report_double_vector(prolog,value,epilog)
+#define CSM_report_double(prolog,value,epilog)
+#define CSM_report_integer(prolog,value,epilog)
+#define CSM_report_double_if_changed(prolog,value,epilog)
+#define CS6M_also_if_changed_report(prolog,value,epilog)
+#define CS6M_also_if_changed_report_integer(prolog,value,epilog)
+#define CS6M_also_if_changed_report_double(prolog,value,epilog)
+#define CS6M_also_if_changed_report_double_vector(prolog,value,epilog)
+#define CSM_report_double_vector(prolog,value,epilog)
 #endif
 
 
@@ -874,12 +874,12 @@ static double s6minbddist(double gvec[6]) {
     int ii;
     double dists[6];
     double minbd;
-    dists[0] = fabs(gvec[0]);
-    dists[1] = fabs(gvec[1]);
-    dists[2] = fabs(gvec[2]);
-    dists[3] = fabs(gvec[3]);
-    dists[4] = fabs(gvec[4]);
-    dists[5] = fabs(gvec[5]);
+    dists[0] = fabs(gvec[S6P_1]);
+    dists[1] = fabs(gvec[S6P_2]);
+    dists[2] = fabs(gvec[S6P_3]);
+    dists[3] = fabs(gvec[S6P_4]);
+    dists[4] = fabs(gvec[S6P_5]);
+    dists[5] = fabs(gvec[S6P_6]);
     
     minbd = dists[0];
     for (ii=1; ii<6; ii++) {
@@ -941,6 +941,7 @@ static void s6bdmaps(double gvec[6],
         pgs[jj][jj] =  0.;
         rgs[jj][jj] = -rgs[jj][jj];
         CS6M_imv6(pgs[jj], S6MS[jj], mpgs[jj]);
+        mpgs[jj][jj] = 0;
         CS6M_imv6(gvec, S6MS[jj],mvecs[jj]);
         if (dists[jj] > maxdist) (*ngood)--;
     }
@@ -961,8 +962,8 @@ static double S6Dist_2bds_rev(double g_lft[6], double g_rgt[6],
                            double dist) {
     
     double bddist_lft_up, bddist_lft_dwn, bddist_right_up, bddist_right_dwn;
-    double alpha_lft_up, alpha_lft_dwn;
-    double bdint_lft_up[6], bdint_lft_dwn[6], mbdint_lft_up[6], mbdint_lft_dwn[6];
+    double alpha_lft_up, alpha_rgt_dwn;
+    double bdint_lft_up[6], bdint_rgt_dwn[6], mbdint_lft_up[6], mbdint_rgt_dwn[6];
     int ii;
     double gvec_lft_bd_lft_up, gvec_lft_mbd_lft_up, gvec_lft_bd_lft_dwn, gvec_lft_mbd_lft_dwn;
     double gvec_lft_bd_rgt_dwn, gvec_lft_mbd_rgt_dwn;
@@ -976,14 +977,32 @@ static double S6Dist_2bds_rev(double g_lft[6], double g_rgt[6],
     double dist_glft_bd_up, dist_grgt_bd_up;
     double dist_glft_bd_dwn, dist_grgt_bd_dwn;
     double dist_bd_up_bd_dwn, dist_bd_up_mbd_dwn, dist_mbd_up_bd_dwn, dist_mbd_up_mbd_dwn;
+
+    /* If bd_up == bd_dwn:
+
+       We need one mirror point on bd_up
+
+       dividing in proporion to the distance to that boundary
+
+       alpha_lft_up =  g_lft[bd_up]/(g_lft[bd_up]+g_rgt[bd_up]
+
+       if they are different
+
+       We need one mirrow point on bd_up and one on bd_dwn
+
+       alpha_lft_up =  g_lft[bd_up]/(g_lft[bd_up]+g_rgt[bd_up]
+       alpha_rgt_dwn =  g_lft[bd_dwn]/(g_lft[bd_dwn]+g_rgt[bd_bdwn]]
+
+    */
     
-    
-    /* distances from g_lft and g_rgt to bd_up and bd_up */
+    /* distances from g_lft and g_rgt to bd_up and bd_dwn */
     
     bddist_lft_up = fabs(s6bddist(g_lft, bd_up));
-    bddist_lft_dwn = fabs(s6bddist(g_lft, bd_dwn));
     bddist_right_up = fabs(s6bddist(g_rgt, bd_up));
-    bddist_right_dwn = fabs(s6bddist(g_rgt, bd_dwn));
+    if (bd_up != bd_dwn) {
+      bddist_lft_dwn = fabs(s6bddist(g_lft, bd_dwn));
+      bddist_right_dwn = fabs(s6bddist(g_rgt, bd_dwn));
+    }
     
     /* the portions of a minimal mirror path off each boundary */
     
@@ -992,89 +1011,63 @@ static double S6Dist_2bds_rev(double g_lft[6], double g_rgt[6],
     } else {
         alpha_lft_up = bddist_lft_up/(bddist_lft_up+bddist_right_up);
     }
-    if (bddist_lft_dwn+bddist_right_dwn < bddist_lft_dwn*1.e-10) {
-        alpha_lft_dwn = 0.;
-    } else {
-        alpha_lft_dwn = bddist_lft_dwn/(bddist_lft_dwn+bddist_right_dwn);
-    }
-    
     if (alpha_lft_up > 1.) alpha_lft_up = 1.;
-    if (alpha_lft_dwn > 1.) alpha_lft_dwn = 1.;
-    
-    
     if (alpha_lft_up < 0.) alpha_lft_up = 0.;
-    if (alpha_lft_dwn < 0.) alpha_lft_dwn = 0.;
-    
     for (ii = 0; ii < 6; ii++) {
         bdint_lft_up[ii] = pg_lft_up[ii] + alpha_lft_up*(pg_rgt_up[ii] - pg_lft_up[ii]);
-        bdint_lft_dwn[ii] = pg_lft_dwn[ii] + alpha_lft_dwn*(pg_rgt_dwn[ii] - pg_lft_dwn[ii]);
     }
+    bdint_lft_up[bd_up] = 0.;
+
+    if (bd_up != bd_dwn) {
+      if (bddist_lft_dwn+bddist_right_dwn < bddist_lft_dwn*1.e-10) {
+          alpha_rgt_dwn = 0.;
+      } else {
+          alpha_rgt_dwn = bddist_lft_dwn/(bddist_lft_dwn+bddist_right_dwn);
+      }
+      if (alpha_rgt_dwn > 1.) alpha_rgt_dwn = 1.;
+      if (alpha_rgt_dwn < 0.) alpha_rgt_dwn = 0.;
+      for (ii = 0; ii < 6; ii++) {
+          bdint_rgt_dwn[ii] = pg_lft_dwn[ii] + alpha_rgt_dwn*(pg_rgt_dwn[ii] - pg_lft_dwn[ii]);
+      }
+    }
+ 
     CS6M_imv6(bdint_lft_up, S6MS[bd_up], mbdint_lft_up);
-    CS6M_imv6(bdint_lft_dwn, S6MS[bd_dwn], mbdint_lft_dwn);
+    if (bd_up != bd_dwn) {
+      CS6M_imv6(bdint_rgt_dwn, S6MS[bd_dwn], mbdint_rgt_dwn);
+    }
     
-    /* possible routes
-     g_lft - bdint_lft_up - g_rgt
-     g_lft - mbdint_lft_up - g_rgt
-     g_lft - bdint_lft_dwn - g_rgt
-     g_lft - mbdint_lft_dwn - g_rgt
-     
-     min(g_lft - mbdint_lft_up, bdint_lft_up)+min(bdint_left_up - mdint_right_dn - g_rgt
-     g_lft - mbdint_lft_up - mbdint21 - g_rgt
-     g_lft - mbdint_lft_up - bdint22 - g_rgt
-     g_lft - mbdint_lft_up - mbdint22 - g_rgt
-     
-     */
-     
      
     gvec_lft_bd_lft_up = s61234dist(g_lft,bdint_lft_up);
     gvec_lft_mbd_lft_up = s61234dist(g_lft,mbdint_lft_up);
-    gvec_lft_bd_lft_dwn = s61234dist(g_lft,bdint_lft_dwn);
-    gvec_lft_mbd_lft_dwn = s61234dist(g_lft,mbdint_lft_dwn);
-    gvec_rgt_bd_lft_up = s61234dist(g_rgt,bdint_lft_up);
-    gvec_rgt_mbd_lft_up = s61234dist(g_rgt,mbdint_lft_up);
-    gvec_rgt_bd_lft_dwn = s61234dist(g_rgt,bdint_lft_dwn);
-    gvec_rgt_mbd_lft_dwn = s61234dist(g_rgt,mbdint_lft_dwn);
-    
-    dist_bd_up_bd_dwn = s61234dist(bdint_lft_up,bdint_lft_dwn);
-    dist_bd_up_mbd_dwn = s61234dist(bdint_lft_up,mbdint_lft_dwn);
-    if (dist_bd_up_mbd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_bd_up_mbd_dwn;
-    dist_mbd_up_bd_dwn = s61234dist(mbdint_lft_up,bdint_lft_dwn);
-    if (dist_mbd_up_bd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_mbd_up_bd_dwn;
-    dist_mbd_up_mbd_dwn = s61234dist(mbdint_lft_up,mbdint_lft_dwn);
-    if (dist_mbd_up_mbd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_mbd_up_mbd_dwn;
-    
-    
-    if (gvec_lft_bd_lft_up + gvec_rgt_bd_lft_up < dist) dist = gvec_lft_bd_lft_up + gvec_rgt_bd_lft_up;
-    if (gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up < dist) dist = gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up;
-    if (gvec_lft_mbd_lft_up + gvec_rgt_bd_lft_up < dist) dist = gvec_lft_mbd_lft_up + gvec_rgt_bd_lft_up;
-    if (gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up < dist) dist = gvec_lft_mbd_lft_up + gvec_rgt_mbd_lft_up;
-    
-    if (gvec_lft_bd_lft_dwn + gvec_rgt_bd_lft_dwn < dist) dist = gvec_lft_bd_lft_dwn + gvec_rgt_bd_lft_dwn;
-    if (gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn < dist) dist = gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn;
-    if (gvec_lft_mbd_lft_dwn + gvec_rgt_bd_lft_dwn < dist) dist = gvec_lft_mbd_lft_dwn + gvec_rgt_bd_lft_dwn;
-    if (gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn < dist) dist = gvec_lft_mbd_lft_dwn + gvec_rgt_mbd_lft_dwn;
-    
-    dist_glft_bd_up = gvec_lft_bd_lft_up;
-    if (gvec_lft_mbd_lft_up < dist_glft_bd_up) dist_glft_bd_up = gvec_lft_mbd_lft_up;
-    dist_glft_bd_dwn = gvec_lft_bd_lft_dwn;
-    if (gvec_lft_mbd_lft_dwn < dist_glft_bd_dwn) dist_glft_bd_dwn = gvec_lft_mbd_lft_dwn;
-    dist_grgt_bd_up = gvec_rgt_bd_lft_up;
-    if (gvec_rgt_mbd_lft_up < dist_grgt_bd_up) dist_grgt_bd_up = gvec_rgt_mbd_lft_up;
-    dist_grgt_bd_dwn = gvec_rgt_bd_lft_dwn;
-    if (gvec_rgt_mbd_lft_dwn < dist_grgt_bd_dwn) dist_grgt_bd_dwn = gvec_rgt_mbd_lft_dwn;
-    
-    if (gvec_lft_mbd_lft_up + dist_bd_up_bd_dwn + dist_grgt_bd_dwn < dist ) dist = gvec_lft_mbd_lft_up + dist_bd_up_bd_dwn + dist_grgt_bd_dwn;
-    if (gvec_lft_mbd_lft_dwn + dist_bd_up_bd_dwn + dist_grgt_bd_up < dist ) dist = gvec_lft_mbd_lft_dwn + dist_bd_up_bd_dwn + dist_grgt_bd_up;
-    
-    
-    
+    if (gvec_lft_mbd_lft_up < gvec_lft_bd_lft_up)  gvec_lft_bd_lft_up  = gvec_lft_mbd_lft_up;
+
+    if (bd_dwn == bd_up) {
+        gvec_rgt_bd_lft_up = s61234dist(g_rgt,bdint_lft_up);
+        gvec_rgt_mbd_lft_up = s61234dist(g_rgt,mbdint_lft_up);
+        if (gvec_rgt_mbd_lft_up <  gvec_rgt_bd_lft_up) gvec_rgt_bd_lft_up = gvec_rgt_mbd_lft_up;
+        if (gvec_rgt_mbd_lft_up+ gvec_lft_mbd_lft_up < dist) dist = gvec_rgt_mbd_lft_up+ gvec_lft_mbd_lft_up;
+        return dist;
+    } else {
+        dist_bd_up_bd_dwn = s61234dist(bdint_lft_up,bdint_rgt_dwn);
+        dist_bd_up_mbd_dwn = s61234dist(bdint_lft_up,mbdint_rgt_dwn);
+        if (dist_bd_up_mbd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_bd_up_mbd_dwn;
+        dist_mbd_up_bd_dwn = s61234dist(mbdint_lft_up,bdint_rgt_dwn);
+        if (dist_mbd_up_bd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_mbd_up_bd_dwn;
+        dist_mbd_up_mbd_dwn = s61234dist(mbdint_lft_up,mbdint_rgt_dwn);
+        if (dist_mbd_up_mbd_dwn < dist_bd_up_bd_dwn ) dist_bd_up_bd_dwn = dist_mbd_up_mbd_dwn;
+        gvec_rgt_bd_rgt_dwn = s61234dist(g_rgt,bdint_rgt_dwn);
+        gvec_rgt_mbd_rgt_dwn = s61234dist(g_rgt,mbdint_rgt_dwn);
+        if (gvec_rgt_mbd_rgt_dwn < gvec_rgt_bd_rgt_dwn) gvec_rgt_bd_rgt_dwn = gvec_rgt_mbd_rgt_dwn;
+        if (gvec_lft_bd_lft_up + dist_bd_up_bd_dwn + gvec_rgt_bd_rgt_dwn < dist ) {
+            dist = gvec_lft_bd_lft_up + dist_bd_up_bd_dwn + gvec_rgt_bd_rgt_dwn;
+        }
+        return dist;
+    }
+
     return dist;
     
 }
 
-
-#define DCUT 0.999995
-#define fudge(d) DCUT*d
 
 
 /*
@@ -1093,12 +1086,13 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
     int iord1[NS6BND],iord2[NS6BND];
     double mindists1;
     double mindists2;
+    double disttmp;
     int jx1,jx2;
     int j1,j2;
     int ngood1,ngood2;
     double maxdist;
     
-    maxdist = fudge(dist);
+    maxdist = dist;
     
     s6bdmaps(gvec1,dists1,iord1,pgs1,rgs1,mpgs1,mvecs1,maxdist,&ngood1);
     s6bdmaps(gvec2,dists2,iord2,pgs2,rgs2,mpgs2,mvecs2,maxdist,&ngood2);
@@ -1110,25 +1104,34 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
     
     if (mindists1+mindists2 < maxdist) {
         for (jx1 = 0; jx1 < ngood1; jx1++) {
-            double d1;
+            double d1, d2;
             j1 = iord1[jx1];
             d1 = dists1[j1];
-
-            if (d1 < maxdist){
-                dist = CS6M_min(dist,s61234dist(gvec2,mpgs1[j1])+d1);
-            }
+            disttmp = s61234dist(gvec1,pgs1[j1]);
+            if (disttmp < d1) d1=disttmp;
+            disttmp = s61234dist(gvec1,mpgs1[j1]);
+            if (disttmp < d1) d1=disttmp;
+            d2 = s61234dist(gvec2,pgs1[j1]);
+            disttmp = s61234dist(gvec2,mpgs1[j1]);
+            if (disttmp < d2) d2=disttmp;
+            if (d1+d2 < dist) dist = d1+d2;
         }
         for (jx2 = 0; jx2 < ngood2; jx2++) {
-            double d2;
+            double d1, d2;
             j2 = iord2[jx2];
             d2 = dists2[j2];
-            if (d2 < maxdist) {
-                dist = CS6M_min(dist,(s61234dist(gvec1,mpgs2[j2])+d2));
-            }
+            disttmp = s61234dist(gvec2,pgs2[j2]);
+            if (disttmp < d2) d2=disttmp;
+            disttmp = s61234dist(gvec2,mpgs2[j2]);
+            if (disttmp < d2) d2=disttmp;
+            d1 = s61234dist(gvec1,pgs2[j2]);
+            disttmp = s61234dist(gvec1,mpgs2[j2]);
+            if (disttmp < d1) d1=disttmp;
+            if (d1+d2 < dist) dist = d1+d2;
         }
-    }
+    } 
     
-    maxdist = fudge(dist);
+    maxdist = dist;
     for (jx1 = 0; jx1 < ngood1; jx1++) {
         double d1;
         j1 = iord1[jx1];
@@ -1164,9 +1167,9 @@ static double CS6Dist(double gvec1[6],double gvec2[6]) {
     dist2 = s6minbddist(gvec2);
     distmin = CS6M_min(dist1,dist2);
     dist = s61234dist(gvec1,gvec2);
-    report_double("\n  Entered CS6Dist gdist = ",dist,", ");
-    report_double_vector("gvec1 = ", gvec1,", ")
-    report_double_vector("gvec2 = ", gvec2,"\n")
+    CSM_report_double("\n  Entered CS6Dist gdist = ",dist,", ");
+    CSM_report_double_vector("gvec1 = ", gvec1,", ")
+    CSM_report_double_vector("gvec2 = ", gvec2,"\n")
     dist = S6Dist_pass(gvec1,gvec2,dist);
     return dist;
 }
