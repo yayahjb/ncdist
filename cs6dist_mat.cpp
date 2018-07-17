@@ -1,4 +1,4 @@
-
+ 
 #include "G6.h"
 #include "D7.h"
 #include "S6.h"
@@ -247,7 +247,7 @@ int main(int argc, char ** argv) {
         return -1;
     }
 
-    while (std::getline(cin, line)) {
+    while (std::getline(std::cin, line)) {
         if (line.size() == 0) break;
         retlines=SplitBetweenBlanks(line);
         if (retlines.size() == 0) break;
@@ -265,33 +265,35 @@ int main(int argc, char ** argv) {
         gamma1 = atof(retlines[6].c_str());
         prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1,extra1);
         inputprims.push_back(prim1);
-        std::cerr << "ii: "<< ii << ": dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
-              << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] <<  "]" << std::endl;
+        ii = inputprims.size()-1;
+        std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
+              << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;
 
     }
 
-    double dmat[inputprims.size()][inputprims.size()];
-    for (ii=0; ii < inputprims.size(); ii++) {
-        prim1 = inputprims[ii];
-        for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
-        dmat[ii][ii] = 0.;
-        for (jj=ii+1; jj < inputprims.size(); jj++) {
-            prim2 = inputprims[jj];
-            for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
-            rawdist = CS6Dist_func(dprim1,dprim2);
-            dmat[ii][jj] = dmat[jj][ii] = 0.1*std::sqrt(rawdist);
+    {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
+        std::cerr << "size: " << inputprims.size() << std::endl;
+        for (ii=0; ii < inputprims.size(); ii++) {
+            std::cout << "ii: " << ii << "  " << inputprims[ii] << std::endl;
+            prim1 = inputprims[ii];
+            for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
+            dmat[ii + ii*inputprims.size()] = 0.;
+            for (jj=ii+1; jj < inputprims.size(); jj++) {
+                prim2 = inputprims[jj];
+                for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
+                rawdist = CS6Dist_func(dprim1,dprim2);
+                dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
+            }
+        }
+
+
+        for (ii=0; ii < inputprims.size(); ii++) {
+            for (jj=0; jj < inputprims.size(); jj++) {
+                std::cout <<" "<<dmat[ii+jj*inputprims.size()];
+            }
+            std::cout << std::endl;
         }
     }
 
-    for (ii=0; ii < inputprims.size(); ii++) {
-        for (jj=0; jj < inputprims.size(); jj++) {
-            std::cout <<" "<<dmat[ii][jj];
-        }
-        std::cout << std::endl;
-    }
-    
-
-    std::cerr << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
-              << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] <<  "]" << std::endl;
     return 0;
 }

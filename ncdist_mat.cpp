@@ -219,33 +219,31 @@ int main(int argc, char ** argv) {
         ii = inputprims.size()-1;
         std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
               << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;
-        std::cerr << "ii: "<< ii << ": inputprims[ii]: [" << inputprims[ii][0] <<", "<<  inputprims[ii][1] << ", "<<  inputprims[ii][2] << ", "
-              <<  inputprims[ii][3] << ", " <<  inputprims[ii][4] << ", " <<  inputprims[ii][5] <<  "]" << std::endl;
 
     }
 
-    { double dmat[inputprims.size()][inputprims.size()];
-    std::cout << "size: " << inputprims.size() << std::endl;
-    for (ii=0; ii < inputprims.size(); ii++) {
-        std::cout << "ii: " << ii << "  " << inputprims[ii] << std::endl;
-        prim1 = inputprims[ii];
-        for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
-        dmat[ii][ii] = 0.;
-        for (jj=ii+1; jj < inputprims.size(); jj++) {
-            prim2 = inputprims[jj];
-            for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
-            rawdist = NCDist(dprim1,dprim2);
-            dmat[ii][jj] = dmat[jj][ii] = 0.1*std::sqrt(rawdist);
+    {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
+        std::cerr << "size: " << inputprims.size() << std::endl;
+        for (ii=0; ii < inputprims.size(); ii++) {
+            std::cout << "ii: " << ii << "  " << inputprims[ii] << std::endl;
+            prim1 = inputprims[ii];
+            for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
+            dmat[ii + ii*inputprims.size()] = 0.;
+            for (jj=ii+1; jj < inputprims.size(); jj++) {
+                prim2 = inputprims[jj];
+                for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
+                rawdist = NCDist(dprim1,dprim2);
+                dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
+            }
         }
-    }
     
 
-    for (ii=0; ii < inputprims.size(); ii++) {
-        for (jj=0; jj < inputprims.size(); jj++) {
-            std::cout <<" "<<dmat[ii][jj];
+        for (ii=0; ii < inputprims.size(); ii++) {
+            for (jj=0; jj < inputprims.size(); jj++) {
+                std::cout <<" "<<dmat[ii+jj*inputprims.size()];
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
-    }
     }
 
 
