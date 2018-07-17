@@ -1086,10 +1086,10 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
     int iord1[NS6BND],iord2[NS6BND];
     double mindists1;
     double mindists2;
-    double disttmp;
+    double disttmp[6], distgather[6], distgather2[6][6];
     int jx1,jx2;
-    int j1,j2;
     int ngood1,ngood2;
+    double d1[6],d2[6];
     double maxdist;
     
     maxdist = dist;
@@ -1103,51 +1103,88 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
     if (mindists1+mindists2 > dist) return dist;
     
     if (mindists1+mindists2 < maxdist) {
+
+#pragma omp critical(distminimize)
+        {
+            for (jx1 = 0; jx1 < 6; jx1++) distgather[jx1] = dist;
+        }
+
+#pragma omp parallel for schedule(dynamic)
         for (jx1 = 0; jx1 < ngood1; jx1++) {
-            double d1, d2;
-            j1 = iord1[jx1];
-            d1 = dists1[j1];
-            disttmp = s61234dist(gvec1,pgs1[j1]);
-            if (disttmp < d1) d1=disttmp;
-            disttmp = s61234dist(gvec1,mpgs1[j1]);
-            if (disttmp < d1) d1=disttmp;
-            d2 = s61234dist(gvec2,pgs1[j1]);
-            disttmp = s61234dist(gvec2,mpgs1[j1]);
-            if (disttmp < d2) d2=disttmp;
-            if (d1+d2 < dist) dist = d1+d2;
+            d1[jx1] = dists1[iord1[jx1]];
+            disttmp[jx1] = s61234dist(gvec1,pgs1[iord1[jx1]]);
+            if (disttmp[jx1] < d1[jx1]) d1[jx1]=disttmp[jx1];
+            disttmp[jx1] = s61234dist(gvec1,mpgs1[iord1[jx1]]);
+            if (disttmp[jx1] < d1[jx1]) d1[jx1]=disttmp[jx1];
+            d2[jx1] = s61234dist(gvec2,pgs1[iord1[jx1]]);
+            disttmp[jx1] = s61234dist(gvec2,mpgs1[iord1[jx1]]);
+            if (disttmp[jx1] < d2[jx1]) d2[jx1]=disttmp[jx1];
+            if (d1[jx1]+d2[jx1] < distgather[jx1]) distgather[jx1] = d1[jx1]+d2[jx1];
         }
+
+#pragma omp flush(dist,distgather)
+#pragma omp critical(distminimize)
+        {
+            for (jx1 = 0; jx1 < 6; jx1++) {
+              if (distgather[jx1] < dist) dist=distgather[jx1];
+            }
+            for (jx1 = 0; jx1 < 6; jx1++) distgather[jx1] = dist;
+        }
+
+#pragma omp parallel for schedule(dynamic)
         for (jx2 = 0; jx2 < ngood2; jx2++) {
-            double d1, d2;
-            j2 = iord2[jx2];
-            d2 = dists2[j2];
-            disttmp = s61234dist(gvec2,pgs2[j2]);
-            if (disttmp < d2) d2=disttmp;
-            disttmp = s61234dist(gvec2,mpgs2[j2]);
-            if (disttmp < d2) d2=disttmp;
-            d1 = s61234dist(gvec1,pgs2[j2]);
-            disttmp = s61234dist(gvec1,mpgs2[j2]);
-            if (disttmp < d1) d1=disttmp;
-            if (d1+d2 < dist) dist = d1+d2;
+            d2[jx2] = dists2[iord2[jx2]];
+            disttmp[jx2] = s61234dist(gvec2,pgs2[iord2[jx2]]);
+            if (disttmp[jx2] < d2[jx2]) d2[jx2]=disttmp[jx2];
+            disttmp[jx2] = s61234dist(gvec2,mpgs2[iord2[jx2]]);
+            if (disttmp[jx2] < d2[jx2]) d2[jx2]=disttmp[jx2];
+            d1[jx2] = s61234dist(gvec1,pgs2[iord2[jx2]]);
+            disttmp[jx2] = s61234dist(gvec1,mpgs2[iord2[jx2]]);
+            if (disttmp[jx2] < d1[jx2]) d1[jx2]=disttmp[jx2];
+            if (d1[jx2]+d2[jx2] < distgather[jx2]) distgather[jx2] = d1[jx2]+d2[jx2];
         }
-    } 
+#pragma omp flush(dist,distgather)
+#pragma omp critical(distminimize)
+        {
+            for (jx1 = 0; jx1 < 6; jx1++) {
+                if (distgather[jx1] < dist) dist=distgather[jx1];
+            }
+            for (jx1 = 0; jx1 < 6; jx1++) distgather[jx1] = dist;
+            maxdist = dist;
+        } 
     
-    maxdist = dist;
-    for (jx1 = 0; jx1 < ngood1; jx1++) {
-        double d1;
-        j1 = iord1[jx1];
-        d1 = dists1[j1];
-        if (d1 < maxdist) {
-            for (jx2 = 0; jx2 < ngood2; jx2++) {
-                double d2;
-                j2 = iord2[jx2];
-                d2 = dists2[j2];
-                if (d2 < maxdist) {
-                    dist = S6Dist_2bds_rev(gvec1, gvec2, pgs1[j1], mpgs1[j1], pgs2[j1], mpgs2[j1],j1,
-                                        pgs2[j2], mpgs2[j2], pgs1[j2], mpgs1[j2], j2, dist);
+
+#pragma omp critical(distminimize)
+        {
+            for (jx1 = 0; jx1 < 6; jx1++) {
+                for (jx2 = 0; jx2 < 6; jx2++) {
+                    distgather2[jx1][jx2] = dist;
                 }
             }
         }
+
+#pragma omp parallel for collapse(2) schedule(dynamic)
+        for (jx1 = 0; jx1 < ngood1; jx1++) { 
+            for (jx2 = 0; jx2 < ngood2; jx2++) {
+              if (dists1[iord1[jx1]] < maxdist && dists2[iord2[jx2]] < maxdist) {
+                    distgather2[jx1][jx2] = S6Dist_2bds_rev(gvec1, gvec2, pgs1[iord1[jx1]], mpgs1[iord1[jx1]], pgs2[iord1[jx1]], mpgs2[iord1[jx1]],iord1[jx1],
+                                    pgs2[iord2[jx2]], mpgs2[iord2[jx2]], pgs1[iord2[jx2]], mpgs1[iord2[jx2]], iord2[jx2], distgather2[jx1][jx2]);
+              }
+           }
+        }
+
+
+#pragma omp flush(dist,distgather2)
+#pragma omp critical(distminimize)
+        {
+            for (jx1 = 0; jx1 < 6; jx1++) {
+                for (jx2 = 0; jx2 < 6; jx2++) {
+                if (distgather2[jx1][jx2] < dist) dist = distgather2[jx1][jx2];
+                }
+            }
+         }
     }
+
     return dist;
 }
 
