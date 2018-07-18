@@ -215,7 +215,9 @@ int main(int argc, char ** argv) {
         beta1 = atof(retlines[5].c_str());
         gamma1 = atof(retlines[6].c_str());
         prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
-        inputprims.push_back(prim1);
+        Cell cell1 = Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
+        G6 gv1 = G6(cell1.Cell2V6());
+        inputprims.push_back(gv1);
         /* ii = inputprims.size()-1;
         std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
               << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;
@@ -227,13 +229,9 @@ int main(int argc, char ** argv) {
         /* std::cerr << "size: " << inputprims.size() << std::endl;*/
         for (ii=0; ii < inputprims.size(); ii++) {
             /* std::cerr << "ii: " << ii << "  " << inputprims[ii] << std::endl;*/
-            prim1 = inputprims[ii];
-            for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
             dmat[ii + ii*inputprims.size()] = 0.;
             for (jj=ii+1; jj < inputprims.size(); jj++) {
-                prim2 = inputprims[jj];
-                for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
-                rawdist = NCDist(dprim1,dprim2);
+                rawdist = NCDist((double *)inputprims[ii].data(),(double *)inputprims[jj].data());
                 dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
             }
         }
