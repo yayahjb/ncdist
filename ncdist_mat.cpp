@@ -80,7 +80,7 @@ G6 makeprimredprobe( std::string testlattice,
     ret = Delone::Reduce(primcell,dm,dredprimcell,0.0);
     primredprobe = Cell(redprimcell).CellWithDegrees();
     dprimredprobe = Cell(dredprimcell).CellWithDegrees();
-    std::cerr << "Primitive Reduced Probe Cell: " <<
+    /* std::cerr << "Primitive Reduced Probe Cell: " <<
     primredprobe[0]<<" "<<
     primredprobe[1]<<" "<<
     primredprobe[2]<<" "<<
@@ -135,6 +135,7 @@ G6 makeprimredprobe( std::string testlattice,
         << 2.*primredprobe[0]*primredprobe[1]*cos(primredprobe[5]*std::atan(1.0)/45.)<<std::endl;
     }
     std::cerr << std::endl;
+    */
     return primredprobe;
 }
 
@@ -187,7 +188,6 @@ int main(int argc, char ** argv) {
     double dprim1[6];
     double dprim2[6];
 
-
     if (argc > 1) arg1 = std::string(argv[1]);
     if (arg1 == "--help" || arg1 == "-h") {
         std::cerr
@@ -216,16 +216,17 @@ int main(int argc, char ** argv) {
         gamma1 = atof(retlines[6].c_str());
         prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
         inputprims.push_back(prim1);
-        ii = inputprims.size()-1;
+        /* ii = inputprims.size()-1;
         std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
               << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;
+        */
 
     }
 
     {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
-        std::cerr << "size: " << inputprims.size() << std::endl;
+        /* std::cerr << "size: " << inputprims.size() << std::endl;*/
         for (ii=0; ii < inputprims.size(); ii++) {
-            std::cout << "ii: " << ii << "  " << inputprims[ii] << std::endl;
+            /* std::cerr << "ii: " << ii << "  " << inputprims[ii] << std::endl;*/
             prim1 = inputprims[ii];
             for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
             dmat[ii + ii*inputprims.size()] = 0.;

@@ -6,7 +6,8 @@
 #include "Delone.h"
 #include "Cell.h"
 #include "D7Dist.h"
-#include "CS6Dist_func.h"
+/* #include "CS6Dist_func.h" */
+#include "CS6Dist.h"
 
 #define ARMA_DONT_USE_BLAS
 #define ARMA_DONT_USE_LAPACK
@@ -114,7 +115,7 @@ S6 makeprimredcell( std::string testlattice,
                        (d7redprimcell[6]-d7redprimcell[2]-d7redprimcell[3])/2.); 
     primredprobe = Cell(redprimcell).CellWithDegrees();
     dprimredprobe = Cell(dredprimcell).CellWithDegrees();
-    std::cerr << "Primitive Reduced Probe Cell: " <<
+    /* std::cerr << "Primitive Reduced Probe Cell: " <<
     primredprobe[0]<<" "<<
     primredprobe[1]<<" "<<
     primredprobe[2]<<" "<<
@@ -183,6 +184,7 @@ S6 makeprimredcell( std::string testlattice,
         << 2.*dprimredprobe[0]*dprimredprobe[1]*cos(dprimredprobe[5]*std::atan(1.0)/45.)<<std::endl;
     }
     std::cerr << std::endl;
+    */
     return s6redprimcell;
 }
 
@@ -196,7 +198,7 @@ bool space( const char c ) {
    return( c == ' ' );
 }
 
-/* Split a string on white space returninf a vector of strings */
+/* Split a string on white space returning a vector of strings */
 
 const std::vector<std::string> SplitBetweenBlanks( const std::string& s ) {
    std::vector<std::string> str;
@@ -232,13 +234,12 @@ int main(int argc, char ** argv) {
     char clatsym;
     int argoff;
 
-         
     if (argc > 1) arg1 = std::string(argv[1]);
     if (arg1 == "--help" || arg1 == "-h") {
-        std::cerr 
+        std::cerr
 		<< "Usage: cs6dist_mat [--help|-h] print this message and exit" 
 		<< std::endl;
-        std::cerr 
+        std::cerr
 		<< "       cs6dist_mat with no arguments, write distance matrix to cout" 
 		<< std::endl;
         std::cerr 
@@ -265,23 +266,24 @@ int main(int argc, char ** argv) {
         gamma1 = atof(retlines[6].c_str());
         prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1,extra1);
         inputprims.push_back(prim1);
-        ii = inputprims.size()-1;
+        /*ii = inputprims.size()-1;
         std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
-              << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;
+              << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;*/
 
     }
 
     {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
-        std::cerr << "size: " << inputprims.size() << std::endl;
+        /*std::cerr << "size: " << inputprims.size() << std::endl;*/
         for (ii=0; ii < inputprims.size(); ii++) {
-            std::cout << "ii: " << ii << "  " << inputprims[ii] << std::endl;
+            //std::err << "ii: " << ii << "  " << inputprims[ii] << std::endl;
             prim1 = inputprims[ii];
             for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
             dmat[ii + ii*inputprims.size()] = 0.;
             for (jj=ii+1; jj < inputprims.size(); jj++) {
                 prim2 = inputprims[jj];
                 for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
-                rawdist = CS6Dist_func(dprim1,dprim2);
+                /*rawdist = CS6Dist_func(dprim1,dprim2);*/
+                rawdist = CS6Dist(dprim1,dprim2);
                 dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
             }
         }

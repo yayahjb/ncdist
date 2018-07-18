@@ -77,10 +77,10 @@ else
   RPATH_LIBRARIES ?= /usr/lib/R/lib
 endif
 
-#CFLAGS ?= -g -O3 -fPIC -fopenmp
-#CXXFLAGS ?= -g -O3 -fPIC -fopenmp
-CFLAGS ?= -g -O0 -fPIC -fopenmp
-CXXFLAGS ?= -g -O0 -fPIC -fopenmp
+CFLAGS ?= -g -O3 -fPIC -fopenmp
+CXXFLAGS ?= -g -O3 -fPIC -fopenmp
+#CFLAGS ?= -g -O0 -fPIC -fopenmp
+#CXXFLAGS ?= -g -O0 -fPIC -fopenmp
 
 all:  ncdist ncdist_mat D7Test Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so \
