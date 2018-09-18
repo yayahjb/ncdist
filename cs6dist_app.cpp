@@ -7,7 +7,7 @@
 #include "Cell.h"
 #include "D7Dist.h"
 #include "CS6Dist_func.h"
-
+#include "S6M_SellingReduce.h"
 
 #define ARMA_DONT_USE_BLAS
 #define ARMA_DONT_USE_LAPACK
@@ -25,7 +25,10 @@ S6 makeprimredcell( std::string testlattice,
     G6 v6cell;
     G6 redprimcell;
     D7 d7redprimcell;
+    double d7redprimcellx[7];
+    double d7primcellx[7];
     S6 s6redprimcell;
+    double s6redprimcellx[6];
     G6 dredprimcell;
     Mat66 mc;
     Mat66 m;
@@ -39,6 +42,7 @@ S6 makeprimredcell( std::string testlattice,
     Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
+    int reduced;
     if (testlattice.size()< 1) {
         latsym = "P";
     } else {
@@ -102,12 +106,15 @@ S6 makeprimredcell( std::string testlattice,
     ret = Reducer::Reduce(primcell,m,redprimcell,0.0);
     ret = Delone::Reduce(primcell,dm,dredprimcell,0.0);
     d7redprimcell = D7(dredprimcell);
+    CS6M_G6toD7(primcell,d7primcellx)
+    CS6M_D7Reduce(d7primcellx,d7redprimcellx,reduced);
     s6redprimcell = S6((d7redprimcell[4]-d7redprimcell[1]-d7redprimcell[2])/2.,
                        (d7redprimcell[5]-d7redprimcell[0]-d7redprimcell[2])/2.,
                        (d7redprimcell[6]-d7redprimcell[0]-d7redprimcell[1])/2.,
                        (d7redprimcell[4]-d7redprimcell[0]-d7redprimcell[3])/2.,
                        (d7redprimcell[5]-d7redprimcell[1]-d7redprimcell[3])/2.,
-                       (d7redprimcell[6]-d7redprimcell[2]-d7redprimcell[3])/2.); 
+                       (d7redprimcell[6]-d7redprimcell[2]-d7redprimcell[3])/2.);
+    CS6M_D7toS6(d7redprimcell,s6redprimcellx); 
     primredprobe = Cell(redprimcell).CellWithDegrees();
     dprimredprobe = Cell(dredprimcell).CellWithDegrees();
     std::cout << "Primitive Reduced Probe Cell: " <<
@@ -132,6 +139,14 @@ S6 makeprimredcell( std::string testlattice,
     d7redprimcell[4]<<" "<<
     d7redprimcell[5]<<" "<<
     d7redprimcell[6] << std::endl;
+    std::cout << "Delaunay Primitive S6Reduced Probe D7 Cell: " <<
+    d7redprimcellx[0]<<" "<<
+    d7redprimcellx[1]<<" "<<
+    d7redprimcellx[2]<<" "<<
+    d7redprimcellx[3]<<" "<<
+    d7redprimcellx[4]<<" "<<
+    d7redprimcellx[5]<<" "<<
+    d7redprimcellx[6] << std::endl;
     std::cout << "Selling Primitive Reduced Probe S6 Cell: " <<
     s6redprimcell[0]<<" "<<
     s6redprimcell[1]<<" "<<
@@ -139,6 +154,13 @@ S6 makeprimredcell( std::string testlattice,
     s6redprimcell[3]<<" "<<
     s6redprimcell[4]<<" "<<
     s6redprimcell[5] << std::endl;
+    std::cout << "Selling Primitive Reduced Probe S6 Cell from D7 Cell: " <<
+    s6redprimcellx[0]<<" "<<
+    s6redprimcellx[1]<<" "<<
+    s6redprimcellx[2]<<" "<<
+    s6redprimcellx[3]<<" "<<
+    s6redprimcellx[4]<<" "<<
+    s6redprimcellx[5] << std::endl;
     std::cout << "Volume :" << Cell(redprimcell).Volume() << std::endl;
     crootvol = pow(Cell(redprimcell).Volume(),1./3.);
     Reducer::Reduce((Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
