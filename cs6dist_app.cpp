@@ -24,6 +24,7 @@ S6 makeprimredcell( std::string testlattice,
     char clatsym;
     G6 v6cell;
     G6 redprimcell;
+    double redprimcellx[6];
     D7 d7redprimcell;
     double d7redprimcellx[7];
     double d7primcellx[7];
@@ -37,6 +38,7 @@ S6 makeprimredcell( std::string testlattice,
     G6 recipcell;
     G6 reducedBase;
     G6 primredprobe;
+    G6 primredprobex;
     G6 dprimredprobe;
     double crootvol;
     Cell rawcell(a,b,c, alpha,beta,gamma);
@@ -106,6 +108,28 @@ S6 makeprimredcell( std::string testlattice,
     ret = Reducer::Reduce(primcell,m,redprimcell,0.0);
     ret = Delone::Reduce(primcell,dm,dredprimcell,0.0);
     d7redprimcell = D7(dredprimcell);
+    CS6M_G6Reduce(primcell,redprimcellx,reduced);
+    int iii;
+    int idiff;
+    idiff = 0;
+    for (iii=0; iii < 6; iii++) {
+       if (redprimcell[iii] < redprimcellx[iii]-1.e-10 || redprimcell[iii] > redprimcellx[iii]+1.e-10) idiff++;
+    }
+    if (idiff) {
+       std::cout << "Differences in S6 reduction: " << std::endl
+       <<  "S6M: "<< redprimcellx[0] << " " 
+       << redprimcellx[1] << " " 
+       << redprimcellx[2] << " " 
+       << redprimcellx[3] << " " 
+       << redprimcellx[4] << " " 
+       << redprimcellx[5] << std::endl 
+       <<  "std: "<< redprimcell[0] << " " 
+       << redprimcell[1] << " " 
+       << redprimcell[2] << " " 
+       << redprimcell[3] << " " 
+       << redprimcell[4] << " " 
+       << redprimcell[5] << std::endl; 
+    }
     CS6M_G6toD7(primcell,d7primcellx)
     CS6M_D7Reduce(d7primcellx,d7redprimcellx,reduced);
     s6redprimcell = S6((d7redprimcell[4]-d7redprimcell[1]-d7redprimcell[2])/2.,
@@ -117,6 +141,7 @@ S6 makeprimredcell( std::string testlattice,
     CS6M_D7toS6(d7redprimcell,s6redprimcellx); 
     primredprobe = Cell(redprimcell).CellWithDegrees();
     dprimredprobe = Cell(dredprimcell).CellWithDegrees();
+    primredprobex = Cell(redprimcellx).CellWithDegrees();
     std::cout << "Primitive Reduced Probe Cell: " <<
     primredprobe[0]<<" "<<
     primredprobe[1]<<" "<<
@@ -124,6 +149,13 @@ S6 makeprimredcell( std::string testlattice,
     primredprobe[3]<<" "<<
     primredprobe[4]<<" "<<
     primredprobe[5] << std::endl;
+    std::cout << "Primitive Reduced Probe Cell from S6: " <<
+    primredprobex[0]<<" "<<
+    primredprobex[1]<<" "<<
+    primredprobex[2]<<" "<<
+    primredprobex[3]<<" "<<
+    primredprobex[4]<<" "<<
+    primredprobex[5] << std::endl;
     std::cout << "Delaunay Primitive Reduced Probe Cell: " <<
     dprimredprobe[0]<<" "<<
     dprimredprobe[1]<<" "<<

@@ -99,7 +99,8 @@ cs6dist_app:  CS6Dist_func_.o cs6dist_app.cpp \
 	inverse.cpp vector_3d.cpp \
 	Cell.h D6.h D7.h Delone.h DeloneTetrahedron.h G6.h \
         MatN.h MatMN.h Mat66.h Reducer.h \
-	VecN.h Vec_N_Tools.h VectorTools.h inverse.cpp vector_3d.cpp 
+	VecN.h Vec_N_Tools.h VectorTools.h inverse.cpp vector_3d.cpp \
+        S6M_SellingReduce.h 
 	g++ $(CXXFLAGS) -o cs6dist_app  cs6dist_app.cpp CS6Dist_func_.o \
 	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	Reducer.cpp D6.cpp D7.cpp S6.cpp Selling.cpp S6Dist.cpp \
