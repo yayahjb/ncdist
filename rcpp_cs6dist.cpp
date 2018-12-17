@@ -3,6 +3,7 @@
 using namespace RcppParallel;
 #include <RcppArmadillo.h>
 
+#include "S6M_SellingReduce.h"
 #include "G6.h"
 #include "D7.h"
 #include "S6.h"
@@ -22,11 +23,15 @@ S6 makeprimredcell( std::string testlattice,
     G6 v6cell;
     G6 redprimcell;
     D7 d7redprimcell;
-    S6 s6redprimcell;;
-    G6 dredprimcell;
+    double dredprimcell[7];
+    S6 s6redprimcell;
+    double sredprimcell[6];
     Mat66 mc;
     Mat66 dm;
     G6 primcell;
+    double dprimcell[6];
+    double sprimcell[6];
+    double dsreduced;
     G6 recipcell;
     G6 reducedBase;
     G6 primredprobe;
@@ -77,34 +82,17 @@ S6 makeprimredcell( std::string testlattice,
             primcell = mc*(rawcell.Cell2V6());
             break;
     }
-    ret = Delone::Reduce(primcell,dm,dredprimcell,0.);
-    d7redprimcell = D7(dredprimcell);
-    s6redprimcell = S6((d7redprimcell[4]-d7redprimcell[1]-d7redprimcell[2])/2.,
-                       (d7redprimcell[5]-d7redprimcell[0]-d7redprimcell[2])/2.,
-                       (d7redprimcell[6]-d7redprimcell[0]-d7redprimcell[1])/2.,
-                       (d7redprimcell[4]-d7redprimcell[0]-d7redprimcell[3])/2.,
-                       (d7redprimcell[5]-d7redprimcell[1]-d7redprimcell[3])/2.,
-                       (d7redprimcell[6]-d7redprimcell[2]-d7redprimcell[3])/2.); 
-    dprimredprobe = Cell(dredprimcell).CellWithDegrees();
-    /* Rprintf("Primitive Delaunay Reduced Probe Cell: [%g,%g,%g,%g,%g,%g]\n",
-    primredprobe[0], primredprobe[1],primredprobe[2],primredprobe[3],primredprobe[4],primredprobe[5]);
-    Rprintf("Volume : %g\n",Cell(redprimcell).Volume()); */
-    crootvol = pow(Cell(dredprimcell).Volume(),1./3.);
-    Delone::Reduce((Cell(dredprimcell).Inverse()).Cell2V6(),dm,reducedBase,0.0);
-    recipcell = (Cell(dredprimcell).Inverse()).CellWithDegrees();
-    /* Rprintf("Reciprocal of Primitive Probe Cell: [%g,%g,%g,%g,%g,%g]\n",recipcell[0],recipcell[1],recipcell[2],recipcell[3],recipcell[4],recipcell[5]);
-    Rprintf("Volume of Reciprocal Cell: %g\n", (Cell(redprimcell).Inverse()).Volume()); */
-    if (latsym[0] == 'V' || latsym[0] == 'v') {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",primcell[0],primcell[1],primcell[2],primcell[3],primcell[4],primcell[5]); */
-    } else {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",
-        dprimredprobe[0]*dprimredprobe[0],
-        dprimredprobe[1]*dprimredprobe[1],
-        dprimredprobe[2]*dprimredprobe[2],
-        2.*dprimredprobe[1]*dprimredprobe[2]*cos(dprimredprobe[3]*std::atan(1.0)/45.),
-        2.*dprimredprobe[0]*dprimredprobe[2]*cos(dprimredprobe[4]*std::atan(1.0)/45.),
-        2.*dprimredprobe[0]*dprimredprobe[1]*cos(dprimredprobe[5]*std::atan(1.0)/45.)); */
-    }
+    /*ret = Delone::Reduce(primcell,dm,dredprimcell,0.);*/
+    dprimcell[0]=primcell[0];   
+    dprimcell[1]=primcell[1];   
+    dprimcell[2]=primcell[2];   
+    dprimcell[3]=primcell[3];   
+    dprimcell[4]=primcell[4];   
+    dprimcell[5]=primcell[5];
+    CS6M_G6toS6(dprimcell,sprimcell);
+    CS6M_S6Reduce(sprimcell,sredprimcell,dsreduced);
+    s6redprimcell = S6(sredprimcell[0],sredprimcell[1],sredprimcell[2],sredprimcell[3],
+                       sredprimcell[4],sredprimcell[5]);
     return s6redprimcell;
 }
 

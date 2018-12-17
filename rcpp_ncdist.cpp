@@ -3,11 +3,11 @@
 using namespace RcppParallel;
 #include <RcppArmadillo.h>
 
+#include "S6M_SellingReduce.h"
 #include "Reducer.h"
 #include "Cell.h"
 #include "NCDist.h"
 #include <stdlib.h>
-
 
 //*****************************************************************************
 G6 makeprimredprobe( std::string testlattice,
@@ -17,9 +17,12 @@ G6 makeprimredprobe( std::string testlattice,
     char clatsym;
     G6 v6cell;
     G6 redprimcell;
+    double dredprimcell[6];
     Mat66 mc;
     Mat66 m;
     G6 primcell;
+    double dprimcell[6];
+    double dreduced;
     G6 recipcell;
     G6 reducedBase;
     G6 primredprobe;
@@ -69,7 +72,20 @@ G6 makeprimredprobe( std::string testlattice,
             primcell = mc*(rawcell.Cell2V6());
             break;
     }
-    ret = Reducer::Reduce(primcell,m,redprimcell,0.0);
+    /* ret = Reducer::Reduce(primcell,m,redprimcell,0.0);*/
+    dprimcell[0]=primcell[0];
+    dprimcell[1]=primcell[1];
+    dprimcell[2]=primcell[2];
+    dprimcell[3]=primcell[3];
+    dprimcell[4]=primcell[4];
+    dprimcell[5]=primcell[5];
+    CS6M_G6Reduce(dprimcell,dredprimcell,dreduced);
+    redprimcell[0]=dredprimcell[0];
+    redprimcell[1]=dredprimcell[1];
+    redprimcell[2]=dredprimcell[2];
+    redprimcell[3]=dredprimcell[3];
+    redprimcell[4]=dredprimcell[4];
+    redprimcell[5]=dredprimcell[5];
     primredprobe = Cell(redprimcell).CellWithDegrees();
     /* Rprintf("Primitive Reduced Probe Cell: [%g,%g,%g,%g,%g,%g]\n",
     primredprobe[0], primredprobe[1],primredprobe[2],primredprobe[3],primredprobe[4],primredprobe[5]);
