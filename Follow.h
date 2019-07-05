@@ -9,16 +9,16 @@
 #include "Glitch.h"
 #include "triple.h"
 
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "CellInputData.h"
 #include "Delone.h"
-#include "DeloneTetrahedron.h"
-//#include "D7Dist.h"
+#include "B4.h"
 #include "D7Dist_.hpp"
 #include "FollowerConstants.h"
 #include "NCDist_.hpp"
 #include "ProjectorTools.h"
 #include "Reducer.h"
+#include "S6M_SellingReduce.h"
 
 #include <algorithm>
 
@@ -64,28 +64,40 @@ public:
 
       TVEC probe;
       probe = m_rnPath.GetProbe();
+      int reduced;
       G6 niggliReduced_1;
+      D7 d7_niggliReduced_1;
       niggliReduced_1 = m_rnPath.GetSecondProbe();
       G6 test;
       test = Reducer::Reduce(niggliReduced_1);
       if (!test.GetValid()) throw;
+      D7 d7_g6DeloneReduced_1;
       G6 g6DeloneReduced_1;
-      const bool testtest = Delone::Reduce(niggliReduced_1, m, g6DeloneReduced_1, 0.0);   // for Delone::Reduce
-
+      CS6M_G6toD7(niggliReduced_1,d7_niggliReduced_1);
+      CS6M_D7Reduce(d7_niggliReduced_1,d7_g6DeloneReduced_1,reduced);
+      if (reduced) {
+         CS6M_D7toG6(d7_g6DeloneReduced_1,g6DeloneReduced_1)
+      }
       double g6NiggliReducedArray_1[6], d7DeloneReducedArray_1[7];
       double g6NiggliReducedArray_2[6], d7DeloneReducedArray_2[7];
       ProjectorTools::ConvertG6ToArray(niggliReduced_1, g6NiggliReducedArray_1);
       ProjectorTools::ConvertD7ToArray(D7(g6DeloneReduced_1), d7DeloneReducedArray_1);
 
       for (long istep = 0; istep < m_steps; ++istep) {
+         int reduced6, reduced7;
          const double t(double(istep) / tend);
          TVEC vNext;
          vNext = TVEC(TVEC((1.0 - t)*probe) + TVEC(t*niggliReduced_1));
          G6 g6vNext(vNext);
+         D7 d7_g6vNext;
          G6 g6NiggliReduced_2, g6DeloneReduced_2;
-         const bool b6 = Reducer::Reduce(g6vNext, m, g6NiggliReduced_2, 0.0);   // for Reducer::Reduce
-         const bool b7 = Delone:: Reduce(g6vNext, m, g6DeloneReduced_2, 0.0);   // for Delone::Reduce
-         if (b6&&b7) {
+         D7 d7_g6DeloneReduced_2;
+         
+         CS6M_G6Reduce(g6vNext,g6NiggliReduced_2,reduced6); 
+         CS6M_G6toD7(g6vNext,d7_g6vNext);
+         CS6M_D7Reduce(d7_g6vNext,d7_g6DeloneReduced_2,reduced7);
+         CS6M_D7toG6(d7_g6DeloneReduced_2,g6DeloneReduced_2);
+         if (reduced6&&reduced7) {
             ProjectorTools::ConvertG6ToArray(g6NiggliReduced_2, g6NiggliReducedArray_2);
             ProjectorTools::ConvertD7ToArray(D7(g6DeloneReduced_2), d7DeloneReducedArray_2);
             const double dist6 = NCDist_<double[6], double[6] >(g6NiggliReducedArray_1, g6NiggliReducedArray_2);

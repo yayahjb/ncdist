@@ -8,13 +8,12 @@
 #include <iostream>
 #include <utility>
 
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "CreateFileName.h"
-//#include "D7_BoundaryList.h"
 #include "D6.h"
 #include "G6.h"
 #include "D7.h"
-#include "DeloneTetrahedron.h"
+#include "B4.h"
 #include "FileWriter.h"
 #include "Follow.h"
 #include "Follower.h"
@@ -30,6 +29,7 @@
 #include "SuperFastHash.h"
 #include "SVG_Writer.h"
 #include "G6.h"
+#include "MatD7.h"
 
 
 template<typename TVEC, typename TMAT>
@@ -163,7 +163,7 @@ void TestToType() {
    }
    else if (a.size() == 4)
    {
-      a = T(Cell("10 11 12 90 90 90"));
+      a = T(LRL_Cell("10 11 12 90 90 90"));
       b = T(G6("10 10 10  10 10 10 "));
    }
    else
@@ -172,10 +172,10 @@ void TestToType() {
    }
    D7 d7(b);
    T c(d7);                           // from D7
-   T d(c);                            // from Cell
+   T d(c);                            // from LRL_Cell
    D6 ds("5 5 5 -20 -20 -20");
    T e(ds);                           // from DeloneScalars (D6)
-   DeloneTetrahedron dt(G6("10 10 10  10 10 10 "));
+   B4 dt(G6("10 10 10  10 10 10 "));
    T f(dt);
 
    std::cout << a << std::endl;
@@ -199,10 +199,10 @@ void TestToType() {
 
 int main( int argc, char* argv [ ] ) {
 
-   //Cell c;
+   //LRL_Cell c;
    //c[0];
    //std::cout << "FOR CELL " << std::endl;
-   //TestToType<Cell>();
+   //TestToType<LRL_Cell>();
 
    //std::cout << std::endl << std::endl;
    //std::cout << "FOR G6 " << std::endl;
@@ -217,8 +217,8 @@ int main( int argc, char* argv [ ] ) {
    //TestToType<D6>();
 
    //std::cout << std::endl << std::endl;
-   //std::cout << "FOR DeloneTetrahedron " << std::endl;
-   //TestToType<DeloneTetrahedron>();
+   //std::cout << "FOR B4 " << std::endl;
+   //TestToType<B4>();
 
    //D7_BoundaryList bl;
 
@@ -245,7 +245,7 @@ int main( int argc, char* argv [ ] ) {
          const std::string sBaseFileName =
             ToString( CreateFileName::Create( FollowerConstants::globalFileNamePrefix, ToString( cellcount) + "_" ) );
          ++cellcount;
-         size_t goodCellCount = ProbeOneRegion<D7,Mat7>( *it, FollowerConstants::globalStepsPerFrame, sBaseFileName );
+         size_t goodCellCount = ProbeOneRegion<D7,MatD7>( *it, FollowerConstants::globalStepsPerFrame, sBaseFileName );
       }
    //}
 

@@ -1,12 +1,14 @@
+
+
+
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
 
-
 #include <cmath>
 #include <sstream>
 
-#include "inverse.h"
+#include "LRL_inverse.h"
 #include "MatN.h"
 
 MatN::MatN( const size_t dim/*=Default36*/ )
@@ -33,7 +35,7 @@ MatN::MatN( const std::string& s ) {
    }
 
    m_mat = v;
-   m_dim = m_mat.size( );
+   m_dim = (size_t)(m_mat.size( ));
    m_rowdim = int( sqrt( double( m_dim ) ) );
 
    if ( m_dim != m_rowdim*m_rowdim ) throw "bad dimension in constructor";
@@ -76,11 +78,18 @@ MatN MatN::operator+ ( const MatN& m2 ) const {
    return m;
 }
 
-MatN MatN::operator- ( const MatN& m2 ) const {
-   MatN m( *this );
-   if ( m.size( ) != m2.size( ) ) throw "bad dimensions in operator-";
-   for ( size_t i=0; i<m_dim; ++i )
+MatN MatN::operator- (const MatN& m2) const {
+   MatN m(*this);
+   if (m.size() != m2.size()) throw "bad dimensions in operator-";
+   for (size_t i = 0; i<m_dim; ++i)
       m[i] -= m2[i];
+   return m;
+}
+
+MatN MatN::operator- (void) const { // unary
+   MatN m(*this);
+   for (size_t i = 0; i<m_dim; ++i)
+      m[i] = -m[i];
    return m;
 }
 
@@ -147,8 +156,8 @@ MatN operator/ ( const double d, const MatN& m ) {
    return m/d;
 }
 
-MatN MatN::Eye( ) const {
-   MatN m( ( *this ).size( ) );
+MatN MatN::Eye( const MatN& m_in ) const {
+   MatN m(m_in);
    const size_t rowsize = (size_t)( std::sqrt( double(m.size( ) ) ) );
    for ( size_t i=0; i<m_dim; ++i )
       m.m_mat[i] = 0.0;
@@ -159,8 +168,13 @@ MatN MatN::Eye( ) const {
 
 MatN MatN::Eye( const size_t n ) {
    MatN m(n);
-   return m.Eye();
+   return m.Eye(m);
 }
+
+void MatN::Eye(void) {
+   (*this) = Eye(*this);
+}
+
 
 bool MatN::IsUnit( void ) const {
    const MatN& m(*this);
@@ -194,9 +208,9 @@ bool MatN::operator== ( const MatN& m2 ) const {
    return b;
 }
 
-MatN MatN::FromString( const std::string& s ) const {
+MatN MatN::FromString( const std::string& s ) {
    std::istringstream istr( s );
-   MatN t( ( *this ).size( ) );
+   MatN t( 1000 );
    double d;
    int i = 0;
    while ( istr && ! istr.eof() ) {
@@ -204,9 +218,11 @@ MatN MatN::FromString( const std::string& s ) const {
       t[i] = d;
       ++i;
    }
-
-   if ( ( *this ).size( ) != t.size( ) ) throw "bad dimensions in FromString";
-
+   (*this).SetDim(i);
+   SetRowDim((size_t)(sqrt(i)));
+   t.m_dim = i;
+   t.SetRowDim((*this).m_rowdim);
+   t.m_mat.resize(m_dim);
    return t;
 }
 
@@ -215,7 +231,7 @@ inline size_t LinearIndex( const size_t row, const size_t col, const size_t size
 }
 
 MatN MatN::inverse( void ) const {
-   MatN I( ( *this ).size( ) );
+   MatN I((*this).size()*(*this).size());
 
    const size_t dim=I.GetDim( );
    const size_t rowdim = I.GetRowDim( );
@@ -240,8 +256,9 @@ std::ostream& operator<< ( std::ostream& o, const MatN& m ) {
    return o;
 }
 
-MatN Eye( const MatN& m ) {
-   return MatN( m ).Eye( );
+MatN Eye( const MatN& m ) { // this is a free, local function only
+   throw("this no longer works and needs to be fleshed out explicitly");
+   return Eye( m );
 }
 
 double MatN::operator() (const size_t i) {

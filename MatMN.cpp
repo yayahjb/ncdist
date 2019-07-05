@@ -1,8 +1,13 @@
 
+
+
 #include <cmath>
 
+#include "MatS6.h"
+#include "MatD7.h"
+#include "MatG6.h"
 #include "MatMN.h"
-#include "Vec_N_Tools.h"
+#include "LRL_StringTools.h"
 
 MatMN::MatMN( const MatMN& m )
 : m_mat( m.m_mat )
@@ -14,19 +19,45 @@ MatMN::MatMN( const MatMN& m )
 MatMN::MatMN( const size_t rowCount, const size_t colCount )
 : m_mat( colCount*rowCount )
 , m_rowCount( rowCount )
-, m_dim( m_mat.size( ) )
+, m_dim( (size_t)m_mat.size( ) )
 , m_colCount( colCount ) {
 }
 
-MatMN::MatMN( const std::string& s )
-: m_mat()
-, m_dim( 0 )
+MatMN::MatMN(const MatS6& m6)
+   : m_mat(m6.GetVector())
+   , m_rowCount(m6.GetRowDim())
+   , m_dim((size_t)m_mat.size())
+   , m_colCount(m6.GetRowDim())
 {
-   m_mat = Vec_N_Tools::FromString( s );
+}
+
+MatMN::MatMN(const MatD7& m7)
+   : m_mat(m7.GetVector())
+   , m_rowCount(m7.GetRowDim())
+   , m_dim((size_t)m_mat.size())
+   , m_colCount(m7.GetRowDim())
+{
+}
+
+MatMN::MatMN(const MatG6& m6)
+   : m_mat(m6.GetVector())
+   , m_rowCount(m6.GetRowDim())
+   , m_dim((size_t)m_mat.size())
+   , m_colCount(m6.GetRowDim())
+{
+}
+
+MatMN::MatMN(const size_t rowCount, const size_t colCount, const std::string& s )
+   : m_mat()
+   , m_rowCount(rowCount)
+   , m_dim(colCount*rowCount)
+   , m_colCount(colCount) {
+   m_mat = LRL_StringTools::FromString( s );
 }
 
 size_t MatMN::LinearIndex( const size_t row, const size_t col) const {
-   return row*(*this).m_colCount + col;
+   const size_t n = row*(*this).m_colCount + col;
+   return n;
 }
 
 double  MatMN::operator[]( const size_t i ) const {
@@ -40,14 +71,14 @@ double& MatMN::operator[]( const size_t i ) {
 MatMN MatMN::transpose( void ) const {
    //  transpose a symmetrical matrix
    MatMN m( *this );
+   for (size_t i = 0; i < m_dim; ++i) m.m_mat[i] = 19191;
    std::swap( m.m_rowCount, m.m_colCount );
-   const size_t rowsize = ( *this ).m_rowCount;
-   for ( size_t count=0; count<rowsize; ++count ) {
-      const size_t transposeIndex = count/rowsize + rowsize*( count%rowsize );
-      if ( count >= transposeIndex ) {
-         m[transposeIndex] = ( *this )[count];
-         m[count] = ( *this )[transposeIndex];
-      }
+
+   for (size_t ij = 0; ij < m_dim; ++ij) {
+      const size_t i = ij % m_colCount;
+      const size_t j = ij / m_colCount;
+      const size_t n = i * m.m_colCount + j;
+      m[n] = (*this)[ij];
    }
    return m;
 }
@@ -75,12 +106,17 @@ VecN MatMN::operator*( const VecN& v ) const {
    const MatMN& m( *this );
    const size_t vdim = v.GetDim( );
    if ( vdim != m.m_colCount ) throw "Vector Dimension not same as matrix";
-   VecN vout( 10 );
+   VecN vout( m.GetRowDim() );
    vout.zero( );
 
    for (size_t row=0; row<m.m_rowCount; ++row ) {
-      for (size_t col = 0; col<m.m_colCount; ++col )
-         vout[col] += v[col] * m.m_mat[LinearIndex( row, col )];
+      for (size_t col = 0; col < m.m_colCount; ++col) {
+         const size_t index = LinearIndex(row, col);
+         const double currentMatValue = m.m_mat[LinearIndex(row, col)];
+         const double d = v[col] * m.m_mat[LinearIndex(row, col)];
+         const double sum = vout[row] + d;
+         vout[row] += d;
+      }
    }
 
    return vout;
@@ -89,7 +125,7 @@ VecN MatMN::operator*( const VecN& v ) const {
 MatMN MatMN::inverse( void ) const {
    MatMN I( ( *this ).GetRowDim( ), ( *this ).GetColDim( ) );
    if ( ( *this ).GetRowDim( ) != ( *this ).GetColDim( ) ) throw "inverse requires square matrix";
-
+   throw;
    return I;
 }
 
@@ -104,6 +140,16 @@ MatMN& MatMN::operator= ( const MatMN& m2 ) {
       m_colCount = m2.m_colCount;
    }
    return *this;
+}
+
+bool MatMN::operator== (const MatMN& m2) const {
+   if ((*this).size() != m2.size()) throw;
+   if ((*this).m_rowCount != m2.m_rowCount) throw;
+   return m_mat == m2.m_mat;
+}
+
+bool MatMN::operator!= (const MatMN& m2) const {
+   return !((*this) == m2);
 }
 
 MatMN  MatMN::operator+ ( const MatMN& m2 ) const {
@@ -193,3 +239,14 @@ double MatMN::operator() ( const size_t row, const size_t col ) {
    return m_mat[LinearIndex(  row, col )];
 }
 
+MatMN MatMN::operator* (const MatS6& m6) const {
+   return (*this) * MatMN(m6);
+}
+
+MatMN MatMN::operator* (const MatD7& m7) const {
+   return (*this) * MatMN(m7);
+}
+
+MatMN MatMN::operator* (const MatG6& m6) const {
+   return (*this) * MatMN(m6);
+}

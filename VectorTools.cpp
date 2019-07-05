@@ -64,11 +64,11 @@ void VectorTools::CleanVector( G6& v, Mat66& m ) {
 
 MatMN VectorTools::SetMatrix6To7( void ) {
    MatMN m6To7( 7,6 );
-   return m6To7=MatMN( "1 0 0 0 0 0   0 1 0 0 0 0   0 0 1 0 0 0   1 1 1 1 1 1   0 1 1 1 0 0   1 0 1 0 1 0   1 1 0 0 0 1" );
+   return m6To7=MatMN( 7, 6, "1 0 0 0 0 0   0 1 0 0 0 0   0 0 1 0 0 0   1 1 1 1 1 1   0 1 1 1 0 0   1 0 1 0 1 0   1 1 0 0 0 1" );
 }
 
 MatMN VectorTools::SetMatrix7To6( void ){
    MatMN m7To6( 6,7 );
-   return m7To6 = MatMN( "1 0 0 0 0 0 0   0 1 0 0 0 0 0   0 0 1 0 0 0 0   0 -1 -1 0 1 0 0   -1 0 -1 0 0 1 0   -1 -1 0 0 0 0 1" );
+   return m7To6 = MatMN( 6, 7, "1 0 0 0 0 0 0   0 1 0 0 0 0 0   0 0 1 0 0 0 0   0 -1 -1 0 1 0 0   -1 0 -1 0 0 1 0   -1 -1 0 0 0 0 1" );
 }
 

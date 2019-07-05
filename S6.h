@@ -1,27 +1,47 @@
 #ifndef S6_H
 #define S6_H
 
+#include "BasisBase.h"
+#include "MatS6.h"
 #include "VecN.h"
+
+class LRL_Cell;
+class C3;
+class D7;
+class B4;
+class G6;
 
 #include <ostream>
 #include <string>
 
-class S6 {
+class S6 : private BasisBase<S6> {
 public:
    friend std::ostream& operator<< (std::ostream&, const S6&);
    friend S6 operator* (const double d, const S6& ds);
    friend class D7;
 
    S6(void);
+   S6(const G6& v6);
    S6(const double v[6]);
    S6(const S6& s6);
+   S6(const C3& c3);
+   S6(const LRL_Cell& c);
    S6(const VecN& v);
+   S6(const D7& v7);
+   S6(const B4& del);
+   S6(const std::string& s);
    S6(const std::vector<double>& v);
    S6(const double d1, const double d2, const double d3, const double d4, const double d5, const double d6);
    ~S6(void) {}
 
 
    S6& operator= (const S6& v);
+   S6& operator= (const std::string& s);
+   S6& operator= (const G6& v);
+   S6& operator= (const C3& c3);
+   S6& operator= (const D7& v);
+   S6& operator= (const B4& v);
+   S6& operator= (const LRL_Cell& v);
    S6& operator/= (const double d);
    S6& operator*= (const double d);
    S6 operator+ (const S6& ds) const;
@@ -49,21 +69,25 @@ public:
    bool GetValid(void) const { return m_valid; }
    void SetValid(const bool b) {m_valid = b; }
    bool IsValid(void) const;
+   bool IsValid(const S6& s6) const;
+
+   static bool IsValid(const std::pair<S6, S6>& p);
+   static bool IsInvalidPair(const std::pair<S6, S6>& p);
 
    double at(const size_t n) const { return m_vec[n]; }
 
-   static S6 rand();
-   static S6 randDeloneReduced();
-   static S6 randDeloneUnreduced();
-   static S6 rand(const double d);
-   static S6 randDeloneReduced(const double d);
-   static S6 randDeloneUnreduced(const double d);
+   static void SetSeed(const int n);
+   static S6 rand(const double d=1.0);
+   static S6 randDeloneReduced(const double d=1.0);
+   static S6 randDeloneUnreduced(const double d=1.0);
 
    bool IsAllMinus() const;
    static std::string GetName(void) { return "S6, Selling scalars"; }
    static S6 InvertCoord(const size_t n, const S6& din);
    S6 InvertCoord(const size_t n) const;
    static std::string Signature(const S6& s6);
+
+   static std::vector<std::pair<MatS6, MatS6> > SetUnreductionMatrices();
 
    static std::vector< S6(*)(const S6&)> SetReduceFunctions();
    static S6 Reduce11(const S6& din);
@@ -94,6 +118,12 @@ public:
    static S6 Unreduce62(const S6& din);
    static size_t CountPositive(const S6& s6);
    size_t CountZeros(void) const;
+   size_t CountPositive(void) const;
+
+
+   static double NegativeSumOfScalars(const S6& s) {
+      return -(s[0] + s[1] + s[2] + s[3] + s[4] + s[5]);
+   }
 
    static std::vector< S6(*)(const S6&)> SetRelectionFunctions();
    static S6 Relection01(const S6& din);
@@ -120,7 +150,6 @@ public:
    static S6 Relection22(const S6& din);
    static S6 Relection23(const S6& din);
    static S6 Relection24(const S6& din);
-
 private:
    static S6 RandomUnreduceOne(const S6& s6);
    static S6 RandomUnreduceTwo(const S6& s6);

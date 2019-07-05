@@ -4,7 +4,7 @@
 #include <algorithm>
 #include<utility>
 #include "D7.h"
-/* #include "D7Dist.h" */
+/* #include "D7Dist.h" */  
 extern "C" {
     double D7Dist(double *, double *);
 }

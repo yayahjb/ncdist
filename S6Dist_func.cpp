@@ -49,7 +49,7 @@ double S6Dist_func(double gvec_A[6], double gvec_B[6])
    << red_B[4] << ","
    << red_B[5] <<  "]" << std::endl;
    */
-   const double dist = s6dist.DistanceBetween2(red_A, red_B);
+   const double dist = s6dist.DistanceBetween(red_A, red_B);
    return dist;
 }
 

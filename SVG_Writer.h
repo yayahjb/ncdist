@@ -15,6 +15,7 @@
 #include <utility>
 
 #include "FileOperations.h"
+#include "LRL_Cell.h"
 #include "Follow.h"
 #include "FollowerConstants.h"
 #include "FollowerIO.h"
@@ -223,10 +224,10 @@ private:
    std::string DrawStartingEndingCells( void ) const {
       TVEC vec = m_follow.GetProbe( );
       std::string s = "<text x=\"300\" y=\"60\"  font-family=\"sans-serif\" font-size=\"20\" > Beginning vector  " + ToString( vec ) + "</text>\n";
-                 s += "<text x=\"300\" y=\"85\"  font-family=\"sans-serif\" font-size=\"20\" > Beginning cell  " + ToString( Cell(vec) ) + "</text>\n";
+                 s += "<text x=\"300\" y=\"85\"  font-family=\"sans-serif\" font-size=\"20\" > Beginning cell  " + ToString( LRL_Cell(vec) ) + "</text>\n";
       vec = m_follow.GetSecondProbe( );
       s += "<text x=\"300\" y=\"110\"  font-family=\"sans-serif\" font-size=\"20\" > Ending vector  " + ToString(vec) + "</text>\n";
-      s += "<text x=\"300\" y=\"135\"  font-family=\"sans-serif\" font-size=\"20\" > Ending cell  " + ToString( Cell(vec)  ) + "</text>\n";
+      s += "<text x=\"300\" y=\"135\"  font-family=\"sans-serif\" font-size=\"20\" > Ending cell  " + ToString( LRL_Cell(vec)  ) + "</text>\n";
       return(s);
    }
 

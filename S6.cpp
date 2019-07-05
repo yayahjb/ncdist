@@ -1,5 +1,6 @@
 static const double randomLatticeNormalizationConstant = 10.0;
-static const double randomLatticeNormalizationConstantSquared = randomLatticeNormalizationConstant * randomLatticeNormalizationConstant;
+static const double randomLatticeNormalizationConstantSquared = randomLatticeNormalizationConstant*randomLatticeNormalizationConstant;
+
 
 
 #include <cmath>
@@ -8,16 +9,21 @@ static const double randomLatticeNormalizationConstantSquared = randomLatticeNor
 #include <vector>
 #include <string>
 
+#include "LRL_Cell.h"
+#include "Delone.h"
+#include "C3.h"
+#include "B4.h"
+#include "D7.h"
+#include "G6.h"
+#include "LRL_RandTools.h"
 #include "rhrand.h"
 #include "S6.h"
 #include "Selling.h"
+#include "LRL_StringTools.h"
+#include "LRL_Vector3.h"
 
-
-const double pi = 4.0*atan(1.0);
-const double twopi = 2.0*pi;
-
-static int s6RandomSeed = 19195;
-static RHrand rhrand(s6RandomSeed);
+static int s6RandomSeedS6 = 19195;
+static RHrand rhrandS6(s6RandomSeedS6);
 
 
 S6::S6( void )
@@ -25,24 +31,30 @@ S6::S6( void )
    , m_valid(true)
    , m_vec(VecN(6))
 {
-   m_vec.resize(6);
-   
 }
 
 S6::S6(const S6& v)
    : m_dim(6)
-   , m_valid(true)
-   , m_vec(VecN(6))
+   , m_valid(v.m_valid)
+   , m_vec(v.m_vec)
 {
-   m_vec = v.m_vec;
-   m_valid = v.m_valid;
+}
+
+S6::S6(const C3& c3)
+   : S6()
+{
+   m_vec[0] = c3[0].real();
+   m_vec[3] = c3[0].imag();
+   m_vec[1] = c3[1].real();
+   m_vec[4] = c3[1].imag();
+   m_vec[2] = c3[2].real();
+   m_vec[5] = c3[2].imag();
+   m_valid = c3.GetValid();
 }
 
 S6::S6(const double v[6])
-   : m_valid(true)
-   , m_dim(6)
+   : S6()
 {
-   m_vec.resize(6);
    double& p = (*this)[0];
    double& q = (*this)[1];
    double& r = (*this)[2];
@@ -65,6 +77,49 @@ S6::S6(const double v[6])
    u = (-g5 - g4 - 2.0*g3) / 2.0;
 }
 
+S6::S6(const LRL_Cell& c)
+   : S6()
+{
+   static const double pi = 4.0*atan(1.0);
+   static const double twopi = 2.0*pi;
+
+   (*this) = G6(c);
+   const bool btest1 = c.GetValid();
+   const bool btest2 = (c[3] + c[4] + c[5])< twopi;
+   m_valid = btest1 && c[3] < pi && c[4] < pi && c[5] < pi && btest2;
+}
+
+S6::S6(const D7& v7)
+   : m_valid(v7.GetValid())
+   , m_dim(6)
+{
+   (*this) = G6(v7);
+}
+
+S6::S6( const B4& del )
+   : S6()
+{
+   const Vector_3 a = del[0UL];
+   const Vector_3 b = del[1UL];
+   const Vector_3 c = del[2UL];
+   const Vector_3 d = del[3UL];
+   double& p = (*this)[0];
+   double& q = (*this)[1];
+   double& r = (*this)[2];
+   double& s = (*this)[3];
+   double& t = (*this)[4];
+   double& u = (*this)[5];
+
+   p = b.Dot(c);
+   q = a.Dot(c);
+   r = a.Dot(b);
+   s = a.Dot(d);
+   t = b.Dot(d);
+   u = c.Dot(d);
+
+   m_valid = IsValid();
+}
+
 S6::S6(const VecN& v)
    : m_valid(false)
    , m_dim(0)
@@ -73,13 +128,50 @@ S6::S6(const VecN& v)
       m_dim = 6;
       m_valid = true;
       m_vec = v;
+      m_vec.SetValid(true);
+   }
+}
+
+S6::S6(const G6& v6)
+   : S6()
+{
+   const double& g1 = v6[0];
+   const double& g2 = v6[1];
+   const double& g3 = v6[2];
+   const double& g4 = v6[3];
+   const double& g5 = v6[4];
+   const double& g6 = v6[5];
+
+   double& p = (*this)[0];
+   double& q = (*this)[1];
+   double& r = (*this)[2];
+   double& s = (*this)[3];
+   double& t = (*this)[4];
+   double& u = (*this)[5];
+
+   p = g4 / 2.0;
+   q = g5 / 2.0;
+   r = g6 / 2.0;
+   s = (-2.0*g1 - g6 - g5) / 2.0;
+   t = (-g6 - 2.0*g2 - g4) / 2.0;
+   u = (-g5 - g4 - 2.0*g3) / 2.0;
+   m_valid = v6.GetValid();
+}
+
+S6::S6(const std::string& s)
+   : S6()
+{
+   m_vec = LRL_StringTools::FromString(s);
+   m_dim = m_vec.size();
+   if (m_dim != 6)
+   {
+      throw "bad dimension in S6 from a string";
    }
 }
 
 S6::S6(const std::vector<double>& v)
-   : m_valid(true)
+   : S6()
 {
-   m_vec.resize(6);
    m_dim = (size_t)(v.size());
    if (m_dim != 6) throw "bad dimension in D7 from a string";
    m_vec = v;
@@ -98,17 +190,32 @@ S6::S6(const double d1, const double d2, const double d3, const double d4, const
    m_valid = IsValid();
 }
 
+bool S6::IsValid(const S6& s6)const {
+   return s6.IsValid();
+}
+
 bool S6::IsValid(void) const {
    const size_t nPositive = CountPositive(*this);
    if (nPositive > 4) return false;
-   if (nPositive < 3) return true;
    if (CountZeros() > 3) return false;
-   /*
-   !!!!!!!!!!!!!!!!!!!!!!!!!! removed checking  for valid cell
-   for minimal S6Dist
-   return LRL_Cell(*this).GetValid();
-   */
-   return true;
+   const double& p = (*this)[0];
+   const double& q = (*this)[1];
+   const double& r = (*this)[2];
+   const double& s = (*this)[3];
+   const double& t = (*this)[4];
+   const double& u = (*this)[5];
+
+   double g1 = -s - r - q;
+   double g2 = -t - r - p;
+   double g3 = -u - q - p;
+   double g4 = 2.0*p;
+   double g5 = 2.0*q;
+   double g6 = 2.0*r;
+
+   return g1 > 0.001 && g2 > 0.001 && g3 > 0.001 &&
+      std::abs(g4*g4 / g2 / g3) <= 4.0 &&
+      std::abs(g5*g5 / g1 / g3) <= 4.0 &&
+      std::abs(g6*g6 / g1 / g2) <= 4.0;
 }
 
 size_t S6::CountZeros(void) const {
@@ -127,6 +234,40 @@ S6& S6::operator= ( const S6& v ) {
    m_vec = v.m_vec;
    m_dim = v.m_dim;
    m_valid = v.m_valid;
+   return *this;
+}
+
+S6& S6::operator= (const std::string& s)
+{
+   (*this) = S6(s);
+   return *this;
+}
+
+S6& S6::operator= (const C3& c3) {
+   *this = S6(c3);
+   return *this;
+}
+
+S6& S6::operator= (const G6& v) {
+   *this = S6(v);
+   return *this;
+}
+
+S6& S6::operator= (const D7& v) {
+   *this = S6(v);
+   return *this;
+}
+
+S6& S6::operator= (const B4& v) {
+   *this = S6(v);
+   return *this;
+}
+
+S6& S6::operator= (const LRL_Cell& v) {
+   static const double pi = 4.0*atan(1.0);
+   static const double twopi = 2.0*pi;
+   (*this) = G6(v);
+   m_valid = GetValid() && v.GetValid() && v[3] < pi && v[4] < pi && v[5] < pi && (v[3] + v[4] + v[5])< twopi;
    return *this;
 }
 
@@ -210,7 +351,7 @@ std::ostream& operator<< (std::ostream& o, const S6& dc) {
 }
 
 S6 operator* (const double d, const S6& ds) { // friend
-   return ds * d;
+   return ds*d;
 }
 
 bool S6::IsAllMinus() const {
@@ -239,10 +380,12 @@ std::string S6::Signature(const S6& s6) {
    return s;
 }
 
-S6 S6::rand(void) {
+void S6::SetSeed(const int n) { const int seedn = n;  rhrandS6.srandom(seedn); }
+
+S6 S6::rand(const double d) {
    S6 s6(randDeloneReduced());
 
-   const double choice = rhrand.urand();
+   const double choice = rhrandS6.urand();
    // the constants are chosen from results for 
    // random generation of valid cells !!!!!!!!!!!!!!!!
    // but they are somewhat random and can be adjusted.
@@ -252,30 +395,18 @@ S6 S6::rand(void) {
    else return S6::RandomUnreduceThree(s6);
 }
 
-S6 S6::rand(const double d) {
-   return d*rand() / randomLatticeNormalizationConstantSquared;
-}
-
-S6 S6::randDeloneReduced() {
+S6 S6::randDeloneReduced(const double d) {
    S6 s6;
    for (size_t i = 0; i < 6; ++i)
-      s6[i] = -rhrand.urand() * randomLatticeNormalizationConstantSquared;
+      s6[i] = -rhrandS6.urand()*randomLatticeNormalizationConstantSquared;
    s6.m_valid = true;
    return s6;
 }
 
-S6 S6::randDeloneUnreduced() {
+S6 S6::randDeloneUnreduced(const double d) {
    S6 s6(S6::rand());
    while (S6::CountPositive(s6) == 0) s6 = S6::rand();
    return s6;
-}
-
-S6 S6::randDeloneReduced(const double d) {
-   return d*randDeloneReduced( ) / randomLatticeNormalizationConstantSquared;
-}
-
-S6 S6::randDeloneUnreduced(const double d) {
-   return d*randDeloneUnreduced( ) / randomLatticeNormalizationConstantSquared;
 }
 
 size_t S6::CountPositive(const S6& s6) {
@@ -284,8 +415,12 @@ size_t S6::CountPositive(const S6& s6) {
    return sum;
 }
 
+size_t S6::CountPositive(void) const {
+   return CountPositive(*this);
+}
+
 S6 S6::RandomUnreduceOne(const S6& s6) {
-   const double choice = 12.0 * rhrand.urand();
+   const double choice = 12.0*rhrandS6.urand();
 
    if (choice < 1) return S6::Unreduce11(s6);
    else if (choice < 2) return S6::Unreduce12(s6);
@@ -310,35 +445,57 @@ S6 S6::RandomUnreduceTwo(const S6& s6) {
 
 S6 S6::RandomUnreduceThree(const S6& s6) {
    S6 s(s6);
-   while (CountPositive(s) < 3) {
+   while (CountPositive(s) < 3)
       s = RandomUnreduceOne(s);
-      /*
-      !!!!!!!!!!!!!!!!!!!!!!!!!! removed checking  for valid cell
-      for minimal S6Dist
-      if ( !LRL_Cell(s).GetValid()) s = S6( "-1 -1 -1 -1 -1 -1");
-      */
-   }
    return s;
 }
 
-std::vector< S6(*)(const S6&)> S6::SetReduceFunctions() {
-   std::vector<S6(*)(const S6&)> v;
-   // The order is to agree with the reflection in D7Dist.h
-   v.push_back(Reduce11);
-   v.push_back(Reduce12);
-   v.push_back(Reduce21);
-   v.push_back(Reduce22);
-   v.push_back(Reduce31);
-   v.push_back(Reduce32);
-   v.push_back(Reduce41);
-   v.push_back(Reduce42);
-   v.push_back(Reduce51);
-   v.push_back(Reduce52);
-   v.push_back(Reduce61);
-   v.push_back(Reduce62);
-   return v;
+std::vector<std::pair<MatS6, MatS6> > S6::SetUnreductionMatrices() {
+   std::vector<std::pair<MatS6, MatS6> > vUnRed;
+
+   // For unreducing scalar 11
+   vUnRed.push_back(std::make_pair(MatS6(" -1 0 0 0 0 0    1 1 0 0 0 0    1 0 0 0 1 0 -1 0 0 1 0 0    1 0 1 0 0 0    1 0 0 0 0 1"),
+
+      // For unreducing scalar 12
+      MatS6(" -1 0 0 0 0 0    1 0 0 0 0 1    1 0 1 0 0 0 -1 0 0 1 0 0    1 0 0 0 1 0    1 1 0 0 0 0")));
+
+   // For unreducing scalar 21
+   vUnRed.push_back(std::make_pair(MatS6("1 1 0 0 0 0    0 -1 0 0 0 0    0 1 0 1 0 0    0 1 1 0 0 0    0 -1 0 0 1 0    0 1 0 0 0 1"),
+
+      // For unreducing scalar 22
+      MatS6("0 1 0 0 0 1    0 -1 0 0 0 0    0 1 1 0 0 0    0 1 0 1 0 0    0 -1 0 0 1 0    1 1 0 0 0 0")));
+
+   // For unreducing scalar 31
+   vUnRed.push_back(std::make_pair(MatS6("1 0 1 0 0 0    0 0 1 1 0 0    0 0 -1 0 0 0    0 1 1 0 0 0    0 0 1 0 1 0    0 0 -1 0 0 1"),
+
+      // For unreducing scalar 32
+      MatS6("0 0 1 0 1 0    0 1 1 0 0 0    0 0 -1 0 0 0    0 0 1 1 0 0    1 0 1 0 0 0    0 0 -1 0 0 1")));
+
+   // For unreducing scalar 41
+   vUnRed.push_back(std::make_pair(MatS6("1 0 0 -1 0 0    0 0 1 1 0 0    0 1 0 1 0 0    0 0 0 -1 0 0    0 0 0 1 1 0    0 0 0 1 0 1"),
+
+      // For unreducing scalar 42
+      MatS6("1 0 0 -1 0 0    0 1 0 1 0 0    0 0 1 1 0 0    0 0 0 -1 0 0    0 0 0 1 0 1    0 0 0 1 1 0")));
+
+   // For unreducing scalar 51
+   vUnRed.push_back(std::make_pair(MatS6("0 0 1 0 1 0    0 1 0 0 -1 0    1 0 0 0 1 0    0 0 0 1 1 0    0 0 0 0 -1 0    0 0 0 0 1 1"),
+
+      // For unreducing scalar 52
+      MatS6("1 0 0 0 1 0    0 1 0 0 -1 0    0 0 1 0 1 0    0 0 0 0 1 1    0 0 0 0 -1 0    0 0 0 1 1 0")));
+
+   // For unreducing scalar 61
+   vUnRed.push_back(std::make_pair(MatS6("0 1 0 0 0 1    1 0 0 0 0 1    0 0 1 0 0 -1    0 0 0 1 0 1    0 0 0 0 1 1    0 0 0 0 0 -1"),
+
+      // For unreducing scalar 62
+      MatS6("1 0 0 0 0 1    0 1 0 0 0 1    0 0 1 0 0 -1    0 0 0 0 1 1    0 0 0 1 0 1    0 0 0 0 0 -1")));
+
+   return vUnRed;
 }
 
+
+std::vector< S6(*)(const S6&)> S6::SetReduceFunctions() {
+   return SetUnreduceFunctions();
+}
 
 std::vector< S6(*)(const S6&)> S6::SetUnreduceFunctions() {
    std::vector<S6(*)(const S6&)> v;
@@ -353,8 +510,8 @@ std::vector< S6(*)(const S6&)> S6::SetUnreduceFunctions() {
    //v.push_back(Unreduce42);
    v.push_back(Unreduce51);
    //v.push_back(Unreduce52);
-   v.push_back(Unreduce61);
-   //v.push_back(Unreduce62);
+   //v.push_back(Unreduce61);
+   v.push_back(Unreduce62);
    return v;
 }
 
@@ -958,6 +1115,14 @@ S6 S6::Unreduce62(const S6& din) {
    return d;
 }
 
+bool S6::IsValid(const std::pair<S6, S6>& p) {
+   return p.first.IsValid() && p.second.IsValid();
+}
+
+bool S6::IsInvalidPair(const std::pair<S6, S6>& p) {
+   return !(S6::IsValid(p));
+}
+
 std::vector< S6(*)(const S6&)> S6::SetRelectionFunctions() {
    std::vector<S6(*)(const S6&)> v;
    v.push_back(Relection01);
@@ -1074,7 +1239,6 @@ S6 S6::Relection06(const S6& din) {
 S6 S6::Relection07(const S6& din) {
    S6 d(din);
    std::swap(d.m_vec[1], d.m_vec[0]);
-   std::swap(d.m_vec[3], d.m_vec[4]);
    std::swap(d.m_vec[3], d.m_vec[4]);
    return d;
 }

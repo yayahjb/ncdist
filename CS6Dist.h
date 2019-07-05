@@ -6,12 +6,19 @@
 //
 //
 
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #ifndef CS6DIST_H
 #define CS6DIST_H
 
 
-/* #define S6DIST_DEBUG */   
- #define S6DIST_NO_OUTER_PASS  
+#define S6DIST_DEBUG 
+#define S6DIST_NO_OUTER_PASS  
 
 #include <math.h>
 #include <float.h>
@@ -20,11 +27,11 @@
 static int CS6M_changed=0;
 static double oldvalue;
 #include <stdio.h>
-#define CSM_report_double(prolog,value,epilog) \
+#define CS6M_report_double(prolog,value,epilog) \
 oldvalue=value; fprintf(stderr,"%s%g%s",prolog,value,epilog);
-#define CSM_report_integer(prolog,value,epilog) \
+#define CS6M_report_integer(prolog,value,epilog) \
 fprintf(stderr,"%s%d%s",prolog,value,epilog);
-#define CSM_report_double_if_changed(prolog,value,epilog) \
+#define CS6M_report_double_if_changed(prolog,value,epilog) \
 CS6M_changed=0; if (fabs(value-oldvalue)>1.e-8*(fabs(value)+fabs(oldvalue)+1.e-12)) {oldvalue=value; CS6M_changed=1; fprintf(stderr,"%s%g%s",prolog,value,epilog);}
 #define CS6M_also_if_changed_report(prolog,value,epilog) \
 if(CS6M_changed) {fprintf(stderr,"%s%s%s",prolog,value,epilog);}
@@ -34,17 +41,17 @@ if(CS6M_changed) {fprintf(stderr,"%s%d%s",prolog,value,epilog);}
 if(CS6M_changed) {fprintf(stderr,"%s%g%s",prolog,value,epilog);}
 #define CS6M_also_if_changed_report_double_vector(prolog,value,epilog) \
 if(CS6M_changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],epilog);}
-#define CSM_report_double_vector(prolog,value,epilog) \
+#define CS6M_report_double_vector(prolog,value,epilog) \
 {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],value[1],value[2],value[3],value[4],value[5],epilog);}
 #else
-#define CSM_report_double(prolog,value,epilog)
-#define CSM_report_integer(prolog,value,epilog)
-#define CSM_report_double_if_changed(prolog,value,epilog)
+#define CS6M_report_double(prolog,value,epilog)
+#define CS6M_report_integer(prolog,value,epilog)
+#define CS6M_report_double_if_changed(prolog,value,epilog)
 #define CS6M_also_if_changed_report(prolog,value,epilog)
 #define CS6M_also_if_changed_report_integer(prolog,value,epilog)
 #define CS6M_also_if_changed_report_double(prolog,value,epilog)
 #define CS6M_also_if_changed_report_double_vector(prolog,value,epilog)
-#define CSM_report_double_vector(prolog,value,epilog)
+#define CS6M_report_double_vector(prolog,value,epilog)
 #endif
 
 
@@ -518,7 +525,7 @@ static int S6MS[6][36] = {
 
 static int S6MSX[12][36] = {
 
-     /* D6M_1_1 */
+     /* S6MSX_1_1 */
 
      {-1, 0, 0, 0, 0, 0 ,
        1, 1, 0, 0, 0, 0 ,
@@ -1194,20 +1201,59 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
      Compute the minimal distance between two S6-reduced
      vectors in the S6 Cone following the embedding paths
      to the 6 major boundaries
+
+     We need to examine unreduction for boundary i in gvec2
+     if 4*||gvec1-gvec2||*||gvec1||
+        + 12*|gvec1[i]|*||gvec1-gvec2||
+        + 2*|gvec1[i]-gvec2[i]|*sqrt(6)*||gvec1-gvec2||
+      >= 9*(gvec1(i))^2+7*(gvec1[i]-gvec2[i])^2
+
+     and similary examine unreduction for boundary i in gvec1
+     if 4*||gvec1-gvec2||*||gvec2||
+        + 12*|gvec2[i]|*||gvec1-gvec2||
+        + 2*|gvec1[i]-gvec2[i]|*sqrt(6)*||gvec1-gvec2||
+      >= 9*(gvec2(i))^2+7*(gvec1[i]-gvec2[i])^2
+
  */
 
 
 
 static double CS6Dist(double gvec1[6],double gvec2[6]) {
     double dist,dist1, dist2, distmin;
+    double norm1, norm2, distsq;
+    double mgvec1[6], mgvec2[6];
+    int unred1[6], unred2[6];
+    int ii;
     dist1 = s6minbddist(gvec1);
     dist2 = s6minbddist(gvec2);
     distmin = CS6M_min(dist1,dist2);
     dist = s61234dist(gvec1,gvec2);
-    CSM_report_double("\n  Entered CS6Dist gdist = ",dist,", ");
-    CSM_report_double_vector("gvec1 = ", gvec1,", ")
-    CSM_report_double_vector("gvec2 = ", gvec2,"\n")
+    CS6M_report_double("\n  Entered CS6Dist gdist = ",dist,", ");
+    CS6M_report_double_vector("gvec1 = ", gvec1,", ")
+    CS6M_report_double_vector("gvec2 = ", gvec2,"\n")
     dist = S6Dist_pass(gvec1,gvec2,dist);
+    CS6M_report_double_if_changed("gvec1 gvec2 dist = ",dist,"\n");
+    norm1=CS6M_norm(gvec1);
+    norm2=CS6M_norm(gvec1);
+    for (ii=0; ii <6; ii++) {
+      unred1[ii] = unred2[ii] = -1;
+      if (dist*(4.*norm1+12.*fabs(gvec1[ii])+2.*sqrt(6.))
+          > 9.*gvec1[ii]*gvec1[ii]+7.*dist*dist) {
+        unred2[ii]=2*ii;
+        CS6M_imv6(gvec2,S6MSX[unred2[ii]],mgvec2);
+        CS6M_report_double_vector("mgvec2 = ", mgvec2,"\n");
+        dist = S6Dist_pass(gvec1,mgvec2,dist);
+        CS6M_report_double_if_changed("gvec1 mgvec2 dist = ",dist,"\n");
+      }      
+      if (dist*(4.*norm2+12.*fabs(gvec2[ii])+2.*sqrt(6.))
+          > 9.*gvec2[ii]*gvec2[ii]+7.*dist*dist) {
+        unred1[ii]=2*ii;
+        CS6M_imv6(gvec1,S6MSX[unred1[ii]],mgvec1);
+        CS6M_report_double_vector("mgvec1 = ", mgvec1,"\n")
+        dist = S6Dist_pass(mgvec1,gvec2,dist);
+        CS6M_report_double_if_changed("mgvec1 gvec2 dist = ",dist,"\n");
+      }
+    }
     return dist;
 }
 
@@ -1215,4 +1261,10 @@ static double CS6Dist(double gvec1[6],double gvec2[6]) {
 
 #endif /*CS6DIST_H */
 
+
+#ifdef __cplusplus
+
+}
+
+#endif
 

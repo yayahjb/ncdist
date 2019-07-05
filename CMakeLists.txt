@@ -91,7 +91,7 @@ CS6Dist.h
 D6.cpp	D6.h
 D7.cpp	D7.h
 Delone.cpp	Delone.h
-DeloneTetrahedron.cpp	DeloneTetrahedron.h
+B4.cpp	B4.h
 G6.cpp	G6.h
 inverse.cpp 	inverse.h
 MatN.cpp	MatN.h
@@ -117,7 +117,7 @@ CS6Dist.h
 D6.cpp	D6.h
 D7.cpp	D7.h
 Delone.cpp	Delone.h
-DeloneTetrahedron.cpp	DeloneTetrahedron.h
+B4.cpp	B4.h
 G6.cpp	G6.h
 inverse.cpp 	inverse.h
 MatN.cpp	MatN.h
@@ -144,7 +144,7 @@ CS6Dist.h
 D6.cpp	D6.h
 D7.cpp	D7.h
 Delone.cpp	Delone.h
-DeloneTetrahedron.cpp	DeloneTetrahedron.h
+B4.cpp	B4.h
 G6.cpp	G6.h
 inverse.cpp 	inverse.h
 MatN.cpp	MatN.h
@@ -171,7 +171,7 @@ CS6Dist.h
 D6.cpp	D6.h
 D7.cpp	D7.h
 Delone.cpp	Delone.h
-DeloneTetrahedron.cpp	DeloneTetrahedron.h
+B4.cpp	B4.h
 G6.cpp	G6.h
 inverse.cpp 	inverse.h
 MatN.cpp	MatN.h
@@ -212,8 +212,8 @@ Cell.cpp        Cell.h
 D6.cpp          D6.h
 D7.cpp          D7.h
 Delone.cpp      Delone.h
-DeloneTetrahedron.cpp
-DeloneTetrahedron.h
+B4.cpp
+B4.h
 G6.cpp          G6.h
 inverse.cpp inverse.h
 Mat66.cpp       Mat66.h
@@ -233,8 +233,8 @@ D6.cpp          D6.h
 D7.cpp          D7.h
 S6.cpp          S6.h
 Delone.cpp      Delone.h
-DeloneTetrahedron.cpp
-DeloneTetrahedron.h
+B4.cpp
+B4.h
 G6.cpp          G6.h
 inverse.cpp inverse.h
 Mat66.cpp       Mat66.h
@@ -253,8 +253,8 @@ D6.cpp          D6.h
 D7.cpp          D7.h
 S6.cpp          S6.h
 Delone.cpp      Delone.h
-DeloneTetrahedron.cpp
-DeloneTetrahedron.h
+B4.cpp
+B4.h
 G6.cpp          G6.h
 inverse.cpp inverse.h
 Mat66.cpp       Mat66.h
@@ -274,8 +274,8 @@ D6.cpp          D6.h
 D7.cpp          D7.h
 S6.cpp          S6.h
 Delone.cpp      Delone.h
-DeloneTetrahedron.cpp
-DeloneTetrahedron.h
+B4.cpp
+B4.h
 G6.cpp          G6.h
 inverse.cpp inverse.h
 Mat66.cpp       Mat66.h
@@ -295,8 +295,8 @@ D6.cpp          D6.h
 D7.cpp          D7.h
 S6.cpp          S6.h
 Delone.cpp      Delone.h
-DeloneTetrahedron.cpp
-DeloneTetrahedron.h
+B4.cpp
+B4.h
 G6.cpp          G6.h
 inverse.cpp inverse.h
 Mat66.cpp       Mat66.h
@@ -314,8 +314,8 @@ Cell.cpp        Cell.h
 D6.cpp          D6.h
 D7.cpp          D7.h
 Delone.cpp      Delone.h
-DeloneTetrahedron.cpp
-DeloneTetrahedron.h
+B4.cpp
+B4.h
 G6.cpp          G6.h
 inverse.cpp inverse.h
 Mat66.cpp       Mat66.h
@@ -339,7 +339,7 @@ D6.cpp	D6.h
 D7.cpp	D7.h
 D7Dist.c	D7Dist.h	D7Dist_.hpp
 Delone.cpp	Delone.h
-DeloneTetrahedron.cpp	DeloneTetrahedron.h
+B4.cpp	B4.h
 FileOperations.cpp	FileOperations.h
 FileWriter.h
 Follow.h 

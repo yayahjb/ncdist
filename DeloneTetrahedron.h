@@ -5,7 +5,7 @@
 
 #include <vector>
 
-   class Cell;
+   class LRL_Cell;
    class D6;
    class G6;
    class D7;
@@ -23,7 +23,7 @@ public:
    DeloneTetrahedron(const DeloneTetrahedron& dt);
    //DeloneTetrahedron( 4 vectors );
    explicit DeloneTetrahedron(const D7& v7);
-   explicit DeloneTetrahedron(const Cell& c);
+   explicit DeloneTetrahedron(const LRL_Cell& c);
    explicit DeloneTetrahedron(const D6& c);
    explicit DeloneTetrahedron(const G6& v6);
    explicit DeloneTetrahedron(const std::string& c);

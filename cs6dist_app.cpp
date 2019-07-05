@@ -4,8 +4,8 @@
 #include "S6.h"
 #include "Reducer.h"
 #include "Delone.h"
-#include "Cell.h"
-#include "D7Dist.h"
+#include "LRL_Cell.h"
+#include "LRL_Cell_Degrees.h"
 #include "CS6Dist_func.h"
 #include "S6M_SellingReduce.h"
 
@@ -24,12 +24,13 @@ S6 makeprimredcell( std::string testlattice,
     char clatsym;
     G6 v6cell;
     G6 redprimcell;
-    double redprimcellx[6];
+    G6 redprimcell_as_g6;
     D7 d7redprimcell;
-    double d7redprimcellx[7];
-    double d7primcellx[7];
+    G6 d7redprimcell_as_g6;
     S6 s6redprimcell;
-    double s6redprimcellx[6];
+    G6 s6redprimcell_as_g6;
+    double d7primcell[7];
+    double s6primcell[6];
     G6 dredprimcell;
     Mat66 mc;
     Mat66 m;
@@ -37,11 +38,17 @@ S6 makeprimredcell( std::string testlattice,
     G6 primcell;
     G6 recipcell;
     G6 reducedBase;
-    G6 primredprobe;
-    G6 primredprobex;
-    G6 dprimredprobe;
+    G6 g6primredprobe_as_g6;
+    D7 d7primredprobe_as_g6;
+    S6 S6primredprobe_as_g6;
+    LRL_Cell g6primredprobe; 
+    LRL_Cell d7primredprobe; 
+    LRL_Cell s6primredprobe; 
+    g6primredprobe = LRL_Cell_Degrees(redprimcell_as_g6);
+    d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
+    s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
     double crootvol;
-    Cell rawcell(a,b,c, alpha,beta,gamma);
+    LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
     int reduced;
@@ -68,8 +75,10 @@ S6 makeprimredcell( std::string testlattice,
         case 'r':
         case 'H':
         case 'h':
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
+            /* mc = rawcell.LatSymMat66(latsym);
+            primcell = mc*(rawcell.Cell2V6());*/
             break;
         case 'V':
         case 'v':
@@ -101,115 +110,77 @@ S6 makeprimredcell( std::string testlattice,
         default:
             std::cerr << "Unrecognized lattice symbol "<< testlattice<<" treated as P" << std::endl;
             latsym = "P";
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
+            /*mc = rawcell.LatSymMat66(latsym);
+            primcell = mc*(rawcell.Cell2V6());*/
             break;
     }
-    ret = Reducer::Reduce(primcell,m,redprimcell,0.0);
-    ret = Delone::Reduce(primcell,dm,dredprimcell,0.0);
-    d7redprimcell = D7(dredprimcell);
-    CS6M_G6Reduce(primcell,redprimcellx,reduced);
-    int iii;
-    int idiff;
-    idiff = 0;
-    for (iii=0; iii < 6; iii++) {
-       if (redprimcell[iii] < redprimcellx[iii]-1.e-10 || redprimcell[iii] > redprimcellx[iii]+1.e-10) idiff++;
+    reduced=0;
+    CS6M_G6Reduce(primcell,redprimcell,reduced);
+    if (!reduced) {
+      for(ii=0;ii<6;ii++) redprimcell[ii]=redprimcell_as_g6[ii]=0.;
+    } else {
+      for(ii=0;ii<6;ii++) redprimcell_as_g6[ii]=redprimcell[ii];
     }
-    if (idiff) {
-       std::cout << "Differences in S6 reduction: " << std::endl
-       <<  "S6M: "<< redprimcellx[0] << " " 
-       << redprimcellx[1] << " " 
-       << redprimcellx[2] << " " 
-       << redprimcellx[3] << " " 
-       << redprimcellx[4] << " " 
-       << redprimcellx[5] << std::endl 
-       <<  "std: "<< redprimcell[0] << " " 
-       << redprimcell[1] << " " 
-       << redprimcell[2] << " " 
-       << redprimcell[3] << " " 
-       << redprimcell[4] << " " 
-       << redprimcell[5] << std::endl; 
+    CS6M_G6toD7(primcell,d7primcell);
+    reduced=0;
+    CS6M_D7Reduce(d7primcell,d7redprimcell,reduced);
+    if (!reduced) {
+      for(ii=0;ii<6;ii++) d7redprimcell_as_g6[ii]=0.;
+      for(ii=0;ii<7;ii++) d7redprimcell[ii]=0.;
+    } else {
+      CS6M_D7toG6(d7redprimcell,d7redprimcell_as_g6);
     }
-    CS6M_G6toD7(primcell,d7primcellx)
-    CS6M_D7Reduce(d7primcellx,d7redprimcellx,reduced);
-    s6redprimcell = S6((d7redprimcell[4]-d7redprimcell[1]-d7redprimcell[2])/2.,
-                       (d7redprimcell[5]-d7redprimcell[0]-d7redprimcell[2])/2.,
-                       (d7redprimcell[6]-d7redprimcell[0]-d7redprimcell[1])/2.,
-                       (d7redprimcell[4]-d7redprimcell[0]-d7redprimcell[3])/2.,
-                       (d7redprimcell[5]-d7redprimcell[1]-d7redprimcell[3])/2.,
-                       (d7redprimcell[6]-d7redprimcell[2]-d7redprimcell[3])/2.);
-    CS6M_D7toS6(d7redprimcell,s6redprimcellx); 
-    primredprobe = Cell(redprimcell).CellWithDegrees();
-    dprimredprobe = Cell(dredprimcell).CellWithDegrees();
-    primredprobex = Cell(redprimcellx).CellWithDegrees();
-    std::cout << "Primitive Reduced Probe Cell: " <<
-    primredprobe[0]<<" "<<
-    primredprobe[1]<<" "<<
-    primredprobe[2]<<" "<<
-    primredprobe[3]<<" "<<
-    primredprobe[4]<<" "<<
-    primredprobe[5] << std::endl;
-    std::cout << "Primitive Reduced Probe Cell from S6: " <<
-    primredprobex[0]<<" "<<
-    primredprobex[1]<<" "<<
-    primredprobex[2]<<" "<<
-    primredprobex[3]<<" "<<
-    primredprobex[4]<<" "<<
-    primredprobex[5] << std::endl;
-    std::cout << "Delaunay Primitive Reduced Probe Cell: " <<
-    dprimredprobe[0]<<" "<<
-    dprimredprobe[1]<<" "<<
-    dprimredprobe[2]<<" "<<
-    dprimredprobe[3]<<" "<<
-    dprimredprobe[4]<<" "<<
-    dprimredprobe[5] << std::endl;
-    std::cout << "Delaunay Primitive Reduced Probe D7 Cell: " <<
-    d7redprimcell[0]<<" "<<
-    d7redprimcell[1]<<" "<<
-    d7redprimcell[2]<<" "<<
-    d7redprimcell[3]<<" "<<
-    d7redprimcell[4]<<" "<<
-    d7redprimcell[5]<<" "<<
-    d7redprimcell[6] << std::endl;
-    std::cout << "Delaunay Primitive S6Reduced Probe D7 Cell: " <<
-    d7redprimcellx[0]<<" "<<
-    d7redprimcellx[1]<<" "<<
-    d7redprimcellx[2]<<" "<<
-    d7redprimcellx[3]<<" "<<
-    d7redprimcellx[4]<<" "<<
-    d7redprimcellx[5]<<" "<<
-    d7redprimcellx[6] << std::endl;
-    std::cout << "Selling Primitive Reduced Probe S6 Cell: " <<
+    CS6M_G6toS6(primcell,s6primcell);
+    reduced=0;
+    CS6M_S6Reduce(s6primcell,s6redprimcell,reduced);
+    if (!reduced) {
+      for(ii=0;ii<6;ii++) s6redprimcell[ii]=s6redprimcell_as_g6[ii]=0;
+    } else {
+      CS6M_S6toG6(s6redprimcell,s6redprimcell_as_g6);
+    }
+    g6primredprobe = LRL_Cell_Degrees(redprimcell_as_g6);
+    d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
+    s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
+    std::cout << "Primitive Reduced Probe LRL_Cell: " <<
+    g6primredprobe[0]<<" "<<
+    g6primredprobe[1]<<" "<<
+    g6primredprobe[2]<<" "<<
+    g6primredprobe[3]<<" "<<
+    g6primredprobe[4]<<" "<<
+    g6primredprobe[5] << std::endl;
+    std::cout << "Delaunay Primitive Reduced Probe LRL_Cell: " <<
+    d7primredprobe[0]<<" "<<
+    d7primredprobe[1]<<" "<<
+    d7primredprobe[2]<<" "<<
+    d7primredprobe[3]<<" "<<
+    d7primredprobe[4]<<" "<<
+    d7primredprobe[5] << std::endl;
+    std::cout << "Selling Primitive Reduced Probe S6 LRL_Cell: " <<
     s6redprimcell[0]<<" "<<
     s6redprimcell[1]<<" "<<
     s6redprimcell[2]<<" "<<
     s6redprimcell[3]<<" "<<
     s6redprimcell[4]<<" "<<
     s6redprimcell[5] << std::endl;
-    std::cout << "Selling Primitive Reduced Probe S6 Cell from D7 Cell: " <<
-    s6redprimcellx[0]<<" "<<
-    s6redprimcellx[1]<<" "<<
-    s6redprimcellx[2]<<" "<<
-    s6redprimcellx[3]<<" "<<
-    s6redprimcellx[4]<<" "<<
-    s6redprimcellx[5] << std::endl;
-    std::cout << "Volume :" << Cell(redprimcell).Volume() << std::endl;
-    crootvol = pow(Cell(redprimcell).Volume(),1./3.);
-    Reducer::Reduce((Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
-    recipcell = (Cell(redprimcell).Inverse()).CellWithDegrees();    
-    std::cout << "Reciprocal of Primitive Probe Cell: " <<
+    std::cout << "Volume :" << LRL_Cell(redprimcell).Volume() << std::endl;
+    crootvol = pow(LRL_Cell(redprimcell).Volume(),1./3.);
+    Reducer::Reduce((LRL_Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
+    recipcell = LRL_Cell_Degrees((LRL_Cell(redprimcell).Inverse()));
+    std::cout << "Reciprocal of Primitive Probe LRL_Cell: " <<
     recipcell[0]<<" "<<
     recipcell[1]<<" "<<
     recipcell[2]<<" "<<
     recipcell[3]<<" "<<
     recipcell[4]<<" "<<
     recipcell[5]<< std::endl;
-    std::cout << "Volume of Reciprocal Cell: " <<
-    (Cell(redprimcell).Inverse()).Volume() << std::endl;
+    std::cout << "Volume of Reciprocal LRL_Cell: " <<
+    (LRL_Cell(redprimcell).Inverse()).Volume() << std::endl;
     std::cout << "V7 linearized and scaled: "
-    << primredprobe[0]*std::sqrt(6./7.)<<" "
-    << primredprobe[1]*std::sqrt(6./7.)<<" "
-    << primredprobe[2]*std::sqrt(6./7.)<<" "
+    << g6primredprobe[0]*std::sqrt(6./7.)<<" "
+    << g6primredprobe[1]*std::sqrt(6./7.)<<" "
+    << g6primredprobe[2]*std::sqrt(6./7.)<<" "
     << std::sqrt(1./reducedBase[0])*std::sqrt(6./7.)<<" "
     << std::sqrt(1./reducedBase[1])*std::sqrt(6./7.)<<" "
     << std::sqrt(1./reducedBase[2])*std::sqrt(6./7.)<<" "
@@ -224,16 +195,16 @@ S6 makeprimredcell( std::string testlattice,
         << primcell[4]<<" "
         << primcell[5]<<std::endl;
     } else {
-        std::cout << "raw G6 vector: "
-        << dprimredprobe[0]*dprimredprobe[0]<<" "
-        << dprimredprobe[1]*dprimredprobe[1]<<" "
-        << dprimredprobe[2]*dprimredprobe[2]<<" "
-        << 2.*dprimredprobe[1]*dprimredprobe[2]*cos(dprimredprobe[3]*std::atan(1.0)/45.)<<" "
-        << 2.*dprimredprobe[0]*dprimredprobe[2]*cos(dprimredprobe[4]*std::atan(1.0)/45.)<<" "
-        << 2.*dprimredprobe[0]*dprimredprobe[1]*cos(dprimredprobe[5]*std::atan(1.0)/45.)<<std::endl;
+        std::cout << "raw G6 vector for S6: "
+        << s6primredprobe[0]*s6primredprobe[0]<<" "
+        << s6primredprobe[1]*s6primredprobe[1]<<" "
+        << s6primredprobe[2]*s6primredprobe[2]<<" "
+        << 2.*s6primredprobe[1]*s6primredprobe[2]*cos(s6primredprobe[3]*std::atan(1.0)/45.)<<" "
+        << 2.*s6primredprobe[0]*s6primredprobe[2]*cos(s6primredprobe[4]*std::atan(1.0)/45.)<<" "
+        << 2.*s6primredprobe[0]*s6primredprobe[1]*cos(s6primredprobe[5]*std::atan(1.0)/45.)<<std::endl;
     }
     std::cout << std::endl;
-    return s6redprimcell;
+    return S6(s6redprimcell);
 }
 
 

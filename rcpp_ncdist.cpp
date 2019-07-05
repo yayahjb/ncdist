@@ -5,7 +5,8 @@ using namespace RcppParallel;
 
 #include "S6M_SellingReduce.h"
 #include "Reducer.h"
-#include "Cell.h"
+#include "LRL_Cell.h"
+#include "LRL_Cell_Degrees.h" 
 #include "NCDist.h"
 #include <stdlib.h>
 
@@ -27,7 +28,7 @@ G6 makeprimredprobe( std::string testlattice,
     G6 reducedBase;
     G6 primredprobe;
     double crootvol;
-    Cell rawcell(a,b,c, alpha,beta,gamma);
+    LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
     if (testlattice.size()< 1) {
@@ -86,15 +87,15 @@ G6 makeprimredprobe( std::string testlattice,
     redprimcell[3]=dredprimcell[3];
     redprimcell[4]=dredprimcell[4];
     redprimcell[5]=dredprimcell[5];
-    primredprobe = Cell(redprimcell).CellWithDegrees();
-    /* Rprintf("Primitive Reduced Probe Cell: [%g,%g,%g,%g,%g,%g]\n",
+    primredprobe = LRL_Cell_Degrees(LRL_Cell(redprimcell));
+    /* Rprintf("Primitive Reduced Probe LRL_Cell: [%g,%g,%g,%g,%g,%g]\n",
     primredprobe[0], primredprobe[1],primredprobe[2],primredprobe[3],primredprobe[4],primredprobe[5]);
-    Rprintf("Volume : %g\n",Cell(redprimcell).Volume()); */
-    crootvol = pow(Cell(redprimcell).Volume(),1./3.);
-    Reducer::Reduce((Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
-    recipcell = (Cell(redprimcell).Inverse()).CellWithDegrees();
-    /* Rprintf("Reciprocal of Primitive Probe Cell: [%g,%g,%g,%g,%g,%g]\n",recipcell[0],recipcell[1],recipcell[2],recipcell[3],recipcell[4],recipcell[5]);
-    Rprintf("Volume of Reciprocal Cell: %g\n", (Cell(redprimcell).Inverse()).Volume()); */
+    Rprintf("Volume : %g\n",LRL_Cell(redprimcell).Volume()); */
+    crootvol = pow(LRL_Cell(redprimcell).Volume(),1./3.);
+    Reducer::Reduce((LRL_Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
+    recipcell = LRL_Cell_Degrees(LRL_Cell(redprimcell).Inverse());
+    /* Rprintf("Reciprocal of Primitive Probe LRL_Cell: [%g,%g,%g,%g,%g,%g]\n",recipcell[0],recipcell[1],recipcell[2],recipcell[3],recipcell[4],recipcell[5]);
+    Rprintf("Volume of Reciprocal LRL_Cell: %g\n", (LRL_Cell(redprimcell).Inverse()).Volume()); */
     if (latsym[0] == 'V' || latsym[0] == 'v') {
         /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",primcell[0],primcell[1],primcell[2],primcell[3],primcell[4],primcell[5]); */
     } else {
@@ -134,8 +135,8 @@ extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_,
     double gamma2    = Rcpp::as<double>(gamma2_);
     prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
     prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
-    Cell cell1 = Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
-    Cell cell2 = Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
+    LRL_Cell cell1 = LRL_Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
+    LRL_Cell cell2 = LRL_Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
     G6 gv1 = G6(cell1.Cell2V6());
     G6 gv2 = G6(cell2.Cell2V6());
     for (ii=0; ii < 6; ii++) {

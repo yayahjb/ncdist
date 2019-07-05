@@ -6,6 +6,13 @@
 //
 //
 
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #ifndef NCDIST_H
 #define NCDIST_H
 
@@ -2091,6 +2098,12 @@ double NCDist(double * gvec1, double * gvec2) {
    }
    pass = opass + 100;
    return dist;
+}
+
+#endif
+
+#ifdef __cplusplus
+
 }
 
 #endif

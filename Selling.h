@@ -25,7 +25,9 @@ public:
    }
 
    static bool Reduce(const S6& in, S6& out);
+   static bool Reduce(const S6& in, S6& out, const bool sellingFirst);
    static bool Reduce(const S6& in, MatS6& mReduce, S6& out, const double delta = 0.0);
+   static bool Reduce(const D7& in, MatD7& mReduce, D7& out, const double delta = 0.0);
 
    static double MaxScalar(const S6& s6);
 
@@ -34,9 +36,20 @@ public:
 
    static void SetDebug(const bool b) { m_debugInstrument = b; }
 
-private:
-   static bool m_debugInstrument;
+   static unsigned long GetCycles() { 
+      return m_ReductionCycleCount;
+   }
 
+   static void SetListSteps(const bool b) { listSteps = b; }
+
+   static std::string GetName() { return "Selling"; }
+
+private:
+   static void ListSteps(const S6& s6);
+
+   static bool m_debugInstrument;
+   static unsigned long m_ReductionCycleCount;
+   static bool listSteps;
 private:
 
 };

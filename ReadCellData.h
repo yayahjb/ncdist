@@ -4,7 +4,7 @@
 #pragma once
 #endif
 
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "CellInputData.h"
 
 class ReadCellData : public CellInputData {

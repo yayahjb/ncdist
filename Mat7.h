@@ -27,7 +27,7 @@ public:
    Mat7 operator= ( const Mat7& m );
    Mat7 operator* ( const Mat7& m2 ) const;
 
-   D7 operator* (const D7& v) const { return MatN(*this)*v; }
+   /* D7 operator* (const D7& v) const { return MatN(*this)*v; }*/
 
    double operator[] (const size_t n) const { return MatN::m_mat[n]; }
    double& operator[] (const size_t n) { return MatN::m_mat[n]; }

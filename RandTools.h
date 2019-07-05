@@ -5,7 +5,7 @@
 #ifndef RANDTOOLS_H
 #define RANDTOOLS_H
 
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "rhrand.h"
 #include "G6.h"
 
@@ -20,10 +20,10 @@ G6 GenRandG6( void );
 
 G6 genRandG6V() ;
 
-Cell GenRandG6ReducedCell( void );
-Cell GenRandG6DeloneReducedCell( void );
+LRL_Cell GenRandG6ReducedLRL_Cell( void );
+LRL_Cell GenRandG6DeloneReducedLRL_Cell( void );
 
-G6 GenRandG6Cell( void );
+G6 GenRandG6LRL_Cell( void );
 
 bool GenRandReducedArray(double* a, double aRan[6]);
 bool GenRandDeloneReducedArray(double* a, double aRan[6]);

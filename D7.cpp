@@ -1,38 +1,48 @@
 
+
+
 #include <cmath>
 #include <iomanip>
-#include <iostream>
-#include <string>
 #include <sstream>
 #include <vector>
+#include <string>
 
-#include "Cell.h"
-#include "D6.h"
-#include "G6.h"
-#include "Mat66.h"
-#include "Vec_N_Tools.h"
+#include "LRL_Cell.h"
+#include "C3.h"
 #include "D7.h"
-#include "vector_3d.h"
+#include "D7_BoundaryList.h"
+#include "D7_ClassifySubboundaries.h"
+#include "S6.h"
+#include "B4.h"
+#include "G6.h"
+#include "MatS6.h"
+#include "MatG6.h"
+#include "Selling.h"
+#include "LRL_StringTools.h"
+#include "LRL_Vector3.h"
 
-#include "Vec_N_Tools.h"
+#include "Delone.h"
+#include "LRL_RandTools.h"
 
+static int randSeed1 = 19191;
 
-D7::D7( void )
-: VecN( 7 ) {
+D7::D7( void ) {
+   m_vec.resize(7);
    m_dim = 7;
-   m_valid = true;
+   m_valid = false;
 }
 
 D7::D7( const D7& v )
-: VecN( 7 ) {
-   m_dim = 7;
+   : D7()
+{
+   m_vec = v.GetVector();
    m_vec = v.m_vec;
    m_valid = v.m_valid;
 }
 
 D7::D7( const double v[7] )
-: VecN( 7 ) {
-    m_dim = 7;
+   : D7()
+{
     m_vec[0] = v[0];
     m_vec[1] = v[1];
     m_vec[2] = v[2];
@@ -43,38 +53,45 @@ D7::D7( const double v[7] )
     m_valid = true;
 }
 
-D7::D7(const Cell& c)
-: VecN( 7 ) {
-   (*this) = G6(c.Cell2V6());
+D7::D7(const LRL_Cell& c) 
+   : D7()
+{
+   (*this) = G6(c);
+   m_valid = c.GetValid();
 }
 
-D7::D7(const D6& ds) {
+D7::D7(const C3& c3) {
+   m_dim = 7;
+   (*this) = S6(c3);
+   m_valid = c3.GetValid();
+}
+
+D7::D7(const S6& ds) {
    m_dim = 7;
    (*this) = G6(ds);
-   m_valid = true;
+   m_valid = ds.GetValid();
 }
 
-D7::D7(const DeloneTetrahedron& dt) {
+D7::D7(const B4& dt) {
+   m_vec.resize(7);
    m_dim = 7;
    (*this) = G6(dt);
-   m_valid = true;
+   m_valid = dt.GetValid();
 }
 
 
-D7::D7( const VecN& v )
-: VecN( v ) {
-   if (v.size( ) == 6) {
-      G6 g6(v);
-      const D7 v7(g6);
-      m_vec.resize(7);
+D7::D7(const VecN& v) {
+   m_dim = 0;
+   m_valid = false;
+   if (v.size() == 7) {
       m_dim = 7;
-      for( size_t i=0; i<7; ++i ) m_vec[i] = v7[i];
+      m_valid = true;
+      m_vec = v;
    }
-  m_valid = true;
 }
 
-D7::D7(const G6& v6)
-   : VecN(7) {
+D7::D7(const G6& v6) {
+   m_vec.resize(7);
    const double& g1 = v6[0];
    const double& g2 = v6[1];
    const double& g3 = v6[2];
@@ -84,36 +101,35 @@ D7::D7(const G6& v6)
    double& d1 = m_vec[0];
    double& d2 = m_vec[1];
    double& d3 = m_vec[2];
-   double& d4 = m_vec[3];
+   double& b4 = m_vec[3];
    double& d5 = m_vec[4];
-   double& d6 = m_vec[5];
+   double& s6 = m_vec[5];
    double& d7 = m_vec[6];
    d1 = g1;
    d2 = g2;
    d3 = g3;
-   d4 = g1 + g2 + g3 + g6 + g5 + g4; // (a+b+c).(a+b+c)
+   b4 = g1 + g2 + g3 + g6 + g5 + g4; // (a+b+c).(a+b+c)
    d5 = g2 + g3 + g4;  // (b+c).(b+c)
-   d6 = g1 + g3 + g5;  // (a+c).(a+c)
+   s6 = g1 + g3 + g5;  // (a+c).(a+c)
    d7 = g1 + g2 + g6; // (a+b).(a+b)
+   m_valid = v6.GetValid();
+   m_dim = 7;
+}
+
+D7::D7(const std::string& s) {
+   m_vec.resize(7);
+   m_vec = LRL_StringTools::FromString(s);
+   m_dim = m_vec.size();
    m_valid = true;
+   if (m_dim != 7) throw "bad dimension in D7 from a string";
 }
 
-D7::D7( const std::string& s ) 
-: VecN(7)
-{
-  m_vec = Vec_N_Tools::FromString( s );
-  m_dim = m_vec.size();
-  m_valid = true;
-  if ( m_dim != 7 ) throw "bad dimension in D7 from a string";
-}
-
-D7::D7( const std::vector<double>& v ) 
-: VecN( v.size() )
-{
-  m_dim = v.size();
-  if ( m_dim != 7 ) throw "bad dimension in D7 from a string";
-  m_vec = v;
-  m_valid = true;
+D7::D7(const std::vector<double>& v) {
+   m_vec.resize(7);
+   m_dim = 7;
+   if (m_dim != 7) throw "bad dimension in D7 from a string";
+   m_vec = v;
+   m_valid = true;
 }
 
 double D7::DistanceBetween( const D7& v1, const D7& v2 ) {
@@ -137,19 +153,20 @@ D7& D7::operator= (const std::string& s)
 
 D7& D7::operator= (const G6& v6)
 {
+   m_vec.resize(7);
    const double& g1 = v6[0];
    const double& g2 = v6[1];
    const double& g3 = v6[2];
    const double& g4 = v6[3];
    const double& g5 = v6[4];
    const double& g6 = v6[5];
-   double& d1 = m_vec[0];
-   double& d2 = m_vec[1];
-   double& d3 = m_vec[2];
-   double& d4 = m_vec[3];
-   double& d5 = m_vec[4];
-   double& d6 = m_vec[5];
-   double& d7 = m_vec[6];
+   //double& d1 = m_vec[0];
+   //double& d2 = m_vec[1];
+   //double& d3 = m_vec[2];
+   //double& b4 = m_vec[3];
+   //double& d5 = m_vec[4];
+   //double& s6 = m_vec[5];
+   //double& d7 = m_vec[6];
    m_vec[0] = g1;
    m_vec[1] = g2;
    m_vec[2] = g3;
@@ -157,29 +174,273 @@ D7& D7::operator= (const G6& v6)
    m_vec[4] = g2 + g3 + g4;  // (b+c).(b+c)
    m_vec[5] = g1 + g3 + g5;  // (a+c).(a+c)
    m_vec[6] = g1 + g2 + g6; // (a+b).(a+b)
-   m_valid = true;
+   m_valid = v6.GetValid();
 
    return *this;
 }
 
-D7& D7::operator= (const D6& v)
+D7& D7::operator= (const S6& v)
 {
    (*this) = G6(v);
    return *this;
 }
 
-
-D7& D7::operator= (const DeloneTetrahedron& v)
+D7& D7::operator= (const C3& c3)
 {
+   (*this) = S6(c3);
+   return *this;
+}
+
+
+D7& D7::operator= (const B4& v) {
    (*this) = G6(v);
    return *this;
 }
 
 
-D7& D7::operator= (const Cell& v)
-{
+D7& D7::operator= (const LRL_Cell& v) {
    (*this) = G6(v);
    return *this;
+}
+
+D7& D7::operator/= (const double d) {
+   (*this).m_vec /= d;
+   return *this;
+}
+
+D7& D7::operator*= (const double d) {
+   (*this).m_vec *= d;
+   return *this;
+}
+
+D7& D7::operator+= (const D7& d7) {
+   for (size_t i = 0; i < d7.size(); ++i)
+      m_vec[i] += d7.m_vec[i];
+   return *this;
+}
+
+D7& D7::operator-= (const D7& d7) {
+   for (size_t i = 0; i < d7.size(); ++i)
+      m_vec[i] -= d7.m_vec[i];
+   return *this;
+}
+
+D7 D7::operator* (const double d) const {
+   D7 d7(*this);
+   d7.m_vec *= d;
+   return d7;
+}
+
+D7 D7::operator/ (const double d) const {
+   D7 d7(*this);
+   d7.m_vec /= d;
+   return d7;
+}
+
+D7 D7::operator- (void) const {
+   D7 d7;
+   d7.m_vec = -d7.m_vec;
+   return *this; // unary
+}
+
+bool D7::operator== (const D7& d7) const {
+   return m_vec == d7.m_vec;
+}
+
+bool D7::operator!= (const D7& d7) const {
+   return !((*this) == d7);
+}
+
+D7 D7::operator+ (const D7& v) const {
+   D7 d;
+   if ((*this).m_valid && v.m_valid) {
+      d.m_vec = m_vec + v.m_vec;
+   }
+   else {
+      d.m_valid = false;
+   }
+   return d;
+}
+
+D7 D7::operator- (const D7& v) const {
+   D7 d;
+   if ((*this).m_valid && v.m_valid) {
+      d.m_vec = m_vec - v.m_vec;
+   }
+   else {
+      d.m_valid = false;
+   }
+   return d;
+}
+
+D7_BoundaryList g_bl_D7;
+
+std::vector<std::pair<std::string, std::string> > D7::ClassifyVector(const double delta) const {
+   std::vector<D7_Boundary> vbl;
+   vbl.push_back(g_bl_D7.Case1());
+   vbl.push_back(g_bl_D7.Case2());
+   vbl.push_back(g_bl_D7.Case3());
+   vbl.push_back(g_bl_D7.Case4());
+   vbl.push_back(g_bl_D7.Case5());
+   vbl.push_back(g_bl_D7.Case6());
+   vbl.push_back(g_bl_D7.Case7());
+   vbl.push_back(g_bl_D7.Case8());
+   vbl.push_back(g_bl_D7.Case9());
+   std::vector<std::pair<std::string, std::string> > vss;
+
+   const size_t blsize = g_bl_D7.size();
+   const size_t howbig = D7_BoundaryList::size();
+   for (unsigned int ibl = 0; ibl < vbl.size(); ++ibl) {
+      const double perpdist = (vbl[ibl].GetPerp() *(*this)).norm();
+      const std::string casenum = vbl[ibl].GetName();
+      if (perpdist < delta) {
+         const std::string subcasenum = D7_ClassifySubboundaries::ClassifyCase(casenum, (*this), delta);
+         vss.push_back(std::make_pair(casenum, subcasenum));
+      }
+   }
+
+   return vss;
+}
+
+D7 D7::rand() {
+   return S6::rand();
+}
+
+D7 D7::randDeloneReduced() {
+   return S6::randDeloneReduced();
+}
+
+D7 D7::randDeloneUnreduced() {
+   return S6::randDeloneUnreduced();
+}
+
+D7 D7::rand(const double d) {
+   return d*rand() / LRL_Cell::randomLatticeNormalizationConstantSquared;
+}
+
+D7 D7::randDeloneReduced(const double d) {
+   return d*randDeloneReduced() / LRL_Cell::randomLatticeNormalizationConstantSquared;
+}
+
+D7 D7::randDeloneUnreduced(const double d) {
+   return d*randDeloneUnreduced( )/ LRL_Cell::randomLatticeNormalizationConstantSquared;
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+std::pair<int, std::string> D7::IdentifyNearbyBoundaries(const D7& v, const double cutoff)
+/*-------------------------------------------------------------------------------------*/
+{
+   std::string s1, s2;
+   int boundaryNumber = -1;
+   const double& d1 = v[0];
+   const double& d2 = v[1];
+   const double& d3 = v[2];
+   const double& d4 = v[3];
+   const double& d5 = v[4];
+   const double& d6 = v[5];
+   const double& d7 = v[6];
+
+   if (std::abs(d1 - d2) < cutoff)
+   {
+      s1 += '1';
+      s2 += '1';
+      boundaryNumber = 1;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d2 - d3) < cutoff)
+   {
+      s1 += '2';
+      s2 += '2';
+      boundaryNumber = 2;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d3 - d4) < cutoff)
+   {
+      s1 += '3';
+      s2 += '3';
+      boundaryNumber = 3;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d2 + d3 - d5) < cutoff)
+   {
+      s1 += '4';
+      s2 += '4';
+      boundaryNumber = 4;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d1 + d4 - d5) < cutoff)
+   {
+      s1 += '5';
+      s2 += '5';
+      boundaryNumber = 5;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d1 + d3 - d6) < cutoff)
+   {
+      s1 += '6';
+      s2 += '6';
+      boundaryNumber = 6;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d2 + d4 - d6) < cutoff)
+   {
+      s1 += '7';
+      s2 += '7';
+      boundaryNumber = 7;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d1 + d2 - d7) < cutoff)
+   {
+      s1 += '8';
+      s2 += '8';
+      boundaryNumber = 8;
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+   if (std::abs(d3 + d4 - d7) < cutoff)
+   {
+      s1 += '9';
+      boundaryNumber = 9;
+      s2 += '9';
+   }
+   else
+   {
+      s2 += '.';
+   }
+
+
+   return std::make_pair(boundaryNumber, (s1.empty()) ? "" : "(" + s1 + ") \t(" + s2 + ")");
 }
 
 std::ostream& operator<< ( std::ostream& o, const D7& v ) {
@@ -190,4 +451,19 @@ std::ostream& operator<< ( std::ostream& o, const D7& v ) {
    o << std::setprecision(oldPrecision);
    o.unsetf(std::ios::floatfield);
    return o;
+}
+
+D7 operator*(const double d, const D7& v) { // friend
+   return v*d;
+}
+
+std::pair<std::string, std::string> D7::SummarizeBoundaries( const double delta) const {
+   const std::vector<std::pair<std::string, std::string> > bounds = ClassifyVector(delta);
+   std::string boundList;
+   std::string subboundList;
+   for (size_t i = 0; i < bounds.size(); ++i) {
+      boundList += bounds[i].first + " ";
+      subboundList += bounds[i].second + " ";
+   }
+   return std::make_pair(boundList, subboundList);
 }

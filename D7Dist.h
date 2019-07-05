@@ -6,6 +6,13 @@
 //
 //
 
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #ifndef D7DIST_H
 #define D7DIST_H
 
@@ -1594,5 +1601,10 @@ double D7Dist(double * gvec1,double * gvec2) {
 
 
 #endif /*D7DIST_H */
+#ifdef __cplusplus
+
+}
+
+#endif
 
 

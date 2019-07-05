@@ -1,4 +1,4 @@
-
+ 
 #include <RcppParallel.h>
 using namespace RcppParallel;
 #include <RcppArmadillo.h>
@@ -7,39 +7,34 @@ using namespace RcppParallel;
 #include "G6.h"
 #include "D7.h"
 #include "S6.h"
+#include "Reducer.h"
 #include "Delone.h"
-#include "Cell.h"
+#include "LRL_Cell.h"
+#include "LRL_Cell_Degrees.h"
 #include "D7Dist.h"
 #include "CS6Dist.h"
+#include <cmath>
 #include <stdlib.h>
+#include <ctype.h>
 
-
-//*****************************************************************************
+// *****************************************************************************
 S6 makeprimredcell( std::string testlattice,
 	double a, double b, double c, double alpha, double beta, double gamma )
 {
     std::string latsym;
     char clatsym;
     G6 v6cell;
-    G6 redprimcell;
-    D7 d7redprimcell;
-    double dredprimcell[7];
     S6 s6redprimcell;
-    double sredprimcell[6];
+    double g6primcell[6];
+    double s6primcell[6];
     Mat66 mc;
+    Mat66 m;
     Mat66 dm;
     G6 primcell;
-    double dprimcell[6];
-    double sprimcell[6];
-    double dsreduced;
-    G6 recipcell;
-    G6 reducedBase;
-    G6 primredprobe;
-    G6 dprimredprobe;
-    double crootvol;
-    Cell rawcell(a,b,c, alpha,beta,gamma);
+    LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
+    int reduced;
     if (testlattice.size()< 1) {
         latsym = "P";
     } else {
@@ -63,8 +58,8 @@ S6 makeprimredcell( std::string testlattice,
         case 'r':
         case 'H':
         case 'h':
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
             break;
         case 'V':
         case 'v':
@@ -75,26 +70,52 @@ S6 makeprimredcell( std::string testlattice,
 	    primcell[4] = beta;
 	    primcell[5] = gamma;
             break;
+        case 'D':
+        case 'd':
+           primcell[0] = a;
+           primcell[1] = b;
+           primcell[2] = c;
+           primcell[3] = beta-b-c;
+           primcell[4] = gamma-a-c;
+           primcell[5] = alpha-c-primcell[3]-primcell[4] ;
+           break;
+        case 'S':
+        case 's':
+           primcell[3] = 2.*a;
+           primcell[4] = 2.*b;
+           primcell[5] = 2.*c;
+           primcell[0] = -alpha-c-b;
+           primcell[1] = -beta-c-a;
+           primcell[2] = -gamma-b-a;
+           break;
         default:
             /* Rprintf("Unrecognized lattice symbol %s treated as P\n",testlattice.c_str()); */
             latsym = "P";
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            clatsym='P';
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
             break;
     }
-    /*ret = Delone::Reduce(primcell,dm,dredprimcell,0.);*/
-    dprimcell[0]=primcell[0];   
-    dprimcell[1]=primcell[1];   
-    dprimcell[2]=primcell[2];   
-    dprimcell[3]=primcell[3];   
-    dprimcell[4]=primcell[4];   
-    dprimcell[5]=primcell[5];
-    CS6M_G6toS6(dprimcell,sprimcell);
-    CS6M_S6Reduce(sprimcell,sredprimcell,dsreduced);
-    s6redprimcell = S6(sredprimcell[0],sredprimcell[1],sredprimcell[2],sredprimcell[3],
-                       sredprimcell[4],sredprimcell[5]);
+    reduced=0;
+    g6primcell[0]=primcell[0];   
+    g6primcell[1]=primcell[1];   
+    g6primcell[2]=primcell[2];   
+    g6primcell[3]=primcell[3];   
+    g6primcell[4]=primcell[4];   
+    g6primcell[5]=primcell[5];
+    CS6M_G6toS6(g6primcell,s6primcell);
+    CS6M_S6Reduce(s6primcell,s6redprimcell,reduced);
+    if (reduced) {
+      s6redprimcell = S6(s6redprimcell);
+    } else {
+      s6redprimcell[0]=s6redprimcell[1]=s6redprimcell[2]
+        =s6redprimcell[3]=s6redprimcell[4]=s6redprimcell[5]=0;
+      s6redprimcell = S6(s6redprimcell);
+    }
     return s6redprimcell;
 }
+
+
 
 extern "C" SEXP rcpp_cs6dist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_, 
                               SEXP alpha1_, SEXP beta1_, SEXP gamma1_,

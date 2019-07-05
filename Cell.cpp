@@ -326,9 +326,8 @@ Mat66 Cell::LatSymMat66( const std::string& latsym ) const
    else if ( toupper( latsym[0] ) == 'B' ) return Mat66( "1 0 0 0 0 0   0 1 0 0 0 0   .25 0 .25 0 .25 0   0 0 0 .5 0 .5   1 0 0 0 .5 0   0 0 0 0 0 1" ); // for monoclinic, assumes c unique
    else if ( toupper( latsym[0] ) == 'C' ) return Mat66( "1 0 0 0 0 0   .25 .25 0 0 0 .25   0 0 1 0 0 0    0 0 0 .5 .5 0   0 0 0 0 1 0   1 0 0 0 0 .5" ); // for monoclinic, assumes b unique
    else if ( toupper( latsym[0] ) == 'F' ) return Mat66( ".25 .25 0 0 0 .25     .25 0 .25 0 .25 0     0 .25 .25 .25  0 0    0 0 .5 .25 .25 .25     0 .5 0 .25 .25 .25     .5 0 0 .25 .25 .25" );
-   else if ( toupper( latsym[0] ) == 'R' && Cell::IsRhomobhedralAsHex( *this ) )
+   else if ( (toupper( latsym[0] ) == 'R' || toupper( latsym[0] ) == 'H') && Cell::IsRhombohedralAsHex( *this ) )
       return (1.0 / 9.0)* Mat66( "1 1 1 1 -1 -1    4 1 1  1  2  2     1  4  1  -2  -1  2     -4  -4  2  -1  1  -5     2  -4  2  -1  -2  1     -4  2  2  2  1  1 " );
-   else if ( toupper( latsym[0] ) == 'R' ) return  Mat66().Eye();
    else if ( latsym == "CCDC" ) return (1.0 / 9.0)* Mat66( "4  1  1  1  2  2    1  1  1  1 -1 -1     1  4  1 -2 -1  2    2 -4  2 -1 -2  1    -4 -4  2 -1  1 -5    -4  2  2  2  1  1 " ); // CCDC matrix for R
    else return Mat66( ).Eye( );
 }
@@ -337,20 +336,20 @@ Mat66 Cell::LatSymMat66( const std::string& latsym, const Cell& c ) {
    return c.LatSymMat66( latsym );
 }
 
-const Mat66 HexPerp(Mat66().Eye() - Mat66( " 1 1 0 0 0 -1   1 1 0 0 0 -1   0 0 3 0 0 0   0 0 0 0 0 0   0 0 0 0 0 0   -1 -1 0 0 0 1 " ) );
-const Mat66 RhmPerp(Mat66().Eye() - Mat66( " 1 1 1 0 0 0   1 1 1 0 0 0   1 1 1 0 0 0   0 0 0 1 1 1    0 0 0 1 1 1    0 0 0 1 1 1 " ) );
+const Mat66 HexPerp(Mat66().Eye() - (1./3.)*Mat66( " 1 1 0 0 0 -1   1 1 0 0 0 -1   0 0 3 0 0 0   0 0 0 0 0 0   0 0 0 0 0 0   -1 -1 0 0 0 1 " ) );
+const Mat66 RhmPerp(Mat66().Eye() - (1./3.)*Mat66( " 1 1 1 0 0 0   1 1 1 0 0 0   1 1 1 0 0 0   0 0 0 1 1 1    0 0 0 1 1 1    0 0 0 1 1 1 " ) );
 
-bool Cell::IsRhomobhedralAsHex( void ) const {
-   return IsRhomobhedralAsHex( (*this).Cell2V6() );
+bool Cell::IsRhombohedralAsHex( void ) const {
+   return IsRhombohedralAsHex( (*this).Cell2V6() );
 }
 
-/*static*/ bool Cell::IsRhomobhedralAsHex( const Cell& c ) {
-   return IsRhomobhedralAsHex( c.Cell2V6() );
+/*static*/ bool Cell::IsRhombohedralAsHex( const Cell& c ) {
+   return IsRhombohedralAsHex( c.Cell2V6() );
 }
 
 
 // Assumes the cell EITHER has alpha=beta=gamma or a=b & alpha=beta=90 and gamma=120 (approximately)
-/*static*/ bool Cell::IsRhomobhedralAsHex( const G6& v ) {
+/*static*/ bool Cell::IsRhombohedralAsHex( const G6& v ) {
    return (HexPerp*v).norm() < (RhmPerp*v).norm();
 }
 

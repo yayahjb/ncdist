@@ -18,7 +18,7 @@
 #include <string>
 
 //#include "NC_Boundary.h"
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "G6.h"
 #include "Mat66.h"
 #include "D7.h"
@@ -99,7 +99,7 @@ static std::string ToString( const std::vector<T>& t ) {
 }
 
 
-static std::string ToString( const Cell& c ) {
+static std::string ToString( const LRL_Cell& c ) {
    const double rad = 180.0/4.0/atan(1.0);
    return ToString( c[0], c[1], c[2], "   ",  rad*c[3], rad*c[4], rad*c[5] );
 }

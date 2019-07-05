@@ -1,5 +1,5 @@
 
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "Mat66.h"
 #include "Reducer.h"
 #include "ToString.h"
@@ -85,8 +85,8 @@ void Reducer::Reporter( const std::string& text, const G6& vin, const G6& vout, 
 {
    if ( ! DEBUG_REDUCER ) return;
 
-   const double volume = Cell(vout).Volume( );
-   const double previousVolume = Cell(vin).Volume( );
+   const double volume = LRL_Cell(vout).Volume( );
+   const double previousVolume = LRL_Cell(vin).Volume( );
    const bool volumeChanged = ( fabs(volume-previousVolume) / std::max(volume, previousVolume) ) > 1.0E-12;
    if ( volumeChanged )
    {

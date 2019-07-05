@@ -3,7 +3,7 @@
 
 #include "VecN.h"
 
-class Cell;
+class LRL_Cell;
 class D7;
 class DeloneTetrahedron;
 class G6;
@@ -23,7 +23,7 @@ public:
    explicit D6(const G6& v6);
    explicit D6(const double v[6]);
    explicit D6(const D6& d6);
-   D6(const Cell& c);
+   D6(const LRL_Cell& c);
    D6(const VecN& v);
    explicit D6(const D7& v7);
    explicit D6(const DeloneTetrahedron& del);

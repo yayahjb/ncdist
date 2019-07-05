@@ -10,6 +10,7 @@
 #include "NCDist_.hpp"
 #include "PrintTable.h"
 #include "ProjectorTools.h"
+#include "CellInputData.h"
 #include "ReadCellData.h"
 #include "ToString.h"
 
@@ -49,8 +50,8 @@ void PrintModifiedTable( const PrintTable& tbl, const bool labelColumns, const b
 
 void ComputeArrays(const ReadCellData& cellDataList, double gArray[], double dArray[]) {
    LatticeConverter converter;
-   const Cell niggliReducedCell1 = converter.NiggliReduceCell  (cellDataList.GetLattice(), cellDataList.GetCell());
-   const Cell deloneReducedCell1 = converter.DeloneReduceCell(cellDataList.GetLattice(), cellDataList.GetCell());
+   const LRL_Cell niggliReducedCell1 = converter.NiggliReduceCell(cellDataList.GetLattice(), cellDataList.GetCell());
+   const LRL_Cell deloneReducedCell1 = converter.DeloneReduceCell(cellDataList.GetLattice(), cellDataList.GetCell());
    ProjectorTools::ConvertG6ToArray(niggliReducedCell1.Cell2V6(), gArray);
    ProjectorTools::ConvertD7ToArray(D7(deloneReducedCell1.Cell2V6()), dArray);
 }
@@ -78,7 +79,7 @@ void OutputCellData( LatticeConverter& converter, const std::vector<ReadCellData
       lattice = rcd.GetLattice();
       if (letters.find(lattice) == std::string::npos) continue;
       std::cout << std::endl;
-      std::cout << "Cell # " << i1 << "  *******************************" << std::endl;
+      std::cout << "LRL_Cell # " << i1 << "  *******************************" << std::endl;
       converter.Output("Input Data", lattice, rcd.GetCell());
       std::cout << std::endl;
       converter.NiggliReducedOutput("Niggli Reduced", lattice, rcd.GetCell());

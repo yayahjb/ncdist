@@ -1,4 +1,4 @@
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "D6.h"
 #include "DeloneTetrahedron.h"
 #include "G6.h"
@@ -24,12 +24,12 @@ DeloneTetrahedron::DeloneTetrahedron(const DeloneTetrahedron& dt)
 
 DeloneTetrahedron::DeloneTetrahedron(const G6& v6) {
    m_vec.resize(4);
-   (*this) = DeloneTetrahedron(Cell(v6));
+   (*this) = DeloneTetrahedron(LRL_Cell(v6));
 }
 
 DeloneTetrahedron::DeloneTetrahedron(const D7& v7) {
    m_vec.resize(4);
-   (*this) = DeloneTetrahedron( Cell(v7));
+   (*this) = DeloneTetrahedron( LRL_Cell(v7));
 }
 
 DeloneTetrahedron::DeloneTetrahedron(const std::string& v7) {
@@ -38,7 +38,7 @@ DeloneTetrahedron::DeloneTetrahedron(const std::string& v7) {
 }
 
 const double rad = 180.0 / (4 * atan(1.0));
-DeloneTetrahedron::DeloneTetrahedron(const Cell& c) {
+DeloneTetrahedron::DeloneTetrahedron(const LRL_Cell& c) {
    m_vec.resize(4);
    const Matrix_3x3 amat = Matrix_3x3::Cart(c[0], c[1], c[2], c[3] * rad, c[4] * rad, c[5] * rad);
 
@@ -50,7 +50,7 @@ DeloneTetrahedron::DeloneTetrahedron(const Cell& c) {
 
 DeloneTetrahedron::DeloneTetrahedron(const D6& ds) {
    m_vec.resize(4);
-   (*this) = DeloneTetrahedron(Cell(ds));
+   (*this) = DeloneTetrahedron(LRL_Cell(ds));
 }
 
 Vector_3 DeloneTetrahedron::operator[] (const size_t n) const {

@@ -34,6 +34,7 @@ namespace {
    size_t FollowerConstants::globalNumberOfTrialsToAttempt = 20;  // applies when not in movie generation
    bool FollowerConstants::globalPlotAllSegmentsAsBlack  = false;
 
+
    std::vector<std::string> FollowerConstants::globalColorsForBoundaries = std::vector<std::string>( BASIC_COLORS, BASIC_COLORS + sizeof(BASIC_COLORS)/sizeof(BASIC_COLORS[0]) );
    std::string FollowerConstants::globalFileNamePrefix   = "Fol";
 

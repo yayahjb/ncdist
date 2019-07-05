@@ -1,136 +1,245 @@
-#ifdef _MSC_VER
-#pragma once
-#endif
+#pragma warning( disable : 4189) //   local variable is initialized but not referenced
+
+
 
 #include "Delone.h"
-#include "Reducer.h"
-#include "VecN.h"
-#include "VectorTools.h"
+
+#include "LRL_Cell.h"
+#include "LRL_CoordinateConversionMatrices.h"
+#include "S6.h"
+#include "S6Dist.h"
+#include "D7.h"
+#include "D7Dist.h" 
+#include "G6.h"
+#include "LRL_MinMaxTools.h"
+#include "MatB4.h"
+#include "MatS6.h"
+#include "MatD7.h"
+#include "S6.h"
+#include "Selling.h"
 
 #include <algorithm>
 #include <cfloat>
-#include <cmath>
-#include <iostream>
-#include <sstream>
+#include <map>
 #include <utility>
+#include <vector>
 
-//#include "StoreResults.h"
-//
-//StoreResults<Delone::Key, G6> g_sr(5);  // added for D7 so that samples of cells from 
-//                                            // each boundary could be later displayed, and
-                                            // some idea of population density found.
+size_t Delone::m_ReductionCycleCount;
 
-bool Delone::IsAllMinus(const G6& v, const double delta) {
+bool Delone::IsReduced(const G6& v) {
+   return IsReduced(v, 0.0);
+}
+
+bool Delone::IsReduced(const G6& v, const double delta) {
    return v[3] <= delta && v[4] <= delta && v[5] <= delta;
 }
 
-G6 Delone::Reduce( const G6& vi ) {
-   Mat66 m;
-   G6 vout;
-   const double cutoff = 5000.0*DBL_EPSILON*vi.norm();
-   Reduce( vi, m, vout, cutoff );
-   return vout;
+bool Delone::Reduce(const S6& d, MatS6& m, S6& dd, const double delta) {
+   delta;
+   return Reduce(d, m, dd);
 }
 
-G6 SortEdges( const G6& vin ) {
-   G6 v(vin);
-
-   for ( int i=0; i<15; ++i ) {
-      if ( v[0] > v[1] ) {
-         std::swap( v[0], v[1] );
-         std::swap( v[3], v[4] );
-      }
-      if ( v[1]>v[2] ) {
-         std::swap( v[1], v[2] );
-         std::swap( v[4], v[5] );
-      }
-   }
-
-   return v;
+bool Delone::Reduce(const S6& d, S6& dd, const bool sellingFirst) {
+   MatS6 m;
+   return Reduce(d, m, dd);
 }
 
-const Mat66 mInterchange12( "0 1 0 0 0 0  1 0 0 0 0 0  0 0 1 0 0 0  0 0 0 0 1 0  0 0 0 1 0 0  0 0 0 0 0 1" );
-const Mat66 mInterchange23( "1 0 0 0 0 0  0 0 1 0 0 0  0 1 0 0 0 0  0 0 0 1 0 0  0 0 0 0 0 1  0 0 0 0 1 0" );
-
-void Delone::sortN( G6& v, Mat66& m ) {
-   for ( int i=0; i<2; ++i ) {
-      if ( v[0] > v[1] ) {
-         m = mInterchange12 * m;
-         std::swap( v[0], v[1] );
-         std::swap( v[3], v[4] );
-      }
-      if ( v[1] > v[2] ) {
-         m = mInterchange23 * m;
-         std::swap( v[1], v[2] );
-         std::swap( v[4], v[5] );
-      }
-   }
+bool Delone::Reduce(const D7& d, D7& dd, const bool sellingFirst) {
+   MatS6 m;
+   return Reduce(d, m, dd);
 }
 
-bool Delone::Reduce( const G6& vi, Mat66& m, G6& vout, const double delta ) {
-   static const Mat66 mDEL3a( "1 1 0 0 0 -1   0 1 0 0 0 0   0 0 1 0 0 0   0 0 0 -1 0 0   0 0 0 1 -1 0   0 -2 0 0 0 1" );
-   static const Mat66 mDEL3b( "1 0 1 0 -1 0   0 1 0 0 0 0   0 0 1 0 0 0   0 0 0 -1 0 0   0 0 -2 0 1 0   0 0 0 1 0 -1" );
-   static const Mat66 mDEL4a( "1 0 0 0 0 0   1 1 0 0 0 -1   0 0 1 0 0 0   0 0 0 -1 1 0   0 0 0 0 -1 0   -2 0 0 0 0 1" );
-   static const Mat66 mDEL4b( "1 0 0 0 0 0   0 1 1 -1 0 0    0 0 1 0 0 0   0 0 -2 1 0 0   0 0 0 0 -1 0   0 0 0 0 1 -1" );
+bool Delone::Reduce(const S6& d, S6& dd) {
+   D7 in(d);
+   D7 out;
+   const bool b = Delone::Reduce(in, out);
+   dd = S6(out);
+   return b;
+}
 
-   static const Mat66 mDEL5a( "1 0 0 0 0 0   0 1 0 0 0 0   0 1 1 -1 0 0   0 -2 0 1 0 0    0 0 0 0 -1 1    0 0 0 0 0 -1" );
-   static const Mat66 mDEL5b( "1 0 0 0 0 0   0 1 0 0 0 0   1 0 1 0 -1 0   0 0 0 -1 0 1    -2 0 0 0 1 0    0 0 0 0 0 -1" );
-   G6 vRed;
+bool Delone::Reduce(const D7& d, D7& dd) {
+   double temp;
+   S6 out;
+   const bool b = Selling::Reduce(S6(d), out);
+   dd = D7(out);
+   if (b) {
+      while (dd[0] > dd[1] || dd[1] > dd[2] || dd[2] > dd[3]) {
+         if (dd[2] > dd[3]) {
+            temp = dd[2];
+            dd[2] = dd[3];
+            dd[3] = temp;
+            temp = dd[4];
+            dd[4] = dd[5];
+            dd[5] = temp;
+            continue;
+         }
+         if (dd[1] > dd[2]) {
 
-   Mat66 mNiggli = m.Eye();
-   if ( !Reducer::Reduce( vi, mNiggli, vRed, delta ) ) return false;
+            temp = dd[1];
+            dd[1] = dd[2];
+            dd[2] = temp;
+            temp = dd[5];
+            dd[5] = dd[6];
+            dd[6] = temp;
+            continue;
+         }
+         if (dd[0] > dd[1]) {
 
-   VectorTools::CleanVector( vRed );
-
-   Mat66 mLocal;
-   const double& g1 = vRed[0];
-   const double& g2 = vRed[1];
-
-   const double& g3 = vRed[2];
-   const double& g4 = vRed[3];
-   const double& g5 = vRed[4];
-   const double& g6 = vRed[5];
-
-        if ( IsAllMinus( vRed, delta ) ) mLocal = m.Eye();                        
-   else if ( g4 <= g5 && g4 <= g6 ) mLocal = g2-g6 < g3-g5 ? mDEL3a : mDEL3b;
-   else if ( g5 <= g4 && g5 <= g6 ) mLocal = g1-g6 < g3-g4 ? mDEL4a : mDEL4b;
-   else if ( g6 <= g5 && g6 <= g4 ) mLocal = g2-g4 < g1-g5 ? mDEL5a : mDEL5b;
-
-   vout = mLocal * vRed;
-   m = mLocal * mNiggli;
-   sortN( vout, m );
-
-   double label = -1.0;
-      if ( mLocal == mLocal.Eye() ) label = 0.0;
-   else if ( mLocal == mDEL3a     ) label = 3.1;
-   else if ( mLocal == mDEL3b     ) label = 3.2;
-   else if ( mLocal == mDEL4a     ) label = 4.1;
-   else if ( mLocal == mDEL4b     ) label = 4.2;
-   else if ( mLocal == mDEL5a     ) label = 5.1;
-   else if ( mLocal == mDEL5b     ) label = 5.2;
-
-   if ( !IsAllMinus( vout, 1.0E-12*vout.norm() ) ) {
-      std::cout << "Delone reduction did not give ---" << std::endl;
-      std::cout << "mDEL3a*vRed" << std::endl << mDEL3a*vRed << std::endl << std::endl;
-      std::cout << "mDEL3b*vRed" << std::endl << mDEL3b*vRed << std::endl << std::endl;
-      std::cout << "mDEL4a*vRed" << std::endl << mDEL4a*vRed << std::endl << std::endl;
-      std::cout << "mDEL4b*vRed" << std::endl << mDEL4b*vRed << std::endl << std::endl;
-      std::cout << "mDEL5a*vRed" << std::endl << mDEL5a*vRed << std::endl << std::endl;
-      std::cout << "mDEL5b*vRed" << std::endl << mDEL5b*vRed << std::endl << std::endl;
-      std::cout << "mLocal" << std::endl << mLocal << std::endl;
-      std::cout << "m" << std::endl << m << std::endl;
-      std::cout << "Niggli             " << vRed << std::endl;
-      std::cout << "Failed to reduce   " << vi << std::endl;
-      std::cout << "what resulted      " << vout << std::endl << std::endl;
-
-      return false;
+            temp = dd[0];
+            dd[0] = dd[1];
+            dd[1] = temp;
+            temp = dd[4];
+            dd[4] = dd[5];
+            dd[5] = temp;
+            continue;
+         }
+      }
    }
+   return b;
+}
 
+
+bool Delone::Reduce(const S6& d, MatS6& m, S6& dd) {
+   const bool b = Selling::Reduce(d, m, dd);
+   MatD7 m7;
+   dd = sort(D7(dd), m7);
+   m = m7 * MatD7(m);
    return true;
 }
 
-bool Delone::IsDelone( const D7& v, const double delta ) {
-   const double Delonesum = v[0]+v[1]+v[2]+v[3] -v[4]-v[5]-v[6];
-   return std::fabs( Delonesum ) < delta;
+std::vector<MatD7> Delone::GetD7Reflections() {
+   std::vector<MatD7> r;
+   if (r.empty()) {
+      MatD7 m;
+      for (size_t i = 0; i < 24; ++i) {
+         for (size_t j = 0; j < 49; ++j) {
+            m[j] = D7Refl[i][j];
+         }
+         r.push_back(m);
+      }
+   }
+   return r;
 }
 
+int Delone::GenMaxMinKey(const D7& d) {
+   std::vector < std::pair<double, int> > v;
+   for (int i = 0; i < 4; ++i) {
+      v.push_back(std::make_pair(d[i], i));
+   }
+   const std::vector < std::pair<double, int> > vx(v);
+   for (int j = 0; j < 3; ++j) {
+      for (int i = 0; i < 3; ++i) {
+         if (v[i].first > v[i + 1].first) {
+            std::swap(v[i], v[i + 1]);
+         }
+      }
+   }
+   D7 dd;
+   int key = 1000 * v[0].second + 100 * v[1].second + 10 * v[2].second + v[3].second;
+   return key;
+}
+
+size_t Delone::FindRefl(const size_t key, const D7& random, std::set<size_t>& sr) {
+   const static std::vector<MatD7> refl = GetD7Reflections();
+   size_t n = INT_MAX;
+   for (size_t i = 0; i < 24; ++i) {
+      if (GenMaxMinKey(refl[i] * random) == 123) {
+         sr.insert(key);
+         n = i;
+         break;
+      }
+   }
+   return n;
+}
+
+bool Delone::IsDelone(const D7& v, const double delta) {
+   const double Delonesum = v[0] + v[1] + v[2] + v[3] - v[4] - v[5] - v[6];
+   return std::fabs(Delonesum) < delta;
+}
+
+D7 Delone::sort(const D7& d, MatD7& m) {
+   m = MatD7::Eye();
+   const static std::vector<MatD7> refl = GetD7Reflections();
+   static std::set<size_t> sr;
+   static std::map<size_t, size_t> sm;
+
+   D7 random(d);
+   size_t key = GenMaxMinKey(random);
+   if (sr.find(key) == sr.end()) {
+      const size_t n = FindRefl(key, random, sr);
+      sm.insert(std::make_pair(key, n));
+      m = (m*refl[n]).Reduce();
+      return refl[n] * random;
+   }
+   else {
+      m = (m*refl[sm[key]]).Reduce();
+      return refl[sm[key]] * random;
+   }
+}
+
+D7 Delone::sort(const D7& d) {
+   const static std::vector<MatD7> refl = GetD7Reflections();
+   static std::set<size_t> sr;
+   static std::map<size_t, size_t> sm;
+
+   D7 random(d);
+   size_t key = GenMaxMinKey(random);
+   if (sr.find(key) == sr.end()) {
+      const size_t n = FindRefl(key, random, sr);
+      sm.insert(std::make_pair(key, n));
+      return refl[n] * random;
+   }
+   else {
+      return refl[sm[key]] * random;
+   }
+}
+
+
+std::vector<MatS6> Delone::LoadLatticeTypeProjectors() {
+   static const std::vector< std::pair<std::string, MatS6> > vLabledDeloneTypes = LoadLabeledLatticeTypeProjectors();
+   static std::vector<MatS6> vDeloneTypes;
+
+   if (!vDeloneTypes.empty()) return vDeloneTypes;
+
+   for ( size_t i=0; i< vLabledDeloneTypes.size(); ++i) {
+      vDeloneTypes.push_back(vLabledDeloneTypes[i].second);
+   }
+
+   return vDeloneTypes;
+}
+
+std::vector<std::pair<std::string, MatS6> > Delone::LoadLabeledLatticeTypeProjectors() {
+   static const std::vector< std::pair<std::string, MatS6> > vDeloneTypes = PrivateLoadLabeledLatticeTypeProjectors();
+   return vDeloneTypes;
+}
+
+std::vector<std::pair<std::string, MatS6> > Delone::PrivateLoadLabeledLatticeTypeProjectors() {
+   static std::vector< std::pair<std::string, MatS6> > vDeloneTypes;
+   if (!vDeloneTypes.empty()) return vDeloneTypes;
+   vDeloneTypes.push_back(std::make_pair(std::string("C1"), MatS6("1 1 1 1 1 1  1 1 1 1 1 1  1 1 1 1 1 1  1 1 1 1 1 1  1 1 1 1 1 1  1 1 1 1 1 1")));  //    C1  (cI)
+   vDeloneTypes.push_back(std::make_pair(std::string("C3"), MatS6("1 1 0 1 1 0  1 1 0 1 1 0  0 0 0 0 0 0  1 1 0 1 1 0  1 1 0 1 1 0  0 0 0 0 0 0")));  //    C3  (cF)
+   vDeloneTypes.push_back(std::make_pair(std::string("C5"), MatS6("0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 1 1 1  0 0 0 1 1 1  0 0 0 1 1 1")));  //    C5  (cP)
+   vDeloneTypes.push_back(std::make_pair(std::string("T1"), MatS6("1 1 0 1 1 0  1 1 0 1 1 0  0 0 1 0 0 1  1 1 0 1 1 0  1 1 0 1 1 0  0 0 1 0 0 1")));  //    T1  (tI)
+   vDeloneTypes.push_back(std::make_pair(std::string("T2"), MatS6("1 1 0 1 1 0  1 1 0 1 1 0  0 0 0 0 0 0  1 1 0 1 1 0  1 1 0 1 1 0  0 0 0 0 0 1")));  //    T2  (tI)
+   vDeloneTypes.push_back(std::make_pair(std::string("T5"), MatS6("0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 1 1 0  0 0 0 1 1 0  0 0 0 0 0 1")));  //    T5  (tP)
+   vDeloneTypes.push_back(std::make_pair(std::string("R1"), MatS6("1 1 1 0 0 0  1 1 1 0 0 0  1 1 1 0 0 0  0 0 0 1 1 1  0 0 0 1 1 1  0 0 0 1 1 1")));  //    R1  (rP)
+   vDeloneTypes.push_back(std::make_pair(std::string("R3"), MatS6("1 1 0 0 1 0  1 1 0 0 1 0  0 0 0 0 0 0  0 0 0 1 0 0  1 1 0 0 1 0  0 0 0 0 0 0")));  //    R3  (rP)
+   vDeloneTypes.push_back(std::make_pair(std::string("O1A"), MatS6("1 1 0 1 1 0  1 1 0 1 1 0  0 0 1 0 0 0  1 1 0 1 1 0  1 1 0 1 1 0  0 0 0 0 0 1")));  //    O1A (oF)
+   vDeloneTypes.push_back(std::make_pair(std::string("O1B"), MatS6("1 0 0 1 0 0  0 1 0 0 1 0  0 0 1 0 0 1  1 0 0 1 0 0  0 1 0 0 1 0  0 0 1 0 0 1")));  //    O1B (oI)
+   vDeloneTypes.push_back(std::make_pair(std::string("O2"), MatS6("1 0 0 0 1 0  0 1 0 1 0 0  0 0 0 0 0 0  0 1 0 1 0 0  1 0 0 0 1 0  0 0 0 0 0 1")));  //    O2  (oI)
+   vDeloneTypes.push_back(std::make_pair(std::string("O3"), MatS6("1 0 0 1 0 0  0 1 0 0 1 0  0 0 0 0 0 0  1 0 0 1 0 0  0 1 0 0 1 0  0 0 0 0 0 0")));  //    O3  (oI)
+   vDeloneTypes.push_back(std::make_pair(std::string("O4"), MatS6("0 0 0 0 0 0  0 0 0 0 0 0  0 0 1 0 0 0  0 0 0 1 1 0  0 0 0 1 1 0  0 0 0 0 0 1")));  //    O4  (oP)
+   vDeloneTypes.push_back(std::make_pair(std::string("O5"), MatS6("0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 1 0 0  0 0 0 0 1 0  0 0 0 0 0 1")));  //    O5  (oP)
+   vDeloneTypes.push_back(std::make_pair(std::string("M1A"), MatS6("1 1 0 0 0 0  1 1 0 0 0 0  0 0 1 0 0 0  0 0 0 1 1 0  0 0 0 1 1 0  0 0 0 0 0 1")));  //    M1A (mC)
+   vDeloneTypes.push_back(std::make_pair(std::string("M1B"), MatS6("1 0 0 1 0 0  0 1 0 0 1 0  0 0 1 0 0 0  1 0 0 1 0 0  0 1 0 0 1 0  0 0 0 0 0 1")));  //    M1B (mC)
+   vDeloneTypes.push_back(std::make_pair(std::string("M2B"), MatS6("1 0 0 1 0 0  0 1 0 0 1 0  0 0 0 0 0 0  1 0 0 1 0 0  0 1 0 0 1 0  0 0 0 0 0 1")));  //    M2B (mC)
+   vDeloneTypes.push_back(std::make_pair(std::string("M2A"), MatS6("1 0 0 0 0 0  0 1 0 1 0 0  0 0 0 0 0 0  0 1 0 1 0 0  0 0 0 0 1 0  0 0 0 0 0 1")));  //    M2A (mC)
+   vDeloneTypes.push_back(std::make_pair(std::string("M3"), MatS6("1 0 0 0 0 0  0 1 0 0 1 0  0 0 0 0 0 0  0 0 0 1 0 0  0 1 0 0 1 0  0 0 0 0 0 0")));  //    M3  (mC)
+   vDeloneTypes.push_back(std::make_pair(std::string("M4"), MatS6("0 0 0 0 0 0  0 0 0 0 0 0  0 0 1 0 0 0  0 0 0 1 0 0  0 0 0 0 1 0  0 0 0 0 0 1")));  //    M4  (mP)
+   vDeloneTypes.push_back(std::make_pair(std::string("A1"), MatS6("1 0 0 0 0 0  0 1 0 0 0 0  0 0 1 0 0 0  0 0 0 1 0 0  0 0 0 0 1 0  0 0 0 0 0 1")));  //    A1  (aP)
+   vDeloneTypes.push_back(std::make_pair(std::string("A2"), MatS6("1 0 0 0 0 0  0 1 0 0 0 0  0 0 0 0 0 0  0 0 0 1 0 0  0 0 0 0 1 0  0 0 0 0 0 1")));  //    A2  (aP)
+   vDeloneTypes.push_back(std::make_pair(std::string("A3"), MatS6("1 0 0 0 0 0  0 1 0 0 0 0  0 0 0 0 0 0  0 0 0 1 0 0  0 0 0 0 1 0  0 0 0 0 0 0")));  //    A3  (aP)
+   vDeloneTypes.push_back(std::make_pair(std::string("H4"), MatS6("0 0 0 0 0 0  0 0 0 0 0 0  0 0 1 1 1 0  0 0 1 1 1 0  0 0 1 1 1 0  0 0 0 0 0 1")));  //    H4  (hP)
+
+   return vDeloneTypes;
+}

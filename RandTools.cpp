@@ -10,6 +10,7 @@
 #include "FollowerConstants.h"
 #include "ProjectorTools.h"
 #include "Reducer.h"
+#include "S6M_SellingReduce.h"
 
 static int iseed;
 
@@ -114,59 +115,78 @@ G6 genRandG6V() {
    return(vRan);
 }
 
-Cell GenRandG6ReducedCell( void ) {
+LRL_Cell GenRandG6ReducedLRL_Cell( void ) {
    G6 vRan;
    G6 v;
+   int reduced;
 
-   Mat66 m;
    vRan = G6(1000.0 * genRandG6V());
 
-   bool btemp = false;
-   while (btemp = Reducer::Reduce(vRan, m, v, 0.0), !btemp) {
-      vRan = G6(1000.0 * genRandG6V());
+   reduced=0;
+   while (!reduced) {
+     CS6M_S6Reduce(vRan,v,reduced);
+     if (reduced) break;
+     vRan = G6(1000.0 * genRandG6V());
    }
-   return Cell(v);
+
+   return LRL_Cell(v);
 }
 
-Cell GenRandG6DeloneReducedCell( void ) {
+LRL_Cell GenRandG6DeloneReducedLRL_Cell( void ) {
    G6 vRan;
    G6 v;
+   D7 d7vRan;
+   D7 d7v;
+   int reduced;
 
-   Mat66 m;
    vRan = G6(1000.0 * genRandG6V());
 
-   bool btemp = false;
-   while (btemp =Delone::Reduce(vRan, m, v, 0.0), !btemp) {
-      vRan = G6(1000.0 * genRandG6V());
+   reduced=0;
+   while (!reduced) {
+     CS6M_G6toD7(vRan,d7vRan);
+     CS6M_D7Reduce(d7vRan,d7v,reduced);
+     if (reduced) {
+       CS6M_D7toG6(d7v,v);
+       break;
+     }
+     vRan = G6(1000.0 * genRandG6V());
    }
-   return Cell(v);
+
+   return LRL_Cell(v);
 }
 
-G6 GenRandG6Cell( void ) {
+G6 GenRandG6LRL_Cell( void ) {
    G6 vRan;
    G6 v;
+   int reduced;
 
-   Mat66 m;
    vRan = G6(1000.0 * genRandG6V());
 
-   bool btemp = false;
-   while (btemp = Reducer::Reduce(vRan, m, v, 0.0), !btemp) {
-      vRan = G6(1000.0 * genRandG6V());
+   reduced=0;
+   while (!reduced) {
+     CS6M_S6Reduce(vRan,v,reduced);
+     if (reduced) break;
+     vRan = G6(1000.0 * genRandG6V());
    }
+
    return vRan;
 }
+
 
 bool GenRandReducedArray(double* a, double aRan[6]) {
    G6 vRan;
    G6 v;
+   int reduced;
 
-   Mat66 m;
    vRan = G6(1000.0 * genRandG6V());
 
-   bool btemp = false;
-   while (btemp = Reducer::Reduce(vRan, m, v, 0.0), !btemp) {
-      vRan = G6(1000.0 * genRandG6V());
+   reduced=0;
+   while (!reduced) {
+     CS6M_G6Reduce(vRan,v,reduced);
+     if (reduced) break;
+     vRan = G6(1000.0 * genRandG6V());
    }
+
    a[0] = v.at(0);
    a[1] = v.at(1);
    a[2] = v.at(2);
@@ -175,20 +195,30 @@ bool GenRandReducedArray(double* a, double aRan[6]) {
    a[5] = v.at(5);
 
    ProjectorTools::ConvertG6ToArray(v, aRan);
-   return btemp;
+   return true;
 }
 
 bool GenRandDeloneReducedArray(double* a, double aRan[6]) {
    G6 vRan;
    G6 v;
-
-   Mat66 m;
-   vRan = G6(1000.0 * genRandG6V());
-
+   D7 d7vRan;
+   D7 d7v;
    bool btemp = false;
-   while (btemp = Delone::Reduce(vRan, m, v, 0.0), !btemp) {
-      vRan = G6(1000.0 * genRandG6V());
+   int reduced;
+
+   vRan = G6(1000.0 * genRandG6V());
+   reduced = 0;
+
+   while (!reduced) {
+     CS6M_G6toD7(vRan,d7vRan);
+     CS6M_D7Reduce(d7vRan,d7v,reduced);
+     if (reduced) {
+       CS6M_D7toG6(d7v,v);
+       break;
+     }
+     vRan = G6(1000.0 * genRandG6V());
    }
+
    a[0] = v.at(0);
    a[1] = v.at(1);
    a[2] = v.at(2);
@@ -197,6 +227,6 @@ bool GenRandDeloneReducedArray(double* a, double aRan[6]) {
    a[5] = v.at(5);
 
    ProjectorTools::ConvertG6ToArray(v, aRan);
-   return btemp;
+   return true;
 }
 

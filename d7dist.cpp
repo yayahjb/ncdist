@@ -1,7 +1,8 @@
 
 #include "Reducer.h"
 #include "Delone.h"
-#include "Cell.h"
+#include "LRL_Cell.h"
+#include "LRL_Cell_Degrees.h"
 #include "D7Dist.h"
 #define ARMA_DONT_USE_BLAS
 #define ARMA_DONT_USE_LAPACK
@@ -27,7 +28,7 @@ G6 makeprimredprobe( std::string testlattice,
     G6 primredprobe;
     G6 dprimredprobe;
     double crootvol;
-    Cell rawcell(a,b,c, alpha,beta,gamma);
+    LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
     if (testlattice.size()< 1) {
@@ -74,36 +75,36 @@ G6 makeprimredprobe( std::string testlattice,
     }
     ret = Reducer::Reduce(primcell,m,redprimcell,0.0);
     ret = Delone::Reduce(primcell,dm,dredprimcell,0.0);
-    primredprobe = Cell(redprimcell).CellWithDegrees();
-    dprimredprobe = Cell(dredprimcell).CellWithDegrees();
-    std::cout << "Primitive Reduced Probe Cell: " <<
+    primredprobe = LRL_Cell_Degrees(LRL_Cell(redprimcell));
+    dprimredprobe = LRL_Cell_Degrees(LRL_Cell(dredprimcell));
+    std::cout << "Primitive Reduced Probe LRL_Cell: " <<
     primredprobe[0]<<" "<<
     primredprobe[1]<<" "<<
     primredprobe[2]<<" "<<
     primredprobe[3]<<" "<<
     primredprobe[4]<<" "<<
     primredprobe[5] << std::endl;
-    std::cout << "Delaunay Primitive Reduced Probe Cell: " <<
+    std::cout << "Delaunay Primitive Reduced Probe LRL_Cell: " <<
     dprimredprobe[0]<<" "<<
     dprimredprobe[1]<<" "<<
     dprimredprobe[2]<<" "<<
     dprimredprobe[3]<<" "<<
     dprimredprobe[4]<<" "<<
     dprimredprobe[5] << std::endl;
-    std::cout << "Volume :" << Cell(redprimcell).Volume() << std::endl;
-    crootvol = pow(Cell(redprimcell).Volume(),1./3.);
-    Reducer::Reduce((Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
-    recipcell = (Cell(redprimcell).Inverse()).CellWithDegrees();
+    std::cout << "Volume :" << LRL_Cell(redprimcell).Volume() << std::endl;
+    crootvol = pow(LRL_Cell(redprimcell).Volume(),1./3.);
+    Reducer::Reduce((LRL_Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
+    recipcell = LRL_Cell_Degrees(LRL_Cell(redprimcell).Inverse());
     
-    std::cout << "Reciprocal of Primitive Probe Cell: " <<
+    std::cout << "Reciprocal of Primitive Probe LRL_Cell: " <<
     recipcell[0]<<" "<<
     recipcell[1]<<" "<<
     recipcell[2]<<" "<<
     recipcell[3]<<" "<<
     recipcell[4]<<" "<<
     recipcell[5]<< std::endl;
-    std::cout << "Volume of Reciprocal Cell: " <<
-    (Cell(redprimcell).Inverse()).Volume() << std::endl;
+    std::cout << "Volume of Reciprocal LRL_Cell: " <<
+    (LRL_Cell(redprimcell).Inverse()).Volume() << std::endl;
     std::cout << "V7 linearized and scaled: "
     << primredprobe[0]*std::sqrt(6./7.)<<" "
     << primredprobe[1]*std::sqrt(6./7.)<<" "
@@ -167,8 +168,8 @@ int main(int argc, char ** argv) {
     gamma2 = atof(argv[14]);
     prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
     prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
-    Cell cell1 = Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
-    Cell cell2 = Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
+    LRL_Cell cell1 = LRL_Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
+    LRL_Cell cell2 = LRL_Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
     G6 gv1 = G6(cell1.Cell2V6());
     G6 gv2 = G6(cell2.Cell2V6());
     for (ii=0; ii < 3; ii++) {

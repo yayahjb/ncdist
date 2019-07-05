@@ -3,32 +3,40 @@
 using namespace RcppParallel;
 #include <RcppArmadillo.h>
 
+#include "S6M_SellingReduce.h"
+#include "G6.h"
+#include "D7.h"
+#include "S6.h"
+#include "Reducer.h"
 #include "Delone.h"
-#include "Cell.h"
+#include "LRL_Cell.h"
+#include "LRL_Cell_Degrees.h"
 #include "D7Dist.h"
+#include "CS6Dist.h"
+#include <cmath>
 #include <stdlib.h>
+#include <ctype.h>
 
 
 //*****************************************************************************
-G6 makeprimredprobe( std::string testlattice,
-	double a, double b, double c, double alpha, double beta, double gamma )
+D7 makeprimredcell( std::string testlattice,
+        double a, double b, double c, double alpha, double beta, double gamma )
 {
     std::string latsym;
     char clatsym;
     G6 v6cell;
-    G6 redprimcell;
-    G6 dredprimcell;
+    D7 d7redprimcell;
+    double dredprimcell[7];
+    double g6primcell[6];
+    double d7primcell[7];
     Mat66 mc;
+    Mat66 m;
     Mat66 dm;
-    G6 primcell;
-    G6 recipcell;
-    G6 reducedBase;
-    G6 primredprobe;
-    G6 dprimredprobe;
-    double crootvol;
-    Cell rawcell(a,b,c, alpha,beta,gamma);
+    G6 primcell;                    
+    LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
+    int reduced;
     if (testlattice.size()< 1) {
         latsym = "P";
     } else {
@@ -52,54 +60,72 @@ G6 makeprimredprobe( std::string testlattice,
         case 'r':
         case 'H':
         case 'h':
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
             break;
         case 'V':
         case 'v':
-	    primcell[0] = a;
-	    primcell[1] = b;
-	    primcell[2] = c;
-	    primcell[3] = alpha;
-	    primcell[4] = beta;
-	    primcell[5] = gamma;
+            primcell[0] = a;
+            primcell[1] = b;
+            primcell[2] = c;
+            primcell[3] = alpha;
+            primcell[4] = beta;
+            primcell[5] = gamma;
             break;
+        case 'D':
+        case 'd':
+           primcell[0] = a;
+           primcell[1] = b;
+           primcell[2] = c;
+           primcell[3] = beta-b-c;
+           primcell[4] = gamma-a-c;
+           primcell[5] = alpha-c-primcell[3]-primcell[4] ;
+           break;
+        case 'S':
+        case 's':
+           primcell[3] = 2.*a;
+           primcell[4] = 2.*b;
+           primcell[5] = 2.*c;
+           primcell[0] = -alpha-c-b;
+           primcell[1] = -beta-c-a;
+           primcell[2] = -gamma-b-a;
+           break;
         default:
             /* Rprintf("Unrecognized lattice symbol %s treated as P\n",testlattice.c_str()); */
             latsym = "P";
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            clatsym='P';
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
             break;
     }
-    ret = Delone::Reduce(primcell,dm,dredprimcell,0.);
-    dprimredprobe = Cell(dredprimcell).CellWithDegrees();
-    /* Rprintf("Primitive Delaunay Reduced Probe Cell: [%g,%g,%g,%g,%g,%g]\n",
-    primredprobe[0], primredprobe[1],primredprobe[2],primredprobe[3],primredprobe[4],primredprobe[5]);
-    Rprintf("Volume : %g\n",Cell(redprimcell).Volume()); */
-    crootvol = pow(Cell(dredprimcell).Volume(),1./3.);
-    Delone::Reduce((Cell(dredprimcell).Inverse()).Cell2V6(),dm,reducedBase,0.0);
-    recipcell = (Cell(dredprimcell).Inverse()).CellWithDegrees();
-    /* Rprintf("Reciprocal of Primitive Probe Cell: [%g,%g,%g,%g,%g,%g]\n",recipcell[0],recipcell[1],recipcell[2],recipcell[3],recipcell[4],recipcell[5]);
-    Rprintf("Volume of Reciprocal Cell: %g\n", (Cell(redprimcell).Inverse()).Volume()); */
-    if (latsym[0] == 'V' || latsym[0] == 'v') {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",primcell[0],primcell[1],primcell[2],primcell[3],primcell[4],primcell[5]); */
+    reduced=0;
+    g6primcell[0]=primcell[0];   
+    g6primcell[1]=primcell[1];   
+    g6primcell[2]=primcell[2];   
+    g6primcell[3]=primcell[3];   
+    g6primcell[4]=primcell[4];   
+    g6primcell[5]=primcell[5];
+    CS6M_G6toD7(g6primcell,d7primcell);
+    CS6M_D7Reduce(d7primcell,dredprimcell,reduced);
+    if (reduced) {
+      d7redprimcell = D7(dredprimcell);
     } else {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",
-        dprimredprobe[0]*dprimredprobe[0],
-        dprimredprobe[1]*dprimredprobe[1],
-        dprimredprobe[2]*dprimredprobe[2],
-        2.*dprimredprobe[1]*dprimredprobe[2]*cos(dprimredprobe[3]*std::atan(1.0)/45.),
-        2.*dprimredprobe[0]*dprimredprobe[2]*cos(dprimredprobe[4]*std::atan(1.0)/45.),
-        2.*dprimredprobe[0]*dprimredprobe[1]*cos(dprimredprobe[5]*std::atan(1.0)/45.)); */
+      dredprimcell[0]=dredprimcell[1]=dredprimcell[2]=dredprimcell[3]
+        =dredprimcell[4]=dredprimcell[5]=dredprimcell[6]=0.;
+      d7redprimcell = D7(dredprimcell);
     }
-    return dprimredprobe;
+    return d7redprimcell;
 }
+
+
 
 extern "C" SEXP rcpp_d7dist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_, 
                               SEXP alpha1_, SEXP beta1_, SEXP gamma1_,
 			      SEXP lat2_, SEXP a2_, SEXP b2_, SEXP c2_, 
                               SEXP alpha2_, SEXP beta2_, SEXP gamma2_) {
     G6 prim1, prim2;
+    D7 d7prim1;
+    D7 d7prim2;
     double dprim1[7];
     double dprim2[7];
     size_t ii;
@@ -118,24 +144,10 @@ extern "C" SEXP rcpp_d7dist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_,
     double alpha2    = Rcpp::as<double>(alpha2_);
     double beta2     = Rcpp::as<double>(beta2_);
     double gamma2    = Rcpp::as<double>(gamma2_);
-    prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
-    prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
-    Cell cell1 = Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
-    Cell cell2 = Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
-    G6 gv1 = G6(cell1.Cell2V6());
-    G6 gv2 = G6(cell2.Cell2V6());
-    for (ii=0; ii < 3; ii++) {
-      dprim1[ii] = gv1[ii];
-      dprim2[ii] = gv2[ii];
-    }
-    dprim1[3] = gv1[0]+gv1[1]+gv1[2]+gv1[3]+gv1[4]+gv1[5];
-    dprim2[3] = gv2[0]+gv2[1]+gv2[2]+gv2[3]+gv2[4]+gv2[5];
-    dprim1[4] =        gv1[1]+gv1[2]+gv1[3];
-    dprim2[4] =        gv2[1]+gv2[2]+gv2[3];
-    dprim1[5] = gv1[0]       +gv1[2]       +gv1[4];
-    dprim2[5] = gv2[0]       +gv2[2]       +gv2[4];
-    dprim1[6] = gv1[0]+gv1[1]                     +gv1[5];
-    dprim2[6] = gv2[0]+gv2[1]                     +gv2[5];
+    d7prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1);
+    d7prim2 = makeprimredcell(lat2,a2,b2,c2,alpha2,beta2,gamma2);
+    for (ii=0; ii < 7; ii++ ) dprim1[ii] = d7prim1[ii];
+    for (ii=0; ii < 7; ii++ ) dprim2[ii] = d7prim2[ii];
     return Rcpp::wrap( 0.1*std::sqrt(6./7.*D7Dist(dprim1,dprim2)));
 }
 

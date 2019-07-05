@@ -58,9 +58,9 @@ public:
    bool operator== (const Cell& c);
    bool operator!= (const Cell& c);
 
-   bool IsRhomobhedralAsHex(void) const;
-   static bool IsRhomobhedralAsHex(const Cell& c);
-   static bool IsRhomobhedralAsHex(const G6& v);
+   bool IsRhombohedralAsHex(void) const;
+   static bool IsRhombohedralAsHex(const Cell& c);
+   static bool IsRhombohedralAsHex(const G6& v);
 
    friend Cell operator* (const double d, const Cell& c);
    static size_t size(void) { return 6; }

@@ -1,4 +1,4 @@
-#include "Cell.h"
+#include "LRL_Cell.h"
 #include "D6.h"
 #include "DeloneTetrahedron.h"
 #include "Vec_N_Tools.h"
@@ -98,7 +98,7 @@ D6::D6( const DeloneTetrahedron& del ) {
    u = c.Dot(d);
 }
 
-D6::D6(const Cell& c) {
+D6::D6(const LRL_Cell& c) {
    (*this) = G6(c.Cell2V6());
 }
 

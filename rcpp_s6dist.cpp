@@ -3,38 +3,39 @@
 using namespace RcppParallel;
 #include <RcppArmadillo.h>
 
+#include "S6M_SellingReduce.h"
 #include "G6.h"
 #include "D7.h"
 #include "S6.h"
+#include "Reducer.h"
 #include "Delone.h"
-#include "Cell.h"
+#include "LRL_Cell.h"
+#include "Reducer.h"
 #include "D7Dist.h"
 #include "S6Dist_func.h"
+#include <cmath>
 #include <stdlib.h>
+#include <ctype.h>
 
 
-//*****************************************************************************
+// *****************************************************************************
 S6 makeprimredcell( std::string testlattice,
-	double a, double b, double c, double alpha, double beta, double gamma )
+        double a, double b, double c, double alpha, double beta, double gamma )
 {
     std::string latsym;
     char clatsym;
     G6 v6cell;
-    G6 redprimcell;
-    D7 d7redprimcell;
-    S6 s6redprimcell;;
-    G6 dredprimcell;
+    S6 s6redprimcell;
+    double g6primcell[6];
+    double s6primcell[6];
     Mat66 mc;
+    Mat66 m;
     Mat66 dm;
     G6 primcell;
-    G6 recipcell;
-    G6 reducedBase;
-    G6 primredprobe;
-    G6 dprimredprobe;
-    double crootvol;
-    Cell rawcell(a,b,c, alpha,beta,gamma);
+    LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
+    int reduced;
     if (testlattice.size()< 1) {
         latsym = "P";
     } else {
@@ -44,69 +45,78 @@ S6 makeprimredcell( std::string testlattice,
     switch (clatsym) {
         case 'P':
         case 'p':
-        case 'A':
-        case 'a':
+        case 'A':   
+        case 'a':  
         case 'B':
         case 'b':
-        case 'C':
-        case 'c':
+        case 'C':  
+        case 'c':   
         case 'I':
-        case 'i':
-        case 'F':
+        case 'i':  
+        case 'F': 
         case 'f':
         case 'R':
         case 'r':
         case 'H':
         case 'h':
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
             break;
         case 'V':
         case 'v':
-	    primcell[0] = a;
-	    primcell[1] = b;
-	    primcell[2] = c;
-	    primcell[3] = alpha;
-	    primcell[4] = beta;
-	    primcell[5] = gamma;
+            primcell[0] = a;
+            primcell[1] = b;
+            primcell[2] = c;
+            primcell[3] = alpha;
+            primcell[4] = beta;
+            primcell[5] = gamma;
             break;
+        case 'D':
+        case 'd':
+           primcell[0] = a;
+           primcell[1] = b;
+           primcell[2] = c;
+           primcell[3] = beta-b-c;
+           primcell[4] = gamma-a-c;
+           primcell[5] = alpha-c-primcell[3]-primcell[4] ;
+           break;   
+        case 'S':  
+        case 's':
+           primcell[3] = 2.*a;
+           primcell[4] = 2.*b;
+           primcell[5] = 2.*c;
+           primcell[0] = -alpha-c-b;
+           primcell[1] = -beta-c-a;
+           primcell[2] = -gamma-b-a;
+           break;
         default:
             /* Rprintf("Unrecognized lattice symbol %s treated as P\n",testlattice.c_str()); */
             latsym = "P";
-            mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());
+            clatsym='P';
+            CS6M_CelltoG6(rawcell,v6cell);
+            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
             break;
     }
-    ret = Delone::Reduce(primcell,dm,dredprimcell,0.);
-    d7redprimcell = D7(dredprimcell);
-    s6redprimcell = S6((d7redprimcell[4]-d7redprimcell[1]-d7redprimcell[2])/2.,
-                       (d7redprimcell[5]-d7redprimcell[0]-d7redprimcell[2])/2.,
-                       (d7redprimcell[6]-d7redprimcell[0]-d7redprimcell[1])/2.,
-                       (d7redprimcell[4]-d7redprimcell[0]-d7redprimcell[3])/2.,
-                       (d7redprimcell[5]-d7redprimcell[1]-d7redprimcell[3])/2.,
-                       (d7redprimcell[6]-d7redprimcell[2]-d7redprimcell[3])/2.); 
-    dprimredprobe = Cell(dredprimcell).CellWithDegrees();
-    /* Rprintf("Primitive Delaunay Reduced Probe Cell: [%g,%g,%g,%g,%g,%g]\n",
-    primredprobe[0], primredprobe[1],primredprobe[2],primredprobe[3],primredprobe[4],primredprobe[5]);
-    Rprintf("Volume : %g\n",Cell(redprimcell).Volume()); */
-    crootvol = pow(Cell(dredprimcell).Volume(),1./3.);
-    Delone::Reduce((Cell(dredprimcell).Inverse()).Cell2V6(),dm,reducedBase,0.0);
-    recipcell = (Cell(dredprimcell).Inverse()).CellWithDegrees();
-    /* Rprintf("Reciprocal of Primitive Probe Cell: [%g,%g,%g,%g,%g,%g]\n",recipcell[0],recipcell[1],recipcell[2],recipcell[3],recipcell[4],recipcell[5]);
-    Rprintf("Volume of Reciprocal Cell: %g\n", (Cell(redprimcell).Inverse()).Volume()); */
-    if (latsym[0] == 'V' || latsym[0] == 'v') {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",primcell[0],primcell[1],primcell[2],primcell[3],primcell[4],primcell[5]); */
+    reduced=0;
+    g6primcell[0]=primcell[0];   
+    g6primcell[1]=primcell[1];   
+    g6primcell[2]=primcell[2];   
+    g6primcell[3]=primcell[3];   
+    g6primcell[4]=primcell[4];   
+    g6primcell[5]=primcell[5];
+    CS6M_G6toS6(g6primcell,s6primcell);
+    CS6M_S6Reduce(s6primcell,s6redprimcell,reduced);
+    if (reduced) {
+      s6redprimcell = S6(s6redprimcell);
     } else {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",
-        dprimredprobe[0]*dprimredprobe[0],
-        dprimredprobe[1]*dprimredprobe[1],
-        dprimredprobe[2]*dprimredprobe[2],
-        2.*dprimredprobe[1]*dprimredprobe[2]*cos(dprimredprobe[3]*std::atan(1.0)/45.),
-        2.*dprimredprobe[0]*dprimredprobe[2]*cos(dprimredprobe[4]*std::atan(1.0)/45.),
-        2.*dprimredprobe[0]*dprimredprobe[1]*cos(dprimredprobe[5]*std::atan(1.0)/45.)); */
+      s6redprimcell[0]=s6redprimcell[1]=s6redprimcell[2]
+        =s6redprimcell[3]=s6redprimcell[4]=s6redprimcell[5]=0;
+      s6redprimcell = S6(s6redprimcell);
+      s6redprimcell = S6(s6redprimcell);
     }
     return s6redprimcell;
 }
+
 
 extern "C" SEXP rcpp_s6dist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_, 
                               SEXP alpha1_, SEXP beta1_, SEXP gamma1_,

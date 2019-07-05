@@ -2,8 +2,8 @@
 #pragma once
 #endif
 
-#include "Cell.h"
-#include "D6.h"
+#include "LRL_Cell.h"
+#include "S6.h"
 #include "ReadCellData.h"
 #include "ReadGlobalData.h"
 #include "D7.h"
@@ -46,7 +46,7 @@ void ReadCellData::CellReader(const std::string& s) {
          m_cell = v6;
       }
       else if (toupper(m_inputDataType[0]) == 'S') {
-         D6 e;
+         S6 e;
          for( size_t i = 0; i < 6; ++i)
             iss >> e[i];
          m_cell = G6(e);
