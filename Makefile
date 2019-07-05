@@ -1,12 +1,12 @@
 ######################################################################
 #  Makefile - makefile to create sfdist                              #
 #                                                                    #
-# Version 1.0.1 01 April 2018                                        #
+# Version 1.1.0 05 July 2019                                         #
 #                                                                    #
 #         Herbert J. Bernstein (yayahjb@gmail.com)                   #
 #         Lawrence C Andrews                                         #
 #                                                                    #
-# (C) Copyright 2016 - 2018 Herbert J. Bernstein, Lawrence C. Andrews#
+# (C) Copyright 2016 - 2019 Herbert J. Bernstein, Lawrence C. Andrews#
 #                                                                    #
 ######################################################################
 
@@ -238,32 +238,6 @@ d7dist:  d7dist_.o \
 	$(LIBSOURCES) \
 	-lpthread
 
-rcpp_cs6dist_.o:  rcpp_cs6dist.cpp G6.h D7.h S6.h C3.h Delone.h Reducer.h LRL_Cell.h LRL_Cell_Degrees.h \
-	D7Dist.h S6Dist.h
-	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
-	 -I$(RCPP_HEADERS) \
-		-I$(RCPPPARA_HEADERS) \
-		-I$(RCPPARMA_HEADERS) -c rcpp_cs6dist.cpp -o rcpp_cs6dist_.o
-
-rcpp_s6dist_.o:  rcpp_s6dist.cpp G6.h D7.h S6.h C3.h Delone.h Reducer.h LRL_Cell_Degrees.h \
-	D7Dist.h S6Dist.h
-	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
-	 -I$(RCPP_HEADERS) \
-		-I$(RCPPPARA_HEADERS) \
-		-I$(RCPPARMA_HEADERS) -c rcpp_s6dist.cpp -o rcpp_s6dist_.o
-
-rcpp_ncdist_.o:  rcpp_ncdist.cpp Reducer.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h
-	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
-	 -I$(RCPP_HEADERS) \
-		-I$(RCPPPARA_HEADERS) \
-		-I$(RCPPARMA_HEADERS) -c rcpp_ncdist.cpp -o rcpp_ncdist_.o
-
-rcpp_d7dist_.o:  rcpp_d7dist.cpp Reducer.h LRL_Cell.h LRL_Cell_Degrees.h D7Dist.h
-	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
-	 -I$(RCPP_HEADERS) \
-		-I$(RCPPPARA_HEADERS) \
-		-I$(RCPPARMA_HEADERS) -c rcpp_d7dist.cpp -o rcpp_d7dist_.o
-
 Reducer.o:  Reducer.cpp Reducer.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h
 	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
 	 -I$(RCPP_HEADERS) \
@@ -289,7 +263,7 @@ LRL_Cell_Degrees.o:  LRL_Cell.cpp LRL_Cell_Degrees.cpp Reducer.h LRL_Cell.h LRL_
 		-I$(RCPPPARA_HEADERS) \
 		-I$(RCPPARMA_HEADERS) -c LRL_Cell_Degrees.cpp -o LRL_Cell_Degrees.o
 
-rcpp_s6dist.so:	rcpp_s6dist_.o Reducer.o LRL_Cell.o \
+rcpp_s6dist.so:	rcpp_s6dist.cpp \
 	$(DEPENDENCIES) \
 	S6Dist_func.cpp
 	g++ $(CXXFLAGS) -shared -o rcpp_s6dist.so -I $(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
@@ -297,18 +271,21 @@ rcpp_s6dist.so:	rcpp_s6dist_.o Reducer.o LRL_Cell.o \
 	$(LIBSOURCES) \
 	S6Dist_func.cpp -L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
-rcpp_cs6dist.so: rcpp_cs6dist_.o Reducer.o LRL_Cell.o LRL_Cell_Degrees.o \
+rcpp_cs6dist.so: rcpp_cs6dist.cpp \
 	CS6Dist.h $(DEPENDENCIES) 
-	g++ $(CXXFLAGS) -shared -o rcpp_cs6dist.so rcpp_cs6dist_.o -I $(RCPPPARA_HEADERS) \
+	g++ $(CXXFLAGS) -shared -o rcpp_cs6dist.so -I $(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
+	-I $(RCPP_HEADERS) -I $(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS) rcpp_s6dist.cpp  \
+        $(LIBSOURCES) \
+	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
+
+rcpp_ncdist.so:	rcpp_ncdist.cpp \
+	$(DEPENDENCIES)
+	g++ $(CXXFLAGS) -shared -o rcpp_ncdist.so -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
+	-I$(RCPP_HEADERS) -I$(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS)  rcpp_ncdist.cpp \
 	$(LIBSOURCES) \
 	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
-rcpp_ncdist.so:	rcpp_ncdist_.o Reducer.o LRL_Cell.o LRL_Cell_Degrees.o
-	g++ $(CXXFLAGS) -shared -o rcpp_ncdist.so rcpp_ncdist_.o -I $(RCPPPARA_HEADERS) \
-	$(LIBSOURCES) \
-	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
-
-rcpp_d7dist.so:	rcpp_d7dist_.o Reducer.o LRL_Cell.o LRL_Cell_Degrees.o \
+rcpp_d7dist.so:	rcpp_d7dist.cpp \
 	$(DEPENDENCIES)
 	g++ $(CXXFLAGS) -shared -o rcpp_d7dist.so \
 	-I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC -I$(RCPP_HEADERS) \
@@ -394,10 +371,6 @@ distclean:  clean
 	-@rm -rf ncdist_mat
 	-@rm -rf ncdist_.o
 	-@rm -rf ncdist
-	-@rm -rf rcpp_cs6dist_.o
-	-@rm -rf rcpp_s6dist_.o
-	-@rm -rf rcpp_ncdist_.o
-	-@rm -rf rcpp_d7dist_.o
 	-@rm -rf Reducer.o
 	-@rm -rf S6Dist_func_.o
 	-@rm -rf s6dist_app
