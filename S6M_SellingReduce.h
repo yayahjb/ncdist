@@ -1,7 +1,7 @@
 #ifndef CS6M_SELLING_REDUCE
   #define CS6M_SELLING_REDUCE
 
-  /* #define CS6M_DEBUG zz/* 
+  /* #define CS6M_DEBUG zz*/ 
   #ifdef CS6M_DEBUG_PRINT_COUT
     #undef CS6M_DEBUG_PRINT_COUT
   #endif
@@ -14,7 +14,7 @@
       #define CS6M_DEBUG_PRINT_COUT yes
     #else
       #include <stdio.h>
-    #define CS6M_DEBUG_PRINT_FPRINTF yes
+      #define CS6M_DEBUG_PRINT_FPRINTF yes
     #endif
   #endif
 
@@ -118,9 +118,9 @@
     cosalpha=g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
     cosbeta =g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
     cosgamma=g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
-    sinalpha=CS6M_sqrt(fabs((1.-cosalpha*cosalpha));                                           \
-    sinbeta =CS6M_sqrt(fabs((1.-cosbeta* cosbeta));                                            \
-    singamma=CS6M_sqrt(fabs((1.-cosgamma*cosgamma));                                           \
+    sinalpha=CS6M_sqrt(fabs((1.-cosalpha*cosalpha)));                                           \
+    sinbeta =CS6M_sqrt(fabs((1.-cosbeta* cosbeta)));                                            \
+    singamma=CS6M_sqrt(fabs((1.-cosgamma*cosgamma)));                                           \
     cell[CS6M_CELLALPHA]=atan2(sinalpha,cosalpha);                                        \
     cell[CS6M_CELLBETA] =atan2(sinbeta, cosbeta);                                         \
     cell[CS6M_CELLGAMMA]=atan2(singamma,cosgamma);                                        \
@@ -223,8 +223,8 @@
   #ifdef CS6M_DEBUG
      #ifndef CS6M_VOLCHECK_PREP
       #define CS6M_VOLCHECK_PREP(xg6unred)  \
-        Cell cellred; \
-        Cell newcellred; \
+        LRL_Cell cellred; \
+        LRL_Cell newcellred; \
         G6 g6cellred; \
         G6 g6newcellred; \
         double entryvol,curvol;\
@@ -235,7 +235,7 @@
         CS6M_Cellvolume(newcellred,curvol);\
         CS6M_CellradtoG6(cellred,g6cellred);  \
         CS6M_CellradtoG6(newcellred,g6newcellred); \
-        if (fabs(entryvol-curvol)> delta ) { \
+        if (fabs(entryvol-curvol)> 0. ) { \
           std::cerr<<label<<": Volume change: "<< entryvol << " to "<<curvol<<std::endl; \
           std::cerr<<"cellred: " << cellred[0] <<", "    \
           << cellred[1] <<", "                           \

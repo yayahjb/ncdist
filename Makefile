@@ -161,41 +161,47 @@ DEPENDENCIES =  \
 
 
 all:  ncdist ncdist_mat D7Test Follower \
-	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so \
+	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist.so \
 	cs6dist_app  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
 CS6Dist_func_.o:  CS6Dist_func.cpp S6.h C3.h S6Dist.h Selling.h \
 	S6Dist_func.h Reducer.h Delone.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h \
-	CS6Dist.h VecN.h Vec_N_Tools.h 
+	CS6Dist.h CS6Dist.c  VecN.h Vec_N_Tools.h 
 	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	CS6Dist_func.cpp -o CS6Dist_func_.o
 
-cs6dist_app:  CS6Dist_func_.o cs6dist_app.cpp \
+CS6Dist_.o:  S6.h C3.h S6Dist.h Selling.h \
+	S6Dist_func.h Reducer.h Delone.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h \
+	CS6Dist.h CS6Dist.c  VecN.h Vec_N_Tools.h 
+	gcc $(CFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
+	CS6Dist.c -o CS6Dist_.o
+
+cs6dist_app:  CS6Dist_func_.o CS6Dist_.o cs6dist_app.cpp \
 	$(DEPENDENCIES) Delone.h Delone.cpp
-	g++ $(CXXFLAGS) -o cs6dist_app  cs6dist_app.cpp CS6Dist_func_.o \
+	g++ $(CXXFLAGS) -o cs6dist_app  cs6dist_app.cpp CS6Dist_func_.o CS6Dist_.o \
 	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	$(LIBSOURCES)  Delone.cpp \
 	-lpthread
 
 
-cs6_s6_test:  CS6Dist_func_.o S6Dist_func_.o cs6_s6_test.cpp \
+cs6_s6_test:  CS6Dist_func_.o CS6Dist_.o S6Dist_func_.o cs6_s6_test.cpp \
 	$(DEPENDENCIES) Delone.h Delone.cpp
-	g++ $(CXXFLAGS) -o cs6_s6_test  cs6_s6_test.cpp CS6Dist_func_.o S6Dist_func_.o \
+	g++ $(CXXFLAGS) -o cs6_s6_test  cs6_s6_test.cpp CS6Dist_func_.o CS6Dist_.o S6Dist_func_.o \
 	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	$(LIBSOURCES) Delone.cpp \
 	-lpthread
 
 
-cs6dist_mat:  CS6Dist_func_.o cs6dist_mat.cpp \
+cs6dist_mat:  CS6Dist_func_.o  CS6Dist_.o cs6dist_mat.cpp \
 	$(DEPENDENCIES)  Delone.h Delone.cpp
-	g++ $(CXXFLAGS) -o cs6dist_mat  cs6dist_mat.cpp CS6Dist_func_.o \
+	g++ $(CXXFLAGS) -o cs6dist_mat  cs6dist_mat.cpp CS6Dist_func_.o CS6Dist_.o \
 	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	$(LIBSOURCES)  Delone.cpp \
 	-lpthread
 
-cs6dist_dist:  CS6Dist_func_.o cs6dist_dist.cpp \
+cs6dist_dist:  CS6Dist_func_.o CS6Dist_.o cs6dist_dist.cpp \
 	$(DEPENDENCIES)  Delone.h Delone.cpp
-	g++ $(CXXFLAGS) -o cs6dist_dist  cs6dist_dist.cpp CS6Dist_func_.o \
+	g++ $(CXXFLAGS) -o cs6dist_dist  cs6dist_dist.cpp CS6Dist_func_.o CS6Dist_.o \
 	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	$(LIBSOURCES)  Delone.cpp \
 	-lpthread
@@ -265,31 +271,33 @@ LRL_Cell_Degrees.o:  LRL_Cell.cpp LRL_Cell_Degrees.cpp Reducer.h LRL_Cell.h LRL_
 
 rcpp_s6dist.so:	rcpp_s6dist.cpp \
 	$(DEPENDENCIES) \
-	S6Dist_func.cpp
+	S6Dist_func.cpp Delone.h Delone.cpp
 	g++ $(CXXFLAGS) -shared -o rcpp_s6dist.so -I $(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
-        -I $(RCPP_HEADERS) -I $(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS) rcpp_s6dist.cpp  \
+        -I $(RCPP_HEADERS) -I $(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS) rcpp_s6dist.cpp S6Dist_func.cpp Delone.cpp \
 	$(LIBSOURCES) \
-	S6Dist_func.cpp -L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
+	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
 rcpp_cs6dist.so: rcpp_cs6dist.cpp \
-	CS6Dist.h $(DEPENDENCIES) 
+	CS6Dist.h CS6Dist.c $(DEPENDENCIES) CS6Dist_func.cpp  S6Dist_func.cpp Delone.cpp
 	g++ $(CXXFLAGS) -shared -o rcpp_cs6dist.so -I $(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
-	-I $(RCPP_HEADERS) -I $(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS) rcpp_s6dist.cpp  \
+	-I $(RCPP_HEADERS) -I $(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS) \
+	rcpp_s6dist.cpp  CS6Dist.c CS6Dist_func.cpp  S6Dist_func.cpp Delone.cpp \
         $(LIBSOURCES) \
 	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
 rcpp_ncdist.so:	rcpp_ncdist.cpp \
-	$(DEPENDENCIES)
+	$(DEPENDENCIES) Delone.h Delone.cpp
 	g++ $(CXXFLAGS) -shared -o rcpp_ncdist.so -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
 	-I$(RCPP_HEADERS) -I$(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS)  rcpp_ncdist.cpp \
+	Delone.cpp \
 	$(LIBSOURCES) \
 	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
-rcpp_d7dist.so:	rcpp_d7dist.cpp \
+rcpp_d7dist.so:	rcpp_d7dist.cpp  D7Dist.h  D7Dist.c Delone.cpp \
 	$(DEPENDENCIES)
 	g++ $(CXXFLAGS) -shared -o rcpp_d7dist.so \
 	-I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC -I$(RCPP_HEADERS) \
-	-I$(RCPPPARA_HEADERS)  -I$(RCPPARMA_HEADERS) rcpp_d7dist.cpp \
+	-I$(RCPPPARA_HEADERS)  -I$(RCPPARMA_HEADERS) rcpp_d7dist.cpp D7Dist.c Delone.cpp \
 	$(LIBSOURCES) \
 	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
@@ -299,14 +307,15 @@ NCDist.o:  NCDist.c NCDist.h
 D7Dist.o:  D7Dist.c D7Dist.h
 	gcc $(CFLAGS) -c D7Dist.c
 
-D7Test: D7Test.cpp D7Dist.h NCDist.o  \
+D7Test: D7Test.cpp D7Dist.h d7dist.cpp D7Dist.o NCDist.o  \
 	$(DEPENDENCIES) Delone.h Delone.cpp
-	g++ $(CXXFLAGS) -o D7Test  D7Test.cpp  NCDist.o Delone.cpp \
+	g++ $(CXXFLAGS) -o D7Test  D7Test.cpp D7Dist.o  NCDist.o Delone.cpp \
 	$(LIBSOURCES) \
 	-lpthread
 
 Follower: \
 	$(DEPENDENCIES) \
+	D7Dist.o \
 	Delone.cpp \
 	CreateFileName.h CreateFileName.cpp \
 	MapBoundaryStrings2Colors.h MapBoundaryStrings2Colors.cpp \
@@ -322,6 +331,7 @@ Follower: \
 	ReadGlobalData.h ReadGlobalData.cpp
 	g++ $(CXXFLAGS) -o Follower \
 	$(LIBSOURCES) \
+	D7Dist.o \
 	Delone.cpp \
 	CreateFileName.cpp \
 	MapBoundaryStrings2Colors.cpp \

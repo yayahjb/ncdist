@@ -13,6 +13,7 @@ using namespace RcppParallel;
 #include "LRL_Cell_Degrees.h"
 #include "D7Dist.h"
 #include "CS6Dist.h"
+#include "CS6Dist_func.h"
 #include <cmath>
 #include <stdlib.h>
 #include <ctype.h>

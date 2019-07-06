@@ -33,9 +33,11 @@ S6 makeprimredcell( std::string testlattice,
     double s6primcell[6];
     G6 dredprimcell;
     Mat66 mc;
+    double dmc[36];
     Mat66 m;
     Mat66 dm;
     G6 primcell;
+    double dprimcell[6];
     G6 recipcell;
     G6 reducedBase;
     G6 g6primredprobe_as_g6;
@@ -76,9 +78,9 @@ S6 makeprimredcell( std::string testlattice,
         case 'H':
         case 'h':
             CS6M_CelltoG6(rawcell,v6cell);
-            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
-            /* mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());*/
+            CS6M_LatSymMat66(v6cell,clatsym,dmc,dprimcell);
+            mc=Mat66(dmc);
+            primcell=G6(dprimcell);
             break;
         case 'V':
         case 'v':

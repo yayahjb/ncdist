@@ -6,6 +6,9 @@
 //
 //
 
+#ifndef D7DIST_H
+#define D7DIST_H
+
 #ifdef __cplusplus
 
 extern "C" {
@@ -13,8 +16,6 @@ extern "C" {
 #endif
 
 
-#ifndef D7DIST_H
-#define D7DIST_H
 
 
 /* #define D7DIST_DEBUG */
@@ -733,25 +734,7 @@ static int D7MS[9][49] = {
 /* Test if outside D7 region
    return 0 if outside */
 
-int d7test(double g[7]) {
-    int retval = 0;
-    if ( fabs(g[0]+ g[1] + g[2] + g[3] - g[4] - g[5] - g[6]) > 1.e-5 ) retval |= 0x1;
-    if ( g[0] + g[3] < g[4] + 1.e-5 ) retval |= 0x2;
-    if ( g[1] + g[3] < g[5] + 1.e-5 ) retval |= 0x4;
-    if ( g[2] + g[3] < g[6] + 1.e-5 ) retval |= 0x8;
-    if ( g[1] + g[2] < g[4] + 1.e-5 ) retval |= 0x10;
-    if ( g[0] + g[2] < g[5] + 1.e-5 ) retval |= 0x20;
-    if ( g[0] + g[1] < g[6] + 1.e-5 ) retval |= 0x40;
-    if ( g[0] <  - 1.e-5 ) retval |= 0x80;
-    if ( g[1] <  - 1.e-5 ) retval |= 0x100;
-    if ( g[2] <  - 1.e-5 ) retval |= 0x200;
-    if ( g[3] <  - 1.e-5 ) retval |= 0x400;
-    if ( g[4] <  - 1.e-5 ) retval |= 0x800;
-    if ( g[5] <  - 1.e-5 ) retval |= 0x1000;
-    if ( g[6] <  - 1.e-5 ) retval |= 0x2000;
-
-    return retval;
-}
+int d7test(double g[7]);
 
 
 /* Compute the dot product of 2 D7 vectors */
@@ -1292,163 +1275,6 @@ static double D7Dist_2bds_rev(double g_lft[7], double g_rgt[7],
  reflections in those boundaries.
  
  */
-static double oD7Dist_2bds(double gvec1[7], double rgvec1[7],
-                          double pg1[7], double mpg1[7], int bd1,
-                          double gvec2[7], double rgvec2[7],
-                          double pg2[7], double mpg2[7], int bd2,
-                          double dist) {
-    
-    double d11[4], d12[4], d21[4], d22[4];
-    double dg1g2[4];
-    double s1, s2, s1par, s2par, s1mpar, s2mpar, alpha1, alpha2;
-    double bdint1[7], bdint2[7], mbdint1[7], mbdint2[7];
-    double dbdi1bdi2;
-    double dist2;
-    double * rgv1[4];
-    double * rgv2[4];
-    int ii, jj;
-    
-/*     if (d7test(gvec1)
-        ||  d7test(gvec2)
-        ||  d7test(pg1)
-        ||  d7test(pg2)
-        ||  d7test(mpg1)
-        ||  d7test(mpg2)) {
-#pragma omp critical(distminimize)
-        {
-        fprintf(stderr,"d7test(gvec1) %x d7test(rgvec1) %x d7test(gvec2) %x d7test(rgvec2) %x d7test(pg1) %x !dttest(pg2) %x d7test(mpg1) %x dttest(mpg2) %x bd1 %d bd2 %x \n",
-                d7test(gvec1),d7test(rgvec1),d7test(gvec2),d7test(rgvec2),d7test(pg1),!d7test(pg2),d7test(mpg1),!d7test(mpg2), bd1, bd2 );
-        fprintf (stderr,"gvec1: [%g,%g,%g,%g,%g,%g,%g]\n", gvec1[0],gvec1[1],gvec1[2],gvec1[3],gvec1[4],gvec1[5],gvec1[6]);
-        fprintf (stderr,"rgvec1: [%g,%g,%g,%g,%g,%g,%g]\n", rgvec1[0],rgvec1[1],rgvec1[2],rgvec1[3],rgvec1[4],rgvec1[5],rgvec1[6]);
-        fprintf (stderr,"gvec2: [%g,%g,%g,%g,%g,%g,%g]\n", gvec2[0],gvec2[1],gvec2[2],gvec2[3],gvec2[4],gvec2[5],gvec2[6]);
-        fprintf (stderr,"rgvec2: [%g,%g,%g,%g,%g,%g,%g]\n", rgvec2[0],rgvec2[1],rgvec2[2],rgvec2[3],rgvec2[4],rgvec2[5],rgvec2[6]);
-        }
-    }
- */
-    
-    
-    d11[0] = d7bddist(gvec1, bd1);
-    d22[0] = d7bddist(gvec2, bd2);
-    
-    dist2 = fabs(d11[0]) + fabs(d22[0]) +
-    CD7M_min4(d71234dist(pg1, pg2),
-              d71234dist(pg1, mpg2),
-              d71234dist(mpg1, pg2),
-              d71234dist(mpg1, mpg2)
-              );
-    dist = CD7M_min(dist, dist2);
-    
-    /* This is the general case, in which we must cross
-     boundary 1 and boundary 2
-     
-     The possibilities are that we may go from gvec1 to gvec2 and
-     do that, go from gvec1 to rgvec2 and do that, go from
-     rgvec1 to gvec2 and do that, or go from rgvec1 to rgvec2
-     and do that, or none of the above.
-     
-         rgv1   rgv2     d11        d12        d21        d22
-     0  gvec1  gvec2  gvec1-bd1  gvec1-bd2  gvec2-bd1  gvec2-bd2
-     1  gvec1 rgvec2  gvec1-bd1  gvec1-bd2 rgvec2-bd1 -gvec2+bd2
-     2 rgvec1 rgvec2 -gvec1+bd1 rgvec1-bd2 rgvec2-bd1 -gvec2+bd2
-     3 rgvec1  gvec2 -gvec1+bd1 rgvec1-bd2  gvec2-bd1  gvec2-bd2
-     
-     */
-    
-    rgv1[0] = rgv1[1] = gvec1;
-    rgv1[2] = rgv1[3] = rgvec1;
-    rgv2[0] = rgv2[3] = gvec2;
-    rgv2[1] = rgv2[2] = rgvec2;
-    
-    d12[0] = d11[0];
-    d21[0] = d22[0];
-    
-    if (bd1!= bd2) {
-        d12[0] = d7bddist(gvec1, bd2);
-        d21[0] = d7bddist(gvec2, bd1);
-    }
-    
-    d11[1] = d11[0];
-    d12[1] = d12[0];
-    d21[1] = d7bddist(rgvec2, bd1);
-    d22[1] = -d22[0];
-    
-    d11[2] = -d11[0];
-    d12[2] = d7bddist(rgvec1, bd2);
-    d21[2] = d21[1];
-    d22[2] = d22[1];
-    
-    d11[3] = d11[2];
-    d12[3] = d12[2];
-    d21[3] = d21[0];
-    d22[3] = d22[0];
-    
-    dg1g2[0] = CD7M_gdist(gvec1, gvec2);
-    dg1g2[1] = CD7M_gdist(gvec1, rgvec2);
-    dg1g2[2] = CD7M_gdist(rgvec1, rgvec2);
-    dg1g2[3] = CD7M_gdist(rgvec1, gvec2);
-    
-    for (jj = 0; jj < 4; jj++) {
-        
-        if (d11[jj] * d21[jj] <= 1.e-38 && d22[jj] * d12[jj] <= 1.e-38) {
-            /* (r)gvec1 and (r)gvec2 are on opposite sides of both
-             boundaries*/
-            if (fabs(d11[jj]) <= 1.e-6 *(dist + fabs(d11[jj]) + fabs(d21[jj]))) {
-                alpha1 = 0.;
-            }
-            else {
-                alpha1 = CD7M_min(1., fabs(d11[jj]) / (fabs(d11[jj]) + fabs(d21[jj])));
-            }
-            if (fabs(d22[jj]) < 1.e-6 *(dist + fabs(d22[jj]) + fabs(d12[jj]))) {
-                alpha2 = 0.;
-            }
-            else {
-                alpha2 = CD7M_min(1., fabs(d22[jj]) / (fabs(d22[jj]) + fabs(d12[jj])));
-            }
-            s1 = alpha1*dg1g2[jj];
-            s2 = alpha2*dg1g2[jj];
-            for (ii = 0; ii < 7; ii++) {
-                bdint1[ii] = rgv1[jj][ii] + alpha1*(rgv2[jj][ii] - rgv1[jj][ii]);
-                bdint2[ii] = rgv2[jj][ii] + alpha2*(rgv1[jj][ii] - rgv2[jj][ii]);
-            }
-            imv7(bdint1, D7MS[bd1], mbdint1);
-            imv7(bdint2, D7MS[bd2], mbdint2);
-            s1 = CD7M_min(s1, CD7M_gdist(rgv1[jj], mbdint1));
-            s1par = d71234dist(mpg1, bdint1);
-            s1mpar = d71234dist(mpg1, mbdint1);
-            if (s1mpar < s1par) s1par = s1mpar;
-            s1par = fabs(d11[jj])+fabs(s1par);
-            s1 = CD7M_min(s1, s1par);
-            if (s1 > dist) return dist;
-            s2 = CD7M_min(s2, CD7M_gdist(rgv2[jj], mbdint2));
-            s2par = d71234dist(mpg2, bdint2);
-            s2mpar = d71234dist(mpg2, mbdint2);
-            if (s2mpar < s2par) s2par = s2mpar;
-            s2par = fabs(d22[jj])+fabs(s2par);
-            if (s1 + s2 > dist) return dist;
-            dbdi1bdi2 = CD7M_min(CD7M_min(CD7M_min(
-                                                   d71234dist(bdint1, bdint2),
-                                                   d71234dist(bdint1, mbdint2)),
-                                          d71234dist(mbdint1, bdint2)),
-                                 d71234dist(mbdint1, mbdint2));
-            dist = CD7M_min(dist, s1 + s2 + dbdi1bdi2);
-            report_double_if_changed("\n ndists[ir][jr] ", dist, ", ");
-            also_if_changed_report_integer("jj =",jj,", ");
-            also_if_changed_report_double("s1 =",s1,"\n");
-            also_if_changed_report_double("s2 =",s2,"\n");
-            also_if_changed_report_double("dbdi1bdi2 =",dbdi1bdi2,"\n");
-            also_if_changed_report_double("d71234dist(bdint1, bdint2) =",d71234dist(bdint1, bdint2),"\n");
-            also_if_changed_report_double("d71234dist(bdint1, mbdint2) =",d71234dist(bdint1, mbdint2),"\n");
-            also_if_changed_report_double("d71234dist(mbdint1, bdint2) =",d71234dist(mbdint1, bdint2),"\n");
-            also_if_changed_report_double("d71234dist(mbdint1, mbdint2) =",d71234dist(mbdint1, mbdint2),"\n");
-
-        }
-        
-    }
-    
-    return dist;
-    
-}
-
 
 
 
@@ -1544,67 +1370,14 @@ static double D7Dist_pass(double gvec1[7],double gvec2[7],double dist) {
 
 
 
-double D7Dist(double * gvec1,double * gvec2) {
-    int rpasses, ir, irt;
-    int jr;
-    double dist,dist1, dist2, distmin;
-    double rgvec1[24][7], rgvec2[24][7];
-    double trgvec1[24][7], trgvec2[24][7];
-    double ndists[24][24];
-    double ndist1[24];
-    double ndist2[24];
-    double temp[24];
-    dist1 = d7minbddist(gvec1);
-    dist2 = d7minbddist(gvec2);
-    distmin = CD7M_min(dist1,dist2);
-    rpasses = NREFL_OUTER_MIN;
-    dist = d71234dist(gvec1,gvec2);
-    report_double("\n  Entered D7Dist gdist = ",dist,", ");
-    report_double_vector("gvec1 = ", gvec1,", ")
-    report_double_vector("gvec2 = ", gvec2,";")
-    if (dist1+dist2 <  dist*.5 ) {
-        rpasses = NREFL_OUTER_MID;
-    }
-    if (dist1+dist2 <  dist*.1 ) {
-        rpasses = NREFL_OUTER_FULL;
-    }
-    ndists[0][0] = dist = D7Dist_pass(gvec1,gvec2,dist);
-/* Collect rpasses-1 transformed vectors */
-#pragma omp parallel for schedule(dynamic)
-    for (ir = 1; ir < rpasses; ir++) {
-        imv7(gvec1,D7Refl[D7Rord[ir]],rgvec1[ir]);
-        imv7(gvec2,D7Refl[D7Rord[ir]],rgvec2[ir]);
-        ndists[ir][0] = D7Dist_pass(rgvec1[ir],gvec2,dist);
-        ndists[0][ir] = D7Dist_pass(gvec1,rgvec2[ir],dist);
-    }
-    
-#pragma omp parallel for collapse(2) schedule(dynamic)
-    for (ir = 1; ir < /*rpasses*/ 2; ir++) {
-        for (jr = 1; jr < rpasses; jr++) {
-            ndists[ir][jr] = D7Dist_pass(rgvec1[ir],rgvec2[jr],dist);
-        }
-    }
-    
-#pragma omp flush(dist,ndists)
-#pragma omp critical(distminimize)
-    for (ir = 0; ir < /*rpasses*/ 2; ir++) {
-        for (jr = 0; jr < rpasses; jr++) {
-            if (ndists[ir][jr] < dist) dist = ndists[ir][jr];
-            report_double_if_changed("\n ndists[ir][jr] ", dist, ", ");
-            also_if_changed_report_integer("ir =",ir,", ");
-            also_if_changed_report_integer("jr =",jr,"\n");
-        }
-    }
-    return dist;
-}
+double D7Dist(double * gvec1,double * gvec2);
 
 
-
-#endif /*D7DIST_H */
 #ifdef __cplusplus
 
 }
 
 #endif
+#endif /*D7DIST_H */
 
 

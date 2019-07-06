@@ -6,7 +6,7 @@
 #include "Delone.h"
 #include "LRL_Cell.h"
 #include "LRL_Cell_Degrees.h"
-/* #include "D7Dist.h" */
+#include "D7Dist.h" 
 #include "S6Dist_func.h"
 #include "S6M_SellingReduce.h"
 

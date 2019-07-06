@@ -23,6 +23,7 @@ public:
    friend std::ostream& operator<< ( std::ostream&, const Mat66& );
 
    Mat66( );
+   Mat66( const double m[36] );
    Mat66( const std::string& s );
    Mat66( const Mat66& m );
    Mat66( const Mat7& m7 );

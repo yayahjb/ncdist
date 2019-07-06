@@ -73,7 +73,6 @@ G6 makeprimredprobe( std::string testlattice,
             primcell = mc*(rawcell.Cell2V6());
             break;
     }
-    /* ret = Reducer::Reduce(primcell,m,redprimcell,0.0);*/
     dprimcell[0]=primcell[0];
     dprimcell[1]=primcell[1];
     dprimcell[2]=primcell[2];
@@ -81,33 +80,8 @@ G6 makeprimredprobe( std::string testlattice,
     dprimcell[4]=primcell[4];
     dprimcell[5]=primcell[5];
     CS6M_G6Reduce(dprimcell,dredprimcell,dreduced);
-    redprimcell[0]=dredprimcell[0];
-    redprimcell[1]=dredprimcell[1];
-    redprimcell[2]=dredprimcell[2];
-    redprimcell[3]=dredprimcell[3];
-    redprimcell[4]=dredprimcell[4];
-    redprimcell[5]=dredprimcell[5];
-    primredprobe = LRL_Cell_Degrees(LRL_Cell(redprimcell));
-    /* Rprintf("Primitive Reduced Probe LRL_Cell: [%g,%g,%g,%g,%g,%g]\n",
-    primredprobe[0], primredprobe[1],primredprobe[2],primredprobe[3],primredprobe[4],primredprobe[5]);
-    Rprintf("Volume : %g\n",LRL_Cell(redprimcell).Volume()); */
-    crootvol = pow(LRL_Cell(redprimcell).Volume(),1./3.);
-    Reducer::Reduce((LRL_Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
-    recipcell = LRL_Cell_Degrees(LRL_Cell(redprimcell).Inverse());
-    /* Rprintf("Reciprocal of Primitive Probe LRL_Cell: [%g,%g,%g,%g,%g,%g]\n",recipcell[0],recipcell[1],recipcell[2],recipcell[3],recipcell[4],recipcell[5]);
-    Rprintf("Volume of Reciprocal LRL_Cell: %g\n", (LRL_Cell(redprimcell).Inverse()).Volume()); */
-    if (latsym[0] == 'V' || latsym[0] == 'v') {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",primcell[0],primcell[1],primcell[2],primcell[3],primcell[4],primcell[5]); */
-    } else {
-        /* Rprintf("raw G6 vector: [%g,%g,%g,%g,%g,%g]\n",
-        primredprobe[0]*primredprobe[0],
-        primredprobe[1]*primredprobe[1],
-        primredprobe[2]*primredprobe[2],
-        2.*primredprobe[1]*primredprobe[2]*cos(primredprobe[3]*std::atan(1.0)/45.),
-        2.*primredprobe[0]*primredprobe[2]*cos(primredprobe[4]*std::atan(1.0)/45.),
-        2.*primredprobe[0]*primredprobe[1]*cos(primredprobe[5]*std::atan(1.0)/45.)); */
-    }
-    return primredprobe;
+    redprimcell = G6(dredprimcell);
+    return redprimcell;
 }
 
 extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_, 
@@ -135,13 +109,9 @@ extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_,
     double gamma2    = Rcpp::as<double>(gamma2_);
     prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
     prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
-    LRL_Cell cell1 = LRL_Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
-    LRL_Cell cell2 = LRL_Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
-    G6 gv1 = G6(cell1.Cell2V6());
-    G6 gv2 = G6(cell2.Cell2V6());
     for (ii=0; ii < 6; ii++) {
-      dprim1[ii] = gv1[ii];
-      dprim2[ii] = gv2[ii];
+      dprim1[ii] = prim1[ii];
+      dprim2[ii] = prim2[ii];
     }
     //std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "<< dprim1[3] << ", " << dprim1[4] << ", " << dprim1[1] <<"]" << std::endl;
     //std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "<< dprim2[3] << ", " << dprim2[4] << ", " << dprim2[1] <<"]" << std::endl;

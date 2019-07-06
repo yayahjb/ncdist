@@ -5,7 +5,7 @@
 #include "S6.h"
 #include "S6Dist.h"
 #include "Selling.h"
-#include "CS6Dist.h"
+/* #include "CS6Dist.h" */
 
 double S6Dist_func(double gvec_A[6], double gvec_B[6])
 {

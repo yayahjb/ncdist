@@ -1,6 +1,4 @@
 
-
-#include "S6M_SellingReduce.h"
 #include "G6.h"
 #include "D7.h"
 #include "S6.h"
@@ -9,6 +7,7 @@
 #include "LRL_Cell.h"
 #include "NCDist.h"
 #include <stdlib.h>
+#include "S6M_SellingReduce.h"
 
 
 //*****************************************************************************
@@ -62,7 +61,9 @@ G6 makeprimredprobe( std::string testlattice,
         case 'H':
         case 'h':
             mc = rawcell.LatSymMat66(latsym);
+            std::cout << mc << std::endl;
             primcell = mc*(rawcell.Cell2V6());
+            std::cout << primcell << std::endl;
             break;
         case 'V':
         case 'v':
@@ -86,8 +87,12 @@ G6 makeprimredprobe( std::string testlattice,
     dprimcell[4]=primcell[4];   
     dprimcell[5]=primcell[5];
     CS6M_G6Reduce(dprimcell,dg6redprimcell,reduced);
+    /*    std::cout << "dprimcell: " << dprimcell[0]<<" "<< dprimcell[1]<<" "<< dprimcell[2]<<" "<< dprimcell[3]<<" "<< dprimcell[4]<<" "<< dprimcell[5]<<" " << std::endl;
+    std::cout << "dg6redprimcell: " << dg6redprimcell[0]<<" "<< dg6redprimcell[1]<<" "<< dg6redprimcell[2]<<" "
+       << dg6redprimcell[3]<<" "<< dg6redprimcell[4]<<" "<< dg6redprimcell[5]<<" " << std::endl;
+    */
     g6redprimcell = G6(dg6redprimcell);
-    return dg6redprimcell;
+    return g6redprimcell;
 }
 
 
@@ -123,13 +128,11 @@ int main(int argc, char ** argv) {
     gamma2 = atof(argv[14]);
     prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
     prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
-    LRL_Cell cell1 = LRL_Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
-    LRL_Cell cell2 = LRL_Cell(prim2[0],prim2[1],prim2[2],prim2[3],prim2[4],prim2[5]);
-    G6 gv1 = G6(cell1.Cell2V6());
-    G6 gv2 = G6(cell2.Cell2V6());
+    /* std::cout << "prim1: "<<prim1 << std::endl;
+    std::cout << "prim2: "<<prim2 << std::endl; */
     for (ii=0; ii < 6; ii++) {
-      dprim1[ii] = gv1[ii];
-      dprim2[ii] = gv2[ii];
+      dprim1[ii] = prim1[ii];
+      dprim2[ii] = prim2[ii];
     }
     std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
               << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] <<"]" << std::endl;

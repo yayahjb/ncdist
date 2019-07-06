@@ -48,6 +48,14 @@ Mat66::Mat66( const MatN& m ) {
    m_mat = m.GetMatrix();
 }
 
+Mat66::Mat66( const double m[36] )
+: m_mat()
+{
+   for( size_t i=0; i<Default36; ++i ) {
+        m_mat.push_back( m[i] );
+   }
+}
+
 Mat66::Mat66( const std::string& s )
 : m_mat()
 {

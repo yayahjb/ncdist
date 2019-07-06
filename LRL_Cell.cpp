@@ -341,10 +341,12 @@ Mat66 LRL_Cell::LatSymMat66( const std::string& latsym )
 {
 
    Mat66 mc;
+   double dmc[36];
    G6 g6cent=(*this).Cell2V6();
-   G6 primcell;
+   double primcell[6];
    char clatsym=latsym[0];
-   CS6M_LatSymMat66(g6cent,clatsym,mc,primcell);
+   CS6M_LatSymMat66(g6cent,clatsym,dmc,primcell);
+   mc = Mat66(dmc);
    return mc;
 }
 
