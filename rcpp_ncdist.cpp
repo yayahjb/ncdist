@@ -1,14 +1,18 @@
 
 #include <RcppParallel.h>
 using namespace RcppParallel;
-#include <RcppArmadillo.h>
+#include <RcppArmadillo.h> 
 
-#include "S6M_SellingReduce.h"
-#include "Reducer.h"
+#include "G6.h"
+#include "D7.h"
+#include "S6.h"
+#include "Mat66.h"
+#include "Delone.h"
 #include "LRL_Cell.h"
 #include "LRL_Cell_Degrees.h" 
 #include "NCDist.h"
 #include <stdlib.h>
+#include "S6M_SellingReduce.h"
 
 //*****************************************************************************
 G6 makeprimredprobe( std::string testlattice,
@@ -18,16 +22,22 @@ G6 makeprimredprobe( std::string testlattice,
     char clatsym;
     G6 v6cell;
     G6 redprimcell;
-    double dredprimcell[6];
+    D7 d7redprimcell;
+    double dredprimcell[7];
+    G6 g6redprimcell;
+    double dg6redprimcell[6];
     Mat66 mc;
-    Mat66 m;
+    Mat66 dm;
     G6 primcell;
     double dprimcell[6];
-    double dreduced;
+    double sprimcell[6];
+    double dsreduced;
     G6 recipcell;
     G6 reducedBase;
     G6 primredprobe;
+    G6 dprimredprobe;
     double crootvol;
+    int reduced;
     LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
     bool ret;
@@ -67,7 +77,7 @@ G6 makeprimredprobe( std::string testlattice,
 	    primcell[5] = gamma;
             break;
         default:
-            /* Rprintf("Unrecognized lattice symbol %s treated as P\n",testlattice.c_str()); */
+            Rprintf("Unrecognized lattice symbol %s treated as P\n",testlattice.c_str()); 
             latsym = "P";
             mc = rawcell.LatSymMat66(latsym);
             primcell = mc*(rawcell.Cell2V6());
@@ -79,9 +89,13 @@ G6 makeprimredprobe( std::string testlattice,
     dprimcell[3]=primcell[3];
     dprimcell[4]=primcell[4];
     dprimcell[5]=primcell[5];
-    CS6M_G6Reduce(dprimcell,dredprimcell,dreduced);
-    redprimcell = G6(dredprimcell);
-    return redprimcell;
+    CS6M_G6Reduce(dprimcell,dg6redprimcell,reduced);
+    g6redprimcell = G6(dg6redprimcell);
+    Rprintf(" dprimcell: [ %g %g %g %g %g %g ]\n", dprimcell[0], dprimcell[1], dprimcell[2], dprimcell[3], dprimcell[4], dprimcell[5]);
+    Rprintf("dg6redprimcell: [ %g %g %g %g %g %g ]\n", dg6redprimcell[0], dg6redprimcell[1], dg6redprimcell[2],
+       dg6redprimcell[3], dg6redprimcell[4], dg6redprimcell[5]);
+
+    return g6redprimcell;
 }
 
 extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_, 

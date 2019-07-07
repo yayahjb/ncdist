@@ -2081,7 +2081,7 @@ double NCDist(double * gvec1, double * gvec2) {
       rpasses = NREFL_OUTER_FULL;
    }
    report_integer("rpasses = ", rpasses, "\n");
-#pragma omp parallel for schedule(dynamic) private(ndist1) private( ndist2)
+/* #pragma omp parallel for schedule(dynamic) private(ndist1) private( ndist2) */
    for (irt = 0; irt < rpasses; irt++) {
       ir = rord[irt];
       if (ir == 0) continue;

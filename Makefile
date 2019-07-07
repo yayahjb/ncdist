@@ -164,6 +164,12 @@ all:  ncdist ncdist_mat D7Test Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist.so \
 	cs6dist_app  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
+tests:
+	./Rtests.bash > Rtests.lst
+	-diff -bu Rtests.lst Rtests.out
+	./dist_tests.bash  > dist_tests.lst
+	-diff -bu dist_tests.lst dist_tests.out
+
 CS6Dist_func_.o:  CS6Dist_func.cpp S6.h C3.h S6Dist.h Selling.h \
 	S6Dist_func.h Reducer.h Delone.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h \
 	CS6Dist.h CS6Dist.c  VecN.h Vec_N_Tools.h 
@@ -281,7 +287,7 @@ rcpp_cs6dist.so: rcpp_cs6dist.cpp \
 	CS6Dist.h CS6Dist.c $(DEPENDENCIES) CS6Dist_func.cpp  S6Dist_func.cpp Delone.cpp
 	g++ $(CXXFLAGS) -shared -o rcpp_cs6dist.so -I $(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
 	-I $(RCPP_HEADERS) -I $(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS) \
-	rcpp_s6dist.cpp  CS6Dist.c CS6Dist_func.cpp  S6Dist_func.cpp Delone.cpp \
+	rcpp_cs6dist.cpp  CS6Dist.c CS6Dist_func.cpp  S6Dist_func.cpp Delone.cpp \
         $(LIBSOURCES) \
 	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 

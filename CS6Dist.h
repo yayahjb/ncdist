@@ -17,7 +17,7 @@ extern "C" {
 #define CS6DIST_H
 
 
-#define S6DIST_DEBUG 
+/* #define S6DIST_DEBUG */ 
 #define S6DIST_NO_OUTER_PASS  
 
 #include <math.h>
