@@ -160,7 +160,7 @@ DEPENDENCIES =  \
 
 
 
-all:  ncdist ncdist_mat D7Test Follower \
+all:  ncdist ncdist_mat d7dist D7Test Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist.so \
 	cs6dist_app  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
@@ -246,8 +246,9 @@ d7dist_.o:  d7dist.cpp Reducer.h Delone.h LRL_Cell.h  LRL_Cell_Degrees.h NCDist.
 
 d7dist:  d7dist_.o \
 	$(DEPENDENCIES) Delone.h Delone.cpp
-	g++ $(CXXFLAGS) -o d7dist d7dist_.o -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
+	g++ $(CXXFLAGS) -o d7dist d7dist_.o  -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	$(LIBSOURCES) \
+	D7Dist.c  Delone.cpp \
 	-lpthread
 
 Reducer.o:  Reducer.cpp Reducer.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h

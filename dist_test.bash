@@ -17,7 +17,9 @@ gamma2=$7
 s6dist_val=`./s6dist_app $latsym1 $a1 $b1 $c1 $alpha1 $beta1 $gamma1 $latsym2 $a2 $b2 $c2 $alpha2 $beta2 $gamma2 | tail -1`
 cs6dist_val=`./cs6dist_app $latsym1 $a1 $b1 $c1 $alpha1 $beta1 $gamma1 $latsym2 $a2 $b2 $c2 $alpha2 $beta2 $gamma2 | tail -1`
 ncdist_val=`./ncdist $latsym1 $a1 $b1 $c1 $alpha1 $beta1 $gamma1 $latsym2 $a2 $b2 $c2 $alpha2 $beta2 $gamma2 | tail -1`
+d7dist_val=`./d7dist $latsym1 $a1 $b1 $c1 $alpha1 $beta1 $gamma1 $latsym2 $a2 $b2 $c2 $alpha2 $beta2 $gamma2 | tail -1`
 #echo $s6dist_val
 #echo $cs6dist_val
 #echo $ncdist_val
-echo "cell1: [ $latsym1 $a1 $b1 $c1 $alpha1 $beta1 $gamma1] cell2: [ $latsym2 $a2 $b2 $c2 $alpha2 $beta2 $gamma2] s6dist: $s6dist_val cs6dist: $cs6dist_val ncdist: $ncdist_val"
+#echo $d7dist_val
+echo "cell1: [ $latsym1 $a1 $b1 $c1 $alpha1 $beta1 $gamma1] cell2: [ $latsym2 $a2 $b2 $c2 $alpha2 $beta2 $gamma2] s6dist: $s6dist_val cs6dist: $cs6dist_val ncdist: $ncdist_val d7dist: $d7dist_val"

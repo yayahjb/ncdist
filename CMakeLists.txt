@@ -1,7 +1,7 @@
 ######################################################################
 #  CMakeLists.txt - cmake build file for make to create ncdist       #
 #                                                                    #
-# Version 1.0.3 16 Dec 2018                                          #
+# Version 1.1.0 07 Jul 2019                                          #
 #                                                                    #
 #         Herbert J. Bernstein (yayahjb@gmail.com)                   #
 #         Lawrence C Andrews                                         #
@@ -83,111 +83,87 @@ include_directories("${CMAKE_SOURCE_DIR}" "${R_INCLUDE_DIRS}"
 
 message("include RCPPPARA: "  ${RCPPPARA_INCLUDE_DIRS})
 
+set(DEPENDENCIES
+B4.cpp          B4.h
+C3.cpp          C3.h
+CellInputData.h CellInputData.cpp
+D7.cpp          D7.h
+D7.h            D7.cpp 
+D7_Boundary.h   D7_Boundary.cpp
+D7_BoundaryList.h D7_BoundaryList.cpp 
+D7_Subboundary.h D7_Subboundary.cpp 
+D7_ClassifySubboundaries.h D7_ClassifySubboundaries.cpp
+G6.cpp  G6.h
+inverse.cpp     inverse.h
+LatticeConverter.h LatticeConverter.cpp
+LRL_Cell.h      LRL_Cell.cpp  
+LRL_Cell_Degrees.h   
+LRL_Cell_Degrees.cpp  
+LRL_CoordinateConversionMatrices.h LRL_CoordinateConversionMatrices.cpp  
+LRL_StringTools.h  LRL_StringTools.cpp  
+MatD7.h         MatD7.cpp  
+MatG6.h         MatG6.cpp  
+MatS6.h         MatS6.cpp  
+MatN.cpp        MatN.h
+MatMN.cpp       MatMN.h
+Mat66.cpp       Mat66.h
+MaximaTools.h   MaximaTools.cpp
+PrintTable.h    PrintTable.cpp
+ProjectorTools.h ProjectorTools.cpp 
+RandTools.h     RandTools.cpp 
+ReadCellData.h  ReadCellData.cpp
+Reducer.cpp     Reducer.h
+S6.cpp          S6.h
+S6Dist.cpp      S6Dist.h
+Selling.cpp     Selling.h
+S6M_SellingReduce.h
+S6Dist_func.cpp S6Dist_func.h
+Vec_N_Tools.cpp Vec_N_Tools.h
+VecN.cpp        VecN.h
+VectorTools.cpp VectorTools.h
+vector_3d.cpp   vector_3d.h)
+
+
 set(CS6DIST_APP_SOURCES
 cs6dist_app.cpp
 CS6Dist_func.cpp	CS6Dist_func.h
-Cell.cpp        Cell.h
-CS6Dist.h
-D6.cpp	D6.h
-D7.cpp	D7.h
-Delone.cpp	Delone.h
-B4.cpp	B4.h
-G6.cpp	G6.h
-inverse.cpp 	inverse.h
-MatN.cpp	MatN.h
-MatMN.cpp	MatMN.h
-Mat66.cpp	Mat66.h
-NCDist.h
-Reducer.cpp	Reducer.h
-S6.cpp          S6.h
-S6Dist.cpp	S6Dist.h
-Selling.cpp	Selling.h
-S6M_SellingReduce.h
-S6Dist_func.cpp	S6Dist_func.h
-Vec_N_Tools.cpp	Vec_N_Tools.h
-VecN.cpp	VecN.h
-VectorTools.cpp	VectorTools.h
-vector_3d.cpp	vector_3d.h)
+CS6Dist.c CS6Dist.h
+Delone.cpp              Delone.h
+${DEPENDENCIES}
+)
 
 set(CS6DIST_DIST_SOURCES
 cs6dist_dist.cpp
 CS6Dist_func.cpp	CS6Dist_func.h
-Cell.cpp        Cell.h
-CS6Dist.h
-D6.cpp	D6.h
-D7.cpp	D7.h
-Delone.cpp	Delone.h
-B4.cpp	B4.h
-G6.cpp	G6.h
-inverse.cpp 	inverse.h
-MatN.cpp	MatN.h
-MatMN.cpp	MatMN.h
-Mat66.cpp	Mat66.h
-NCDist.h
-Reducer.cpp	Reducer.h
-S6.cpp          S6.h
-S6Dist.cpp	S6Dist.h
-Selling.cpp	Selling.h
-S6M_SellingReduce.h
-S6Dist_func.cpp	S6Dist_func.h
-Vec_N_Tools.cpp	Vec_N_Tools.h
-VecN.cpp	VecN.h
-VectorTools.cpp	VectorTools.h
-vector_3d.cpp	vector_3d.h)
+CS6Dist.c CS6Dist.h
+Delone.cpp      Delone.h
+${DEPENDENCIES}
+)
 
 
 set(CS6DIST_MAT_SOURCES
 cs6dist_mat.cpp
 CS6Dist_func.cpp	CS6Dist_func.h
-Cell.cpp        Cell.h
-CS6Dist.h
-D6.cpp	D6.h
-D7.cpp	D7.h
-Delone.cpp	Delone.h
-B4.cpp	B4.h
-G6.cpp	G6.h
-inverse.cpp 	inverse.h
-MatN.cpp	MatN.h
-MatMN.cpp	MatMN.h
-Mat66.cpp	Mat66.h
-NCDist.h
-Reducer.cpp	Reducer.h
-S6.cpp          S6.h
-S6Dist.cpp	S6Dist.h
-Selling.cpp	Selling.h
-S6M_SellingReduce.h
-S6Dist_func.cpp	S6Dist_func.h
-Vec_N_Tools.cpp	Vec_N_Tools.h
-VecN.cpp	VecN.h
-VectorTools.cpp	VectorTools.h
-vector_3d.cpp	vector_3d.h)
+CS6Dist.c CS6Dist.h
+Delone.cpp      Delone.h
+${DEPENDENCIES}
+)
+
+set(CS6_S6_TEST_SOURCES
+cs6_s6_test.cpp
+CS6Dist_func.cpp	CS6Dist_func.h
+CS6Dist.c CS6Dist.h
+Delone.cpp      Delone.h
+${DEPENDENCIES}
+)
 
 
 set(S6DIST_APP_SOURCES
 s6dist_app.cpp
 S6Dist_func.cpp	S6Dist_func.h
-Cell.cpp        Cell.h
-CS6Dist.h
-D6.cpp	D6.h
-D7.cpp	D7.h
-Delone.cpp	Delone.h
-B4.cpp	B4.h
-G6.cpp	G6.h
-inverse.cpp 	inverse.h
-MatN.cpp	MatN.h
-MatMN.cpp	MatMN.h
-Mat66.cpp	Mat66.h
-NCDist.h
-Reducer.cpp	Reducer.h
-S6.cpp          S6.h
-S6Dist.cpp	S6Dist.h
-Selling.cpp	Selling.h
-S6M_SellingReduce.h
-S6Dist_func.cpp	S6Dist_func.h
-Vec_N_Tools.cpp	Vec_N_Tools.h
-VecN.cpp	VecN.h
-VectorTools.cpp	VectorTools.h
-vector_3d.cpp	vector_3d.h)
+Delone.cpp      Delone.h
+${DEPENDENCIES}
+)
 
 
 set(MINIMAL_S6DIST_SOURCES
@@ -200,146 +176,64 @@ S6Dist.cpp      S6Dist.h
 Vec_N_Tools.cpp Vec_N_Tools.h
 inverse.cpp     inverse.h
 MinimalS6Dist.cpp
+Delone.cpp      Delone.h
 S6.cpp          S6.h
 triple.h
 vector_3d.cpp   vector_3d.h
 rhrand.h
+${DEPENDENCIES}
 )
 
 
 set(NCDIST_SOURCES
-Cell.cpp        Cell.h
-D6.cpp          D6.h
-D7.cpp          D7.h
-Delone.cpp      Delone.h
-B4.cpp
-B4.h
-G6.cpp          G6.h
-inverse.cpp inverse.h
-Mat66.cpp       Mat66.h
-MatN.cpp        MatN.h
-MatMN.cpp       MatMN.h
-Reducer.cpp     Reducer.h
-VecN.cpp        VecN.h
-Vec_N_Tools.cpp Vec_N_Tools.h
-vector_3d.cpp   vector_3d.h
-VectorTools.cpp VectorTools.h
-NCDist.h    ncdist.cpp)
+NCDist.h    ncdist.cpp
+Delone.h    Delone.cpp
+${DEPENDENCIES}
+)
 
 set (RCPP_CS6DIST_SOURCES
 rcpp_cs6dist.cpp
-Cell.cpp        Cell.h
-D6.cpp          D6.h
-D7.cpp          D7.h
-S6.cpp          S6.h
-Delone.cpp      Delone.h
-B4.cpp
-B4.h
-G6.cpp          G6.h
-inverse.cpp inverse.h
-Mat66.cpp       Mat66.h
-MatN.cpp        MatN.h
-MatMN.cpp       MatMN.h
-Reducer.cpp     Reducer.h
-VecN.cpp        VecN.h
-Vec_N_Tools.cpp Vec_N_Tools.h
-vector_3d.cpp   vector_3d.h
-VectorTools.cpp VectorTools.h
-D7Dist.h )
+CS6Dist.h CS6Dist.c
+S6Dist_func.cpp S6Dist_func.h
+Delone.cpp Delone.h
+${DEPENDENCIES}
+)
 
 set(RCPP_D7DIST_SOURCES
-Cell.cpp        Cell.h
-D6.cpp          D6.h
-D7.cpp          D7.h
-S6.cpp          S6.h
+rcpp_d7dist.cpp
+D7Dist.c        D7Dist.h
 Delone.cpp      Delone.h
-B4.cpp
-B4.h
-G6.cpp          G6.h
-inverse.cpp inverse.h
-Mat66.cpp       Mat66.h
-MatN.cpp        MatN.h
-MatMN.cpp       MatMN.h
-Reducer.cpp     Reducer.h
-VecN.cpp        VecN.h
-Vec_N_Tools.cpp Vec_N_Tools.h
-vector_3d.cpp   vector_3d.h
-VectorTools.cpp VectorTools.h
-D7Dist.h        rcpp_d7dist.cpp)
+${DEPENDENCIES}
+)
 
 
 set(RCPP_NCDIST_SOURCES
-Cell.cpp        Cell.h
-D6.cpp          D6.h
-D7.cpp          D7.h
-S6.cpp          S6.h
+rcpp_ncdist.cpp 
+NCDist.h
 Delone.cpp      Delone.h
-B4.cpp
-B4.h
-G6.cpp          G6.h
-inverse.cpp inverse.h
-Mat66.cpp       Mat66.h
-MatN.cpp        MatN.h
-MatMN.cpp       MatMN.h
-Reducer.cpp     Reducer.h
-VecN.cpp        VecN.h
-Vec_N_Tools.cpp Vec_N_Tools.h
-vector_3d.cpp   vector_3d.h
-VectorTools.cpp VectorTools.h
-NCDist.h        rcpp_ncdist.cpp)
+${DEPENDENCIES}
+)
 
 set (RCPP_S6DIST_SOURCES
 rcpp_s6dist.cpp
-Cell.cpp        Cell.h
-D6.cpp          D6.h
-D7.cpp          D7.h
-S6.cpp          S6.h
-Delone.cpp      Delone.h
-B4.cpp
-B4.h
-G6.cpp          G6.h
-inverse.cpp inverse.h
-Mat66.cpp       Mat66.h
-MatN.cpp        MatN.h
-MatMN.cpp       MatMN.h
-Reducer.cpp     Reducer.h
-VecN.cpp        VecN.h
-Vec_N_Tools.cpp Vec_N_Tools.h
-vector_3d.cpp   vector_3d.h
-VectorTools.cpp VectorTools.h
-D7Dist.h )
+S6Dist_func.cpp  S6Dist_func.h
+Delone.cpp Delone.h
+${DEPENDENCIES}
+)
 
 set(D7DIST_SOURCES
-Cell.cpp        Cell.h
-D6.cpp          D6.h
-D7.cpp          D7.h
-Delone.cpp      Delone.h
-B4.cpp
-B4.h
-G6.cpp          G6.h
-inverse.cpp inverse.h
-Mat66.cpp       Mat66.h
-MatN.cpp        MatN.h
-MatMN.cpp       MatMN.h
-Reducer.cpp     Reducer.h
-VecN.cpp        VecN.h
-Vec_N_Tools.cpp Vec_N_Tools.h
-vector_3d.cpp   vector_3d.h
-VectorTools.cpp VectorTools.h
-D7Dist.h    d7dist.cpp)
+d7dist.cpp
+D7Dist.c        D7Dist.h
+Delone.cpp Delone.h
+${DEPENDENCIES}
+)
 
 
 set(FOLLOWER_SOURCES
-Cell.cpp        Cell.h
-CellInputData.cpp	CellInputData.h 
-cqrlib.c	cqrlib.h
-CreateFileName.cpp	CreateFileName.h
-CS6Dist.h
-D6.cpp	D6.h
-D7.cpp	D7.h
-D7Dist.c	D7Dist.h	D7Dist_.hpp
-Delone.cpp	Delone.h
-B4.cpp	B4.h
+D7Dist.c D7Dist.h
+Delone.cpp Delone.h
+CreateFileName.h CreateFileName.cpp
+MapBoundaryStrings2Colors.h MapBoundaryStrings2Colors.cpp
 FileOperations.cpp	FileOperations.h
 FileWriter.h
 Follow.h 
@@ -347,42 +241,12 @@ Follower.h
 FollowerConstants.cpp	FollowerConstants.h
 FollowerIO.cpp	FollowerIO.h
 FollowerTools.cpp	FollowerTools.h
-Follower_main.cpp 
-G6.cpp	G6.h
-Glitch.h GlitchElement.h
-inverse.cpp 	inverse.h
-LinearAxis.cpp
-MapBoundaryStrings2Colors.cpp	MapBoundaryStrings2Colors.h
-Mat7.cpp	Mat7.h
-MaximaTools.cpp	MaximaTools.h
-MatN.cpp	MatN.h
-MatMN.cpp	MatMN.h
-Mat66.cpp	Mat66.h
-NCDist.c	NCDist.h	NCDist_.hpp
-NormedInt.h
-ProjectorTools.cpp ProjectorTools.h
-RandTools.cpp	RandTools.h
-ReadCellData.cpp	ReadCellData.h 
-ReadGlobalData.cpp	ReadGlobalData.h
-Reducer.cpp	Reducer.h
-ReportTools.cpp	ReportTools.h
-Rn_Path.h 
-rhrand.h
-S6.cpp          S6.h
-S6Dist.cpp	S6Dist.h
-Selling.cpp	Selling.h
-S6M_SellingReduce.h
-S6Dist_func.cpp	S6Dist_func.h
-SVG_CirclePlot.h	SVG_DistancePlot.h	SVG_Writer.h
-StoreResults.h 
-SuperFastHash.cpp	SuperFastHash.h 
-TNear.h Theta.h
-ToString.h
-triple.h
-Vec_N_Tools.cpp	Vec_N_Tools.h
-VecN.cpp	VecN.h
-VectorTools.cpp	VectorTools.h
-vector_3d.cpp	vector_3d.h)
+Follower_main.cpp
+LinearAxis.cpp LinearAxis.h
+ReadGlobalData.cpp 
+NCDist.c NCDist.h
+${DEPENDENCIES}
+)
 
 
 add_library(R_shared_lib INTERFACE IMPORTED GLOBAL)
@@ -406,6 +270,8 @@ add_executable(cs6dist_app ${CS6DIST_APP_SOURCES} )
 target_link_libraries(cs6dist_app ${CMAKE_THREAD_LIBS_INIT} )
 add_executable(cs6dist_mat ${CS6DIST_MAT_SOURCES} )
 target_link_libraries(cs6dist_mat ${CMAKE_THREAD_LIBS_INIT} )
+add_executable(cs6_s6_test ${CS6_S6_TEST_SOURCES} )
+target_link_libraries(cs6_s6_test ${CMAKE_THREAD_LIBS_INIT} )
 add_executable(s6dist_app ${S6DIST_APP_SOURCES} )
 target_link_libraries(s6dist_app ${CMAKE_THREAD_LIBS_INIT} )
 add_executable(cs6dist_dist ${CS6DIST_DIST_SOURCES} )
@@ -419,6 +285,7 @@ target_link_libraries(Follower ${CMAKE_THREAD_LIBS_INIT} )
 
 install(TARGETS cs6dist_app DESTINATION bin)
 install(TARGETS cs6dist_mat DESTINATION bin)
+install(TARGETS cs6_s6_test DESTINATION bin)
 install(TARGETS cs6dist_dist DESTINATION bin)
 install(TARGETS minimal_s6dist DESTINATION bin)
 install(TARGETS ncdist DESTINATION bin)
