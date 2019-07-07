@@ -77,7 +77,7 @@ G6 makeprimredprobe( std::string testlattice,
 	    primcell[5] = gamma;
             break;
         default:
-            Rprintf("Unrecognized lattice symbol %s treated as P\n",testlattice.c_str()); 
+            /* Rprintf("Unrecognized lattice symbol %s treated as P\n",testlattice.c_str()) */; 
             latsym = "P";
             mc = rawcell.LatSymMat66(latsym);
             primcell = mc*(rawcell.Cell2V6());
@@ -91,9 +91,9 @@ G6 makeprimredprobe( std::string testlattice,
     dprimcell[5]=primcell[5];
     CS6M_G6Reduce(dprimcell,dg6redprimcell,reduced);
     g6redprimcell = G6(dg6redprimcell);
-    Rprintf(" dprimcell: [ %g %g %g %g %g %g ]\n", dprimcell[0], dprimcell[1], dprimcell[2], dprimcell[3], dprimcell[4], dprimcell[5]);
-    Rprintf("dg6redprimcell: [ %g %g %g %g %g %g ]\n", dg6redprimcell[0], dg6redprimcell[1], dg6redprimcell[2],
-       dg6redprimcell[3], dg6redprimcell[4], dg6redprimcell[5]);
+    /* Rprintf(" dprimcell: [ %g %g %g %g %g %g ]\n", dprimcell[0], dprimcell[1], dprimcell[2], dprimcell[3], dprimcell[4], dprimcell[5]); */
+    /* Rprintf("dg6redprimcell: [ %g %g %g %g %g %g ]\n", dg6redprimcell[0], dg6redprimcell[1], dg6redprimcell[2],
+       dg6redprimcell[3], dg6redprimcell[4], dg6redprimcell[5]); */
 
     return g6redprimcell;
 }
@@ -127,8 +127,6 @@ extern "C" SEXP rcpp_ncdist ( SEXP lat1_, SEXP a1_, SEXP b1_, SEXP c1_,
       dprim1[ii] = prim1[ii];
       dprim2[ii] = prim2[ii];
     }
-    //std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "<< dprim1[3] << ", " << dprim1[4] << ", " << dprim1[1] <<"]" << std::endl;
-    //std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "<< dprim2[3] << ", " << dprim2[4] << ", " << dprim2[1] <<"]" << std::endl;
     return Rcpp::wrap( 0.1*std::sqrt(NCDist(dprim1,dprim2)));
 }
 
