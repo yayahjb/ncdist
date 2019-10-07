@@ -253,10 +253,18 @@ int main(int argc, char ** argv) {
     std::string arg2;
     std::string line;
     std::vector<std::string> retlines;
+    std::vector<std::string> names;
+    std::string name;
+    int count;
+    int nameindex;
     double a1,b1,c1,alpha1,beta1,gamma1,extra1;
     double a2,b2,c2,alpha2,beta2,gamma2,extra2;;
     S6 prim1, prim2;
+    G6 g6prim1, g6prim2;
     std::vector<S6> inputprims;
+    std::vector<LRL_Cell> inputprimcells;
+    LRL_Cell cell1, cell2;
+    double dcell1[6], dcell2[6];
     double dprim1[6];
     double dprim2[6];
     double rawdist;
@@ -292,11 +300,17 @@ int main(int argc, char ** argv) {
         if (line.size() == 0) break;
         retlines=SplitBetweenBlanks(line);
         if (retlines.size() == 0) break;
+        count = retlines.size();
+        nameindex = count-1;
         extra1 = 0.;
         lat1 = std::string(retlines[0]);
         clatsym= lat1.substr(0,1)[0];
+        name="";
         if (clatsym == 'D' || clatsym == 'd') {
-        extra1 = atof(retlines[7].c_str());
+          extra1 = atof(retlines[7].c_str());
+          if (nameindex > 7) name = retlines[nameindex];
+        } else {
+          if (nameindex > 6) name = retlines[nameindex];
         }
         a1 = atof(retlines[1].c_str());
         b1 = atof(retlines[2].c_str());
@@ -306,31 +320,57 @@ int main(int argc, char ** argv) {
         gamma1 = atof(retlines[6].c_str());
         prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1,extra1,info);
         inputprims.push_back(prim1);
+        names.push_back(name);
+        CS6M_S6toG6(prim1,g6prim1);
+        CS6M_G6toCell(g6prim1,cell1);
+        inputprimcells.push_back(cell1);
         if (info) {
           ii = inputprims.size()-1;
           std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
-              << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;
+              << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << " " << name << std::endl;
         }
     }
 
     {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
         /*std::cerr << "size: " << inputprims.size() << std::endl;*/
         for (ii=0; ii < inputprims.size(); ii++) {
+            double e3cell1[9];
             //std::err << "ii: " << ii << "  " << inputprims[ii] << std::endl;
             prim1 = inputprims[ii];
+            cell1 = inputprimcells[ii];
             for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
+            CS6M_celltoE3(cell1,e3cell1);
             dmat[ii + ii*inputprims.size()] = 0.;
             for (jj=ii+1; jj < inputprims.size(); jj++) {
+                double e3cell2[9];
+                double HornMatM[9];
+                double HornMatN[16];
+                double eigenvec[4];
+                double eigenval;
+                double rotmat[9];
                 prim2 = inputprims[jj];
+                cell2 = inputprimcells[jj];
                 for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
+                CS6M_celltoE3(cell2,e3cell2);
                 /*rawdist = CS6Dist_func(dprim1,dprim2);*/
                 rawdist = CS6Dist(dprim1,dprim2);
                 dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
+                CS6M_E3cellstoHornMatM(e3cell1,e3cell2,HormMatM);
+                CS6M_HornMatMtoHornMatN(HornMatM,HornMatN);
+                CS6M_EigenMV_Mat44(HornMatN,eigenvec,eigenval);
+                CS6M_quaterniontorotmat(eigenvec,rotmat);
+                std::cout << "eigenval: " << eigenval << " eigenvec: [" 
+                  << eigenvec[0] <<", "<<eigenvec[1] << "," << eigenvec[2] << ", " << eigenvec[3] << "]" <<std::endl; 
             }
         }
 
-
+        std::cout << "     ";
+        for (jj=0; jj < names.size(); jj++) {
+          std::cout << " " << names[jj];
+        }
+        std::cout << std::endl;
         for (ii=0; ii < inputprims.size(); ii++) {
+            std::cout <<  " " << names[ii];
             for (jj=0; jj < inputprims.size(); jj++) {
                 std::cout <<" "<<dmat[ii+jj*inputprims.size()];
             }
