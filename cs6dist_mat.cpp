@@ -18,6 +18,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <stdlib.h>
 #include <ctype.h>
@@ -268,7 +269,7 @@ int main(int argc, char ** argv) {
     double dprim1[6];
     double dprim2[6];
     double rawdist;
-    size_t ii,jj,kk;
+    size_t ii,jj,kk,ll;
     char clatsym;
     int argoff;
     int info;
@@ -283,7 +284,7 @@ int main(int argc, char ** argv) {
 		<< "Usage: cs6dist_mat [--help|-h] print this message and exit" 
 		<< std::endl;
         std::cerr
-		<< "       cs6dist_mat with no arguments, write distance matrix to cout" 
+		<< "       cs6dist_mat [--info], write distance matrix to cout" 
 		<< std::endl;
         std::cerr 
 		<< "                                      reading cells from cin" 
@@ -328,18 +329,52 @@ int main(int argc, char ** argv) {
           ii = inputprims.size()-1;
           std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
               << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << " " << name << std::endl;
+          std::cerr << "ii: "<< ii << ": g6pim1: [" << g6prim1[0] <<", "<< g6prim1[1] << ", "<< g6prim1[2] << ", "
+              << g6prim1[3] << ", " << g6prim1[4] << ", " << g6prim1[5] <<  "]" << " " << name << std::endl;
+          std::cerr << "ii: "<< ii << ": cell1: [" << cell1[0] <<", "<< cell1[1] << ", "<< cell1[2] << ", "
+              << cell1[3] << ", " << cell1[4] << ", " << cell1[5] <<  "]" << " " << name << std::endl;
         }
     }
 
     {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
+        std::vector<double>  drmsds(inputprims.size()*inputprims.size());
+        int perms[24][4]={
+                  {0,1,2,3},
+                  {0,1,3,2},
+                  {0,2,1,3},
+                  {0,2,3,1},
+                  {0,3,1,2},
+                  {0,3,2,1},
+                  {1,0,2,3},
+                  {1,0,3,2},
+                  {1,2,0,3},
+                  {1,2,3,0},
+                  {1,3,0,2},
+                  {1,3,2,0},
+                  {2,1,0,3},
+                  {2,1,3,0},
+                  {2,0,1,3},
+                  {2,0,3,1},
+                  {2,3,1,0},
+                  {2,3,0,1},
+                  {3,1,2,0},
+                  {3,1,0,2},
+                  {3,2,1,0},
+                  {3,2,0,1},
+                  {3,0,1,2},
+                  {3,0,2,1}};
         /*std::cerr << "size: " << inputprims.size() << std::endl;*/
         for (ii=0; ii < inputprims.size(); ii++) {
-            double e3cell1[9];
+            double e3cell1[9], rote3cell2[9];
             //std::err << "ii: " << ii << "  " << inputprims[ii] << std::endl;
             prim1 = inputprims[ii];
             cell1 = inputprimcells[ii];
             for (kk=0; kk < 6; kk++) dprim1[kk] = prim1[kk];
             CS6M_celltoE3(cell1,e3cell1);
+            if (info) {
+              std::cout << "cell1: ["<<cell1[0]<<","<<cell1[1]<<","<<cell1[2]<<","
+              <<cell1[3]<<","<<cell1[4]<<","<<cell1[5]<<"]"<<std::endl;
+            }
             dmat[ii + ii*inputprims.size()] = 0.;
             for (jj=ii+1; jj < inputprims.size(); jj++) {
                 double e3cell2[9];
@@ -348,31 +383,96 @@ int main(int argc, char ** argv) {
                 double eigenvec[4];
                 double eigenval;
                 double rotmat[9];
+                double rmsd, rmsdmin;
+                double edges[4][3];
                 prim2 = inputprims[jj];
                 cell2 = inputprimcells[jj];
                 for (kk=0; kk < 6; kk++) dprim2[kk] = prim2[kk];
                 CS6M_celltoE3(cell2,e3cell2);
+                CS6M_E3bycoltoABCD(e3cell2,edges[0],edges[1],edges[2],edges[3]);
                 /*rawdist = CS6Dist_func(dprim1,dprim2);*/
                 rawdist = CS6Dist(dprim1,dprim2);
+                if (rawdist < 1.e-13) rawdist = 0.;
                 dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
-                CS6M_E3cellstoHornMatM(e3cell1,e3cell2,HormMatM);
-                CS6M_HornMatMtoHornMatN(HornMatM,HornMatN);
-                CS6M_EigenMV_Mat44(HornMatN,eigenvec,eigenval);
-                CS6M_quaterniontorotmat(eigenvec,rotmat);
-                std::cout << "eigenval: " << eigenval << " eigenvec: [" 
-                  << eigenvec[0] <<", "<<eigenvec[1] << "," << eigenvec[2] << ", " << eigenvec[3] << "]" <<std::endl; 
+                rmsdmin = 1.e38;
+                for (ll=0; ll<24; ll++) {
+                  CS6M_vecstoE3bycol(edges[perms[ll][0]],edges[perms[ll][1]],edges[perms[ll][2]],e3cell2) 
+                  CS6M_E3cellstoHornMatM(e3cell1,e3cell2,HormMatM);
+                  CS6M_HornMatMtoHornMatN(HornMatM,HornMatN);
+                  CS6M_EigenMV_Mat44(HornMatN,eigenvec,eigenval);
+                  CS6M_QuaterniontoRotmat(eigenvec,rotmat);
+                  if (info) {
+                    std::cout << "eigenval: " << eigenval << " eigenvec: [" 
+                    << eigenvec[0] <<", "<<eigenvec[1] << "," << eigenvec[2] << ", " << eigenvec[3] << "]" <<std::endl;
+                  }
+                  CS6M_Mat33_Mat33_Mult(rotmat,e3cell2,rote3cell2);
+                  CS6M_rmsd(rote3cell2,e3cell1,rmsd);
+                  if(rmsdmin > rmsd) { 
+                    rmsdmin=rmsd;
+                    if (info) {                     
+                      std::cout << "perm: "<<perms[ll][0]<<perms[ll][1]<<perms[ll][2]<<perms[ll][3]<< " rmsd: "<<rmsd<<std::endl;
+                      std::cout << "HornMatM: ["<<HornMatM[0]<<","<<HornMatM[1]<<","<<HornMatM[2]<<"]"<<std::endl;
+                      std::cout << "          ["<<HornMatM[3]<<","<<HornMatM[4]<<","<<HornMatM[5]<<"]"<<std::endl;
+                      std::cout << "          ["<<HornMatM[6]<<","<<HornMatM[7]<<","<<HornMatM[8]<<"]"<<std::endl;
+                      std::cout << "HornMatN: ["<<HornMatN[0] <<","<<HornMatN[1] <<","<<HornMatN[2] <<","<<HornMatN[3]<<"]"<<std::endl;
+                      std::cout << "          ["<<HornMatN[4] <<","<<HornMatN[5] <<","<<HornMatN[6] <<","<<HornMatN[7]<<"]"<<std::endl;
+                      std::cout << "          ["<<HornMatN[8] <<","<<HornMatN[9] <<","<<HornMatN[10]<<","<<HornMatN[11]<<"]"<<std::endl;
+                      std::cout << "          ["<<HornMatN[12]<<","<<HornMatN[13]<<","<<HornMatN[14]<<HornMatN[15]<<"]"<<std::endl;
+                      std::cout << "rotmat: ["<<rotmat[0]<<","<<rotmat[1]<<","<<rotmat[2]<<"]"<<std::endl;
+                      std::cout << "        ["<<rotmat[3]<<","<<rotmat[4]<<","<<rotmat[5]<<"]"<<std::endl;
+                      std::cout << "        ["<<rotmat[6]<<","<<rotmat[7]<<","<<rotmat[8]<<"]"<<std::endl;
+
+                      std::cout << "rote3cell2 A: [" << rote3cell2[0] << "," << rote3cell2[3] <<  "," << rote3cell2[6] << "]" << std::endl;
+                      std::cout << "rote3cell2 B: [" << rote3cell2[1] << "," << rote3cell2[4] <<  "," << rote3cell2[7] << "]" << std::endl;
+                      std::cout << "rote3cell2 C: [" << rote3cell2[2] << "," << rote3cell2[5] <<  "," << rote3cell2[8] << "]" << std::endl;
+                      std::cout << "rote3cell2 D: [" << -rote3cell2[0]-rote3cell2[1]-rote3cell2[2] << "," 
+                                                                         << -rote3cell2[3]-rote3cell2[4]-rote3cell2[5]  <<  "," 
+                                                                                                  << rote3cell2[6]-rote3cell2[7]-rote3cell2[8] << "]" << std::endl;
+                      std::cout << "   e3cell1 A: [" <<    e3cell1[0] << "," <<    e3cell1[3] <<  "," <<    e3cell1[6] << "]" << std::endl;
+                      std::cout << "   e3cell1 B: [" <<    e3cell1[1] << "," <<    e3cell1[4] <<  "," <<    e3cell1[7] << "]" << std::endl;
+                      std::cout << "   e3cell1 C: [" <<    e3cell1[2] << "," <<    e3cell1[5] <<  "," <<    e3cell1[8] << "]" << std::endl;
+                      std::cout << "   e3cell1 D: [" << -  e3cell1[0]-   e3cell1[1]-   e3cell1[2] << "," 
+                                                                         << -   e3cell1[3]-   e3cell1[4]-   e3cell1[5]  <<  "," 
+                                                                                                  <<    e3cell1[6]-   e3cell1[7]-   e3cell1[8] << "]" << std::endl;
+                      std::cout << "   e3cell2 A: [" <<    e3cell2[0] << "," <<    e3cell2[3] <<  "," <<    e3cell2[6] << "]" << std::endl;
+                      std::cout << "   e3cell2 B: [" <<    e3cell2[1] << "," <<    e3cell2[4] <<  "," <<    e3cell2[7] << "]" << std::endl;
+                      std::cout << "   e3cell2 C: [" <<    e3cell2[2] << "," <<    e3cell2[5] <<  "," <<    e3cell2[8] << "]" << std::endl;
+                      std::cout << "   e3cell2 D: [" << -  e3cell2[0]-   e3cell2[1]-   e3cell2[2] << "," 
+                                                                         << -   e3cell2[3]-   e3cell2[4]-   e3cell2[5]  <<  "," 
+                                                                                                  <<    e3cell2[6]-   e3cell2[7]-   e3cell2[8] << "]" << std::endl;
+                    }
+                  }
+                }
+                if (rmsdmin < 1.e-8) rmsdmin=0.;
+                drmsds[ii+jj*inputprims.size()] = drmsds[jj+ii*inputprims.size()] = rmsdmin;
             }
         }
 
-        std::cout << "     ";
+        std::cout << "cs6dist: ";
         for (jj=0; jj < names.size(); jj++) {
-          std::cout << " " << names[jj];
+          std::cout << " " << std::setw(12) << names[jj];
+          if ((jj+1)%8 ==0) {std::cout << std::endl;}
         }
         std::cout << std::endl;
         for (ii=0; ii < inputprims.size(); ii++) {
-            std::cout <<  " " << names[ii];
+            std::cout <<  " " << std::setw(12) <<names[ii];
             for (jj=0; jj < inputprims.size(); jj++) {
-                std::cout <<" "<<dmat[ii+jj*inputprims.size()];
+                std::cout <<" "<< std::setw(12) << dmat[ii+jj*inputprims.size()];
+                if ((jj+1)%8 ==0) {std::cout << std::endl;}
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "   rmsd: ";
+        for (jj=0; jj < names.size(); jj++) {
+          std::cout << " " << std::setw(12) << names[jj];
+          if ((jj+1)%8 ==0) {std::cout << std::endl;}
+        }
+        std::cout << std::endl;
+        for (ii=0; ii < inputprims.size(); ii++) {
+            std::cout <<  " " << std::setw(12) << names[ii];
+            for (jj=0; jj < inputprims.size(); jj++) {
+                std::cout <<" "<< std::setw(12) << drmsds[ii+jj*inputprims.size()];
+                if ((jj+1)%8 ==0) {std::cout << std::endl;}
             }
             std::cout << std::endl;
         }

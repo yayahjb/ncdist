@@ -1,7 +1,7 @@
 #ifndef CS6M_SELLING_REDUCE
   #define CS6M_SELLING_REDUCE
 
-  /*#define CS6M_DEBUG zz*/ 
+  /* #define CS6M_DEBUG zz* */
 
   /* Make a universal NULL */
   #ifndef NULL
@@ -149,6 +149,21 @@
     C[2]=mat33[8]; \
   }
 
+  #define CS6M_E3bycoltoABCD(mat33,A,B,C,D) { \
+    A[0]=mat33[0]; \
+    B[0]=mat33[1]; \
+    C[0]=mat33[2]; \
+    D[0]=-A[0]-B[0]-C[0]; \
+    A[1]=mat33[3]; \
+    B[1]=mat33[4]; \
+    C[1]=mat33[5]; \
+    D[1]=-A[1]-B[1]-C[1]; \
+    A[2]=mat33[6]; \
+    B[2]=mat33[7]; \
+    C[2]=mat33[8]; \
+    D[2]=-A[2]-B[2]-C[2]; \
+  }
+
   #define CS6M_vecstoG6(A,B,C,g6vec) { \
     CS6M_Vec3_Dot_Prod(A,A,g6vec[CS6M_G6A2]); \
     CS6M_Vec3_Dot_Prod(B,B,g6vec[CS6M_G6B2]); \
@@ -258,9 +273,9 @@
     cell[CS6M_CELLA]=CS6M_sqrt(fabs(g6vec[CS6M_G6A2]));                                   \
     cell[CS6M_CELLB]=CS6M_sqrt(fabs(g6vec[CS6M_G6B2]));                                   \
     cell[CS6M_CELLC]=CS6M_sqrt(fabs(g6vec[CS6M_G6C2]));                                   \
-    cosalpha=g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
-    cosbeta =g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
-    cosgamma=g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
+    cosalpha=g6vec[CS6M_G62BC]/(2.*cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
+    cosbeta =g6vec[CS6M_G62AC]/(2.*cell[CS6M_CELLA]*cell[CS6M_CELLC]);                       \
+    cosgamma=g6vec[CS6M_G62AB]/(2.*cell[CS6M_CELLA]*cell[CS6M_CELLB]);                       \
     sinalpha=CS6M_sqrt(fabs((1.-cosalpha*cosalpha)));                                     \
     sinbeta =CS6M_sqrt(fabs((1.-cosbeta* cosbeta)));                                      \
     singamma=CS6M_sqrt(fabs((1.-cosgamma*cosgamma)));                                     \
@@ -277,9 +292,9 @@
     cell[CS6M_CELLA]=CS6M_sqrt(fabs(g6vec[CS6M_G6A2]));                                   \
     cell[CS6M_CELLB]=CS6M_sqrt(fabs(g6vec[CS6M_G6B2]));                                   \
     cell[CS6M_CELLC]=CS6M_sqrt(fabs(g6vec[CS6M_G6C2]));                                   \
-    cosalpha=g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
-    cosbeta =g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
-    cosgamma=g6vec[CS6M_G62BC]/(cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
+    cosalpha=g6vec[CS6M_G62BC]/(2.*cell[CS6M_CELLB]*cell[CS6M_CELLC]);                       \
+    cosbeta =g6vec[CS6M_G62AC]/(2.*cell[CS6M_CELLA]*cell[CS6M_CELLC]);                       \
+    cosgamma=g6vec[CS6M_G62AB]/(2.*cell[CS6M_CELLA]*cell[CS6M_CELLB]);                       \
     sinalpha=CS6M_sqrt(fabs((1.-cosalpha*cosalpha)));                                     \
     sinbeta =CS6M_sqrt(fabs((1.-cosbeta* cosbeta)));                                      \
     singamma=CS6M_sqrt(fabs((1.-cosgamma*cosgamma)));                                     \
@@ -2034,8 +2049,8 @@
     for (ii=0; ii<3; ii++){      \
       for (jj=0; jj<3; jj++) {   \
         ll=ii*3+jj;              \
-        mat66out[ll]=0;          \
-        for (kk=0;kk<3,kk++) {   \
+        mat33out[ll]=0;          \
+        for (kk=0;kk<3;kk++) {   \
           mat33out[ll]+=mat33inleft[ii*3+kk]*mat33inright[kk*3+jj]; \
         }                        \
       }                          \
@@ -2263,6 +2278,7 @@
 
   #define CS6M_EigenMV_Mat44(mat44,eigenvec,eigenval) {       \
     double mat44sq[16], mat44tmp[16];                         \
+    double normsign;                                          \
     double vector1[4], vector2[4], vector3[4], vector4[4];    \
     double norm,normsq,normsq1, normsq2, normsq3, normsq4;    \
     int ii, jj, keig;                                         \
@@ -2274,37 +2290,35 @@
       for (jj=0; jj < 16; jj++){mat44sq[jj]=mat44tmp[jj]/trace;}\
       CS6M_Mat44_Mat44_Mult(mat44sq,mat44sq,mat44tmp);        \
     }                                                         \
-    for (ii=0; ii < 4; ii++) {                                \
-      vector1[0]=mat44tmp[0] ;vector1[1]=mat44tmp[1] ;vector1[2]=mat44tmp[2] ;vector1[3]=mat44tmp[3]; \
-      normsq1=vector1[0]*vector1[0]+vector1[1]*vector1[1]+vector1[2]*vector1[2]+vector1[3]*vector1[3];\
-      keig=1; normsq=normsq1;                                                                         \
-      vector2[0]=mat44tmp[4] ;vector2[1]=mat44tmp[5] ;vector2[2]=mat44tmp[6] ;vector2[3]=mat44tmp[7]; \
-      normsq2=vector2[0]*vector2[0]+vector2[1]*vector2[1]+vector2[2]*vector2[2]+vector2[3]*vector2[3];\
-      if(normsq2 > normsq) {keig=2; normsq=normsq2;}                                                  \
-      vector3[0]=mat44tmp[8] ;vector3[1]=mat44tmp[9] ;vector3[2]=mat44tmp[10];vector3[3]=mat44tmp[11];\
-      normsq3=vector3[0]*vector3[0]+vector3[1]*vector3[1]+vector3[2]*vector3[2]+vector3[3]*vector3[3];\
-      if(normsq3 > normsq) {keig=3; normsq=normsq3;}                                                  \
-      vector4[0]=mat44tmp[12];vector4[1]=mat44tmp[13];vector4[2]=mat44tmp[14];vector4[3]=mat44tmp[15];\
-      normsq4=vector4[0]*vector4[0]+vector4[1]*vector4[1]+vector4[2]*vector4[2]+vector4[3]*vector4[3];\
-      if(normsq4 > normsq) {keig=4; normsq=normsq3;}                                                  \
-    }                                                                                                 \
-    norm = CS6M_sqrt(fabs(normsq));                                                                   \
-    if (keig==1) {                                                                                    \
-      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector1[ii]/norm;                                           \
-    } else if (keig==2) {                                                                             \
-      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector2[ii]/norm;                                           \
-    } else if (keig==3) {                                                                             \
-      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector3[ii]/norm;                                           \
-    } else {                                                                                          \
-      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector4[ii]/norm;                                           \
-    }                                                                                                 \
-    CS6M_Mat44_Vector_Mult(mat44,eigenvec,vector1);                                                      \
-    normsq=vector1[0]*vector1[0]+vector1[1]*vector1[1]+vector1[2]*vector1[2]+vector1[3]*vector1[3];   \
-    norm=CS6M_sqrt(fabs(normsq));                                                                  \
-    CS6M_Vec4_Dot_Prod(eigenvec,vector1,eigenval);                                                    \
+    vector1[0]=mat44tmp[0] ;vector1[1]=mat44tmp[1] ;vector1[2]=mat44tmp[2] ;vector1[3]=mat44tmp[3]; \
+    normsq1=vector1[0]*vector1[0]+vector1[1]*vector1[1]+vector1[2]*vector1[2]+vector1[3]*vector1[3];\
+    keig=1; normsq=normsq1;                                         \
+    vector2[0]=mat44tmp[4] ;vector2[1]=mat44tmp[5] ;vector2[2]=mat44tmp[6] ;vector2[3]=mat44tmp[7]; \
+    normsq2=vector2[0]*vector2[0]+vector2[1]*vector2[1]+vector2[2]*vector2[2]+vector2[3]*vector2[3];\
+    if(normsq2 > normsq) {keig=2; normsq=normsq2;}                  \
+    vector3[0]=mat44tmp[8] ;vector3[1]=mat44tmp[9] ;vector3[2]=mat44tmp[10];vector3[3]=mat44tmp[11];\
+    normsq3=vector3[0]*vector3[0]+vector3[1]*vector3[1]+vector3[2]*vector3[2]+vector3[3]*vector3[3];\
+    if(normsq3 > normsq) {keig=3; normsq=normsq3;}                  \
+    vector4[0]=mat44tmp[12];vector4[1]=mat44tmp[13];vector4[2]=mat44tmp[14];vector4[3]=mat44tmp[15];\
+    normsq4=vector4[0]*vector4[0]+vector4[1]*vector4[1]+vector4[2]*vector4[2]+vector4[3]*vector4[3];\
+    if(normsq4 > normsq) {keig=4; normsq=normsq4;}                  \
+    norm =CS6M_sqrt(fabs(normsq));                                  \
+    if (keig==1) {                                                                                  \
+      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector1[ii]/norm;                                         \
+    } else if (keig==2) {                                                                           \
+      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector2[ii]/norm;                                         \
+    } else if (keig==3) {                                                                           \
+      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector3[ii]/norm;                                         \
+    } else {                                                                                        \
+      for(ii=0;ii < 4;ii++) eigenvec[ii]= vector4[ii]/norm;                                         \
+    }                                                                                               \
+    CS6M_Mat44_Vector_Mult(mat44,eigenvec,vector1);                                                 \
+    normsq=vector1[0]*vector1[0]+vector1[1]*vector1[1]+vector1[2]*vector1[2]+vector1[3]*vector1[3]; \
+    norm=CS6M_sqrt(fabs(normsq));                                                                   \
+    CS6M_Vec4_Dot_Prod(eigenvec,vector1,eigenval);                                                  \
   }
 
-  #define CS6M_quaterniontorotmat(quaternion,mat33) {     \
+  #define CS6M_QuaterniontoRotmat(quaternion,mat33) {     \
                                                           \
      double twoxy, twoyz, twoxz, twowx, twowy, twowz;     \
      double ww, xx, yy, zz;                               \
@@ -2325,13 +2339,36 @@
      twowy = 2.*(quaternion[CS6M_QR_W])*(quaternion[CS6M_QR_Y]);\
      twowz = 2.*(quaternion[CS6M_QR_W])*(quaternion[CS6M_QR_Z]);\
                                                           \
-     mat33[1] = twoxy - twowz;                            \
-     mat33[2] = twoxz + twowy;                            \
-     mat33[3] = twoxy + twowz;                            \
-     mat33[5] = twoyz - twowx;                            \
-     mat33[6] = twoxz - twowy;                            \
-     mat33[7] = twoyz + twowx;                            \
+     mat33[3] = twoxy - twowz;                            \
+     mat33[6] = twoxz + twowy;                            \
+     mat33[1] = twoxy + twowz;                            \
+     mat33[7] = twoyz - twowx;                            \
+     mat33[2] = twoxz - twowy;                            \
+     mat33[5] = twoyz + twowx;                            \
  }
+
+  #define CS6M_rmsd(e3cell1,e3cell2,rmsd)  {                 \
+    double A1[3],B1[3],C1[3],D1[3],A2[3],B2[3],C2[3],D2[3];  \
+    double Adiff[3], Bdiff[3], Cdiff[3], Ddiff[3];           \
+    double Anormsq, Bnormsq, Cnormsq, Dnormsq;               \
+    int ii;                                                  \
+    CS6M_E3bycoltovecs(e3cell1,A1,B1,C1);                    \
+    CS6M_E3bycoltovecs(e3cell2,A2,B2,C2);                    \
+    Anormsq=Bnormsq=Cnormsq=Dnormsq=0.;                      \
+    for(ii=0; ii<3; ii++){                                   \
+      D1[ii]=-A1[ii]-B1[ii]-C1[ii];                          \
+      D2[ii]=-A2[ii]-B2[ii]-C2[ii];                          \
+      Adiff[ii]=A1[ii]-A2[ii];                               \
+      Bdiff[ii]=B1[ii]-B2[ii];                               \
+      Cdiff[ii]=C1[ii]-C2[ii];                               \
+      Ddiff[ii]=D1[ii]-D2[ii];                               \
+      Anormsq+=Adiff[ii]*Adiff[ii];                          \
+      Bnormsq+=Bdiff[ii]*Bdiff[ii];                          \
+      Cnormsq+=Cdiff[ii]*Cdiff[ii];                          \
+      Dnormsq+=Ddiff[ii]*Ddiff[ii];                          \
+    }                                                        \
+    rmsd=CS6M_sqrt(Anormsq+Bnormsq+Cnormsq+Dnormsq)/2.;      \
+  }
 
 
 #endif
