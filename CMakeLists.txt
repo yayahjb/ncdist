@@ -199,6 +199,14 @@ Delone.cpp Delone.h
 ${DEPENDENCIES}
 )
 
+set (RCPP_CS6DIST_IN_G6_SOURCES
+rcpp_cs6dist_in_g6.cpp
+CS6Dist.h CS6Dist.c
+S6Dist_func.cpp S6Dist_func.h
+Delone.cpp Delone.h
+${DEPENDENCIES}
+)
+
 set(RCPP_D7DIST_SOURCES
 rcpp_d7dist.cpp
 D7Dist.c        D7Dist.h
@@ -258,12 +266,14 @@ set_target_properties(RLAPACK_shared_lib PROPERTIES INTERFACE_LINK_LIBRARIES ${R
 add_library(rcpp_ncdist SHARED ${RCPP_NCDIST_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
 add_library(rcpp_d7dist SHARED ${RCPP_D7DIST_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
 add_library(rcpp_cs6dist SHARED ${RCPP_CS6DIST_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
+add_library(rcpp_cs6dist_in_g6 SHARED ${RCPP_CS6DIST_IN_G6_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
 add_library(rcpp_s6dist SHARED ${RCPP_S6DIST_SOURCES} ${R_LIBRARY} ${RCPP_LIBRARY})
 target_link_libraries(rcpp_ncdist)
 add_executable(ncdist ${NCDIST_SOURCES} )
 target_link_libraries(ncdist ${CMAKE_THREAD_LIBS_INIT} )
 target_link_libraries(rcpp_d7dist)
 target_link_libraries(rcpp_cs6dist)
+target_link_libraries(rcpp_cs6dist_in_g6)
 add_executable(d7dist ${D7DIST_SOURCES} )
 target_link_libraries(d7dist ${CMAKE_THREAD_LIBS_INIT} )
 add_executable(cs6dist_app ${CS6DIST_APP_SOURCES} )
@@ -293,6 +303,7 @@ install(TARGETS d7dist DESTINATION bin)
 install(TARGETS Follower DESTINATION bin)
 install(TARGETS s6dist_app DESTINATION bin)
 install(TARGETS rcpp_cs6dist DESTINATION lib)
+install(TARGETS rcpp_cs6dist_in_g6 DESTINATION lib)
 install(TARGETS rcpp_d7dist DESTINATION lib)
 install(TARGETS rcpp_ncdist DESTINATION lib)
 install(TARGETS rcpp_s6dist DESTINATION lib)

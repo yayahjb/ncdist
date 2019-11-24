@@ -161,7 +161,7 @@ DEPENDENCIES =  \
 
 
 all:  ncdist ncdist_mat d7dist D7Test Follower \
-	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist.so \
+	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
 	cs6dist_app  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
 tests:
@@ -292,6 +292,14 @@ rcpp_cs6dist.so: rcpp_cs6dist.cpp \
         $(LIBSOURCES) \
 	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
 
+rcpp_cs6dist_in_g6.so: rcpp_cs6dist_in_g6.cpp \
+	CS6Dist.h CS6Dist.c $(DEPENDENCIES) CS6Dist_func.cpp  S6Dist_func.cpp Delone.cpp
+	g++ $(CXXFLAGS) -shared -o rcpp_cs6dist_in_g6.so -I $(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
+	-I $(RCPP_HEADERS) -I $(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS) \
+	rcpp_cs6dist_in_g6.cpp  CS6Dist.c CS6Dist_func.cpp  S6Dist_func.cpp Delone.cpp \
+        $(LIBSOURCES) \
+	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
+
 rcpp_ncdist.so:	rcpp_ncdist.cpp \
 	$(DEPENDENCIES) Delone.h Delone.cpp
 	g++ $(CXXFLAGS) -shared -o rcpp_ncdist.so -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
@@ -393,5 +401,6 @@ distclean:  clean
 	-@rm -rf s6dist_app
 	-@rm -rf rcpp_s6dist.so
 	-@rm -rf rcpp_cs6dist.so
+	-@rm -rf rcpp_cs6dist_in_g6.so
 	-@rm -rf rcpp_ncdist.so
 	-@rm -rf rcpp_d7dist.so

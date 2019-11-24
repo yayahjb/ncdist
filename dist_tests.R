@@ -3,6 +3,7 @@ dyn.load("rcpp_s6dist.so")
 dyn.load("rcpp_cs6dist.so")
 dyn.load("rcpp_ncdist.so")
 dyn.load("rcpp_d7dist.so")
+dyn.load("rcpp_cs6dist_in_g6.so")
 
 args <- commandArgs(trailingOnly=TRUE)
 if (length(args)<14) {
@@ -28,5 +29,6 @@ cat("cell2: [",latsym2,a2,b2,c2,alpha2,beta2,gamma2,"] ")
 
 cat("s6dist: ",.Call("rcpp_s6dist", latsym1,a1,b1,c1,alpha1,beta1,gamma1, latsym2,a2,b2,c2,alpha2,beta2,gamma2)," ")
 cat("cs6dist: ",.Call("rcpp_cs6dist", latsym1,a1,b1,c1,alpha1,beta1,gamma1, latsym2,a2,b2,c2,alpha2,beta2,gamma2)," ")
+cat("cs6dist_in_g6: ",.Call("rcpp_cs6dist_in_g6", latsym1,a1,b1,c1,alpha1,beta1,gamma1, latsym2,a2,b2,c2,alpha2,beta2,gamma2)," ")
 cat("ncdist: ",.Call("rcpp_ncdist", latsym1,a1,b1,c1,alpha1,beta1,gamma1, latsym2,a2,b2,c2,alpha2,beta2,gamma2)," ")
 cat("d7dist: ",.Call("rcpp_d7dist", latsym1,a1,b1,c1,alpha1,beta1,gamma1, latsym2,a2,b2,c2,alpha2,beta2,gamma2),"\n")

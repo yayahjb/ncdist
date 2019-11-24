@@ -17,11 +17,11 @@ extern "C" {
 
 
 
-#include "CS6Dist.h"
-
-
 #include <math.h>
 #include <float.h>
+#include <string.h>
+#include "CS6Dist.h"
+#include "S6M_SellingReduce.h"
 
 
 /*
@@ -83,6 +83,22 @@ double CS6Dist(double gvec1[6],double gvec2[6]) {
     }
     return dist;
 }
+
+ double CS6Dist_in_G6(double g6vec1[6],double g6vec2[6]) {
+    double s6vec1[6], s6vec2[6];
+    double s6redvec1[6], s6redvec2[6];
+    int reduced1=0, reduced2=0;
+    int ii;
+    CS6M_G6toS6(g6vec1,s6vec1);
+    CS6M_G6toS6(g6vec2,s6vec2);
+    CS6M_S6Reduce(s6vec1,s6redvec1,reduced1);
+    CS6M_S6Reduce(s6vec2,s6redvec2,reduced2);
+    if (! reduced1) for (ii=0; ii<6; ii++) s6redvec1[ii]=s6vec1[ii];
+    if (! reduced2) for (ii=0; ii<6; ii++) s6redvec2[ii]=s6vec2[ii];
+    return CS6Dist(s6redvec1, s6redvec2); 
+}
+
+
 
 
 
