@@ -162,7 +162,7 @@ DEPENDENCIES =  \
 
 all:  ncdist ncdist_mat d7dist D7Test Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
-	cs6dist_app  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
+	cs6dist_app cs6dist_app2  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
 tests:
 	./Rtests.bash > Rtests.lst
@@ -187,6 +187,13 @@ cs6dist_app:  CS6Dist_func_.o CS6Dist_.o cs6dist_app.cpp \
 	g++ $(CXXFLAGS) -o cs6dist_app  cs6dist_app.cpp CS6Dist_func_.o CS6Dist_.o \
 	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	$(LIBSOURCES)  Delone.cpp \
+	-lpthread
+
+cs6dist_app2:  CS6Dist_func_.o CS6Dist_.o cs6dist_app2.cpp S6_primredcell.c \
+	$(DEPENDENCIES) Delone.h Delone.cpp
+	g++ $(CXXFLAGS) -o cs6dist_app2  cs6dist_app2.cpp CS6Dist_func_.o CS6Dist_.o \
+	-I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
+	$(LIBSOURCES)  Delone.cpp S6_primredcell.c \
 	-lpthread
 
 

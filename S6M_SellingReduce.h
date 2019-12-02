@@ -372,7 +372,8 @@
      0., 0.,-1.,-.5,-.5, 0.};
 
   #define CS6M_G6toS6_Mat(g6vec,s6vec,mat66) { \
-    double mat66out[36], int ii;             \
+    double mat66out[36];                     \
+    int ii;                                  \
     s6vec[CS6M_S6BC] = g6vec[CS6M_G62BC]/2.; \
     s6vec[CS6M_S6AC] = g6vec[CS6M_G62AC]/2.; \
     s6vec[CS6M_S6AB] = g6vec[CS6M_G62AB]/2.; \
@@ -2110,7 +2111,7 @@
       for (jj=0; jj<6; jj++) {   \
         ll=ii*6+jj;              \
         mat66out[ll]=0;          \
-        for (kk=0;kk<6,kk++) {   \
+        for (kk=0;kk<6;kk++) {   \
           mat66out[ll]+=mat66inleft[ii*6+kk]*mat66inright[kk*6+jj]; \
         }                        \
       }                          \
