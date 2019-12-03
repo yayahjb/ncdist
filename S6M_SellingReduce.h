@@ -1,7 +1,7 @@
 #ifndef CS6M_SELLING_REDUCE
   #define CS6M_SELLING_REDUCE
 
-  /* #define CS6M_DEBUG zz* */
+  /* #define CS6M_DEBUG zz */ 
 
   /* Make a universal NULL */
   #ifndef NULL

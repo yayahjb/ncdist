@@ -47,9 +47,6 @@ S6 makeprimredcell( std::string testlattice,
     LRL_Cell g6primredprobe; 
     LRL_Cell d7primredprobe; 
     LRL_Cell s6primredprobe; 
-    g6primredprobe = LRL_Cell_Degrees(redprimcell_as_g6);
-    d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
-    s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
     double crootvol;
     LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
@@ -122,7 +119,7 @@ S6 makeprimredcell( std::string testlattice,
     reduced=0;
     CS6M_G6Reduce(primcell,redprimcell,reduced);
     if (!reduced) {
-      for(ii=0;ii<6;ii++) redprimcell[ii]=redprimcell_as_g6[ii]=0.;
+      for(ii=0;ii<6;ii++) redprimcell[ii]=redprimcell_as_g6[ii]=primcell[ii];
     } else {
       for(ii=0;ii<6;ii++) redprimcell_as_g6[ii]=redprimcell[ii];
     }
@@ -130,8 +127,8 @@ S6 makeprimredcell( std::string testlattice,
     reduced=0;
     CS6M_D7Reduce(d7primcell,d7redprimcell,reduced);
     if (!reduced) {
-      for(ii=0;ii<6;ii++) d7redprimcell_as_g6[ii]=0.;
-      for(ii=0;ii<7;ii++) d7redprimcell[ii]=0.;
+      for(ii=0;ii<6;ii++) d7redprimcell_as_g6[ii]=primcell[ii];
+      for(ii=0;ii<7;ii++) d7redprimcell[ii]=d7primcell[ii];
     } else {
       CS6M_D7toG6(d7redprimcell,d7redprimcell_as_g6);
     }
@@ -139,7 +136,7 @@ S6 makeprimredcell( std::string testlattice,
     reduced=0;
     CS6M_S6Reduce(s6primcell,s6redprimcell,reduced);
     if (!reduced) {
-      for(ii=0;ii<6;ii++) s6redprimcell[ii]=s6redprimcell_as_g6[ii]=0;
+      for(ii=0;ii<6;ii++) s6redprimcell[ii]=s6redprimcell_as_g6[ii]=s6primcell[ii];
     } else {
       CS6M_S6toG6(s6redprimcell,s6redprimcell_as_g6);
     }
@@ -226,10 +223,15 @@ int main(int argc, char ** argv) {
     double dprim2[6];
     double * pdprim2;
     double * qdprim2;
-    double g6cell1[6],g6cell2[6];
     double g6primcell1[6],g6primcell2[6];
+    double * pg6primcell1 = g6primcell1;
+    double * pg6primcell2 = g6primcell2;
     double s6primcell1[6],s6primcell2[6];
+    double * ps6primcell1 = s6primcell1;
+    double * ps6primcell2 = s6primcell2;
     double Mat661[36],Mat662[36];
+    double * pMat661 = Mat661;
+    double * pMat662 = Mat662;
     double celldeg[6];
     double rawdist;
     size_t ii;
@@ -291,9 +293,9 @@ int main(int argc, char ** argv) {
     pdprim1 = dprim1;
     pdprim2 = dprim2;
     qdprim1 = s6_primredcell(&(lat1[0]),pcellparams1,
-        g6cell1,g6primcell1,s6primcell1,pdprim1,Mat661);
+        0,pg6primcell1,ps6primcell1,pdprim1,Mat661);
     qdprim2 = s6_primredcell(&(lat2[0]),pcellparams2,
-        g6cell2,g6primcell2,s6primcell2,pdprim2,Mat662);
+        0,pg6primcell2,ps6primcell2,pdprim2,Mat662);
     
 
     if (!qdprim1) std::cout << "qdprim1 is false" << std::endl;
@@ -311,15 +313,10 @@ int main(int argc, char ** argv) {
 
     std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
               << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] <<  "]" << std::endl;
-    std::cout << "g6cell1: [" << g6cell1[0] <<", "<< g6cell1[1] << ", "<< g6cell1[2] << ", "
-              << g6cell1[3] << ", " << g6cell1[4] << ", " << g6cell1[5] <<  "]" << std::endl;
     std::cout << "g6primcell1: [" << g6primcell1[0] <<", "<< g6primcell1[1] << ", "<< g6primcell1[2] << ", "
               << g6primcell1[3] << ", " << g6primcell1[4] << ", " << g6primcell1[5] <<  "]" << std::endl;
     std::cout << "s6primcell1: [" << s6primcell1[0] <<", "<< s6primcell1[1] << ", "<< s6primcell1[2] << ", "
               << s6primcell1[3] << ", " << s6primcell1[4] << ", " << s6primcell1[5] <<  "]" << std::endl;
-    CS6M_G6toCelldeg(g6cell1,celldeg);
-    std::cout << "g6celldeg1: ["<< celldeg[0] << ", "  << celldeg[1] << ", "
-        << celldeg[2] << ", "<< celldeg[3] << ", "<< celldeg[4] << ", "<< celldeg[5] << "]" << std::endl;
     CS6M_G6toCelldeg(g6primcell1,celldeg);
     std::cout << "g6primcelldeg1: ["<< celldeg[0] << ", "  << celldeg[1] << ", "
         << celldeg[2] << ", "<< celldeg[3] << ", "<< celldeg[4] << ", "<< celldeg[5] << "]" << std::endl;
@@ -335,15 +332,10 @@ int main(int argc, char ** argv) {
     std::cout << "        "<< Mat661[30] << ", "<< Mat661[31] << ", "<< Mat661[32] << ", "<< Mat661[33] << ", "<< Mat661[34] << ", "<< Mat661[35] << "]" << std::endl;
     std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
               << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] <<  "]" << std::endl;
-    std::cout << "g6cell2: [" << g6cell2[0] <<", "<< g6cell2[1] << ", "<< g6cell2[2] << ", "
-              << g6cell2[3] << ", " << g6cell2[4] << ", " << g6cell2[5] <<  "]" << std::endl;
     std::cout << "g6primcell2: [" << g6primcell2[0] <<", "<< g6primcell2[1] << ", "<< g6primcell2[2] << ", "
               << g6primcell2[3] << ", " << g6primcell2[4] << ", " << g6primcell2[5] <<  "]" << std::endl;
     std::cout << "s6primcell2: [" << s6primcell2[0] <<", "<< s6primcell2[1] << ", "<< s6primcell1[2] << ", "
               << s6primcell2[3] << ", " << s6primcell2[4] << ", " << s6primcell2[5] <<  "]" << std::endl;
-    CS6M_G6toCelldeg(g6cell2,celldeg);
-    std::cout << "g6celldeg2: ["<< celldeg[0] << ", "  << celldeg[1] << ", "
-        << celldeg[2] << ", "<< celldeg[3] << ", "<< celldeg[4] << ", "<< celldeg[5] << "]" << std::endl;
     CS6M_G6toCelldeg(g6primcell2,celldeg);
     std::cout << "g6primcelldeg2: ["<< celldeg[0] << ", "  << celldeg[1] << ", "
         << celldeg[2] << ", "<< celldeg[3] << ", "<< celldeg[4] << ", "<< celldeg[5] << "]" << std::endl;

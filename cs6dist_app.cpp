@@ -31,7 +31,7 @@ S6 makeprimredcell( std::string testlattice,
     G6 s6redprimcell_as_g6;
     double d7primcell[7];
     double s6primcell[6];
-    G6 dredprimcell;
+    double dredprimcell[6];
     Mat66 mc;
     double dmc[36];
     Mat66 m;
@@ -46,9 +46,6 @@ S6 makeprimredcell( std::string testlattice,
     LRL_Cell g6primredprobe; 
     LRL_Cell d7primredprobe; 
     LRL_Cell s6primredprobe; 
-    g6primredprobe = LRL_Cell_Degrees(redprimcell_as_g6);
-    d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
-    s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
     double crootvol;
     LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
@@ -84,42 +81,46 @@ S6 makeprimredcell( std::string testlattice,
             break;
         case 'V':
         case 'v':
-	    primcell[0] = a;
-	    primcell[1] = b;
-	    primcell[2] = c;
-	    primcell[3] = alpha;
-	    primcell[4] = beta;
-	    primcell[5] = gamma;
+	    dprimcell[0] = a;
+	    dprimcell[1] = b;
+	    dprimcell[2] = c;
+	    dprimcell[3] = alpha;
+	    dprimcell[4] = beta;
+	    dprimcell[5] = gamma;
+            primcell=G6(dprimcell);
             break;
         case 'D':
         case 'd':
-           primcell[0] = a;
-           primcell[1] = b;
-           primcell[2] = c;
-           primcell[3] = beta-b-c;
-           primcell[4] = gamma-a-c;
-           primcell[5] = extra-a-b;
+           dprimcell[0] = a;
+           dprimcell[1] = b;
+           dprimcell[2] = c;
+           dprimcell[3] = beta-b-c;
+           dprimcell[4] = gamma-a-c;
+           dprimcell[5] = extra-a-b;
+           primcell=G6(dprimcell);
            break;
         case 'S':
         case 's':
-           primcell[3] = 2.*a;
-           primcell[4] = 2.*b;
-           primcell[5] = 2.*c;
-           primcell[0] = -alpha-c-b;
-           primcell[1] = -beta-c-a;
-           primcell[2] = -gamma-b-a;
+           dprimcell[3] = 2.*a;
+           dprimcell[4] = 2.*b;
+           dprimcell[5] = 2.*c;
+           dprimcell[0] = -alpha-c-b;
+           dprimcell[1] = -beta-c-a;
+           dprimcell[2] = -gamma-b-a;
+           primcell=G6(dprimcell);
            break;
         default:
             std::cerr << "Unrecognized lattice symbol "<< testlattice<<" treated as P" << std::endl;
             latsym = "P";
             CS6M_CelltoG6(rawcell,v6cell);
-            CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
-            /*mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());*/
+            CS6M_LatSymMat66(v6cell,clatsym,dmc,dprimcell);
+            mc=Mat66(dmc);
+            primcell=G6(dprimcell);
             break;
     }
     reduced=0;
-    CS6M_G6Reduce(primcell,redprimcell,reduced);
+    CS6M_G6Reduce(dprimcell,dredprimcell,reduced);
+    redprimcell=G6(dredprimcell);
     if (!reduced) {
       for(ii=0;ii<6;ii++) redprimcell[ii]=redprimcell_as_g6[ii]=0.;
     } else {
