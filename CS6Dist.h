@@ -1220,6 +1220,7 @@ static double S6Dist_pass(double gvec1[6],double gvec2[6],double dist) {
 
 double CS6Dist(double gvec1[6],double gvec2[6]);
 double CS6Dist_in_G6(double g6vec1[6],double g6vec2[6]);
+void   G6toS6Reduce(double g6vec[6], double s6vec[6]); 
 
 #endif /*CS6DIST_H */
 

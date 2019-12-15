@@ -43,8 +43,6 @@ extern "C" {
 
  */
 
-
-
 double CS6Dist(double gvec1[6],double gvec2[6]) {
     double dist,dist1, dist2, distmin;
     double norm1, norm2, distsq;
@@ -60,6 +58,7 @@ double CS6Dist(double gvec1[6],double gvec2[6]) {
     CS6M_report_double_vector("gvec2 = ", gvec2,"\n")
     dist = S6Dist_pass(gvec1,gvec2,dist);
     CS6M_report_double_if_changed("gvec1 gvec2 dist = ",dist,"\n");
+    #ifndef S6DIST_NO_OUTER_PASS
     norm1=CS6M_norm(gvec1);
     norm2=CS6M_norm(gvec1);
     for (ii=0; ii <6; ii++) {
@@ -81,10 +80,11 @@ double CS6Dist(double gvec1[6],double gvec2[6]) {
         CS6M_report_double_if_changed("mgvec1 gvec2 dist = ",dist,"\n");
       }
     }
+    #endif
     return dist;
 }
 
- double CS6Dist_in_G6(double g6vec1[6],double g6vec2[6]) {
+double CS6Dist_in_G6(double g6vec1[6],double g6vec2[6]) {
     double s6vec1[6], s6vec2[6];
     double s6redvec1[6], s6redvec2[6];
     int reduced1=0, reduced2=0;
@@ -98,10 +98,13 @@ double CS6Dist(double gvec1[6],double gvec2[6]) {
     return CS6Dist(s6redvec1, s6redvec2); 
 }
 
-
-
-
-
+void G6toS6Reduce(double g6vec[6], double s6vec[6]) {
+    double s6vec1[6];
+    int reduced, ii;
+    CS6M_G6toS6(g6vec,s6vec1);
+    CS6M_S6Reduce(s6vec1,s6vec,reduced);
+    if (!reduced) for (ii=0; ii<6; ii++) s6vec[ii]=s6vec1[ii];
+} 
 
 
 #ifdef __cplusplus
