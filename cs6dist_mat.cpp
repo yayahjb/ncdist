@@ -252,6 +252,8 @@ int main(int argc, char ** argv) {
     std::string arg0;
     std::string arg1;
     std::string arg2;
+    std::string arg3;
+    std::string arg4;
     std::string line;
     std::vector<std::string> retlines;
     std::vector<std::string> names;
@@ -273,27 +275,45 @@ int main(int argc, char ** argv) {
     char clatsym;
     int argoff;
     int info;
+    int sort;
+    int fold;
 
     arg1="";
     arg2="";
+    arg3="";
+    arg4="";
     info=0;
+    sort=0;
+    fold=0;
     if (argc > 1) { arg1 = std::string(argv[1]); }
     if (argc > 2) { arg2 = std::string(argv[2]); } 
-    if (arg1 == "--help" || arg1 == "-h" || arg2 == "--help" || arg2 == "-h") {
+    if (argc > 3) { arg3 = std::string(argv[3]); } 
+    if (arg1 == "--help" || arg1 == "-h" \
+      || arg2 == "--help" || arg2 == "-h" \
+      || arg3 == "--help" || arg3 == "-h" \
+      || arg4 == "--help" || arg4 == "-h") {
         std::cerr
 		<< "Usage: cs6dist_mat [--help|-h] print this message and exit" 
 		<< std::endl;
         std::cerr
-		<< "       cs6dist_mat [--info], write distance matrix to cout" 
+		<< "       cs6dist_mat [--info] [--sort], write distance matrix to cout" 
 		<< std::endl;
         std::cerr 
 		<< "                                      reading cells from cin" 
 		<< std::endl;
         argoff++;
     } 
-    if (arg1=="--info" || arg2=="--info")  {
+    if ( arg1=="--info" || arg2=="--info"|| arg3=="--info" || arg4=="--info" )  {
       argoff++;
       info++;
+    }
+    if ( arg1=="--sort" || arg2=="--sort"|| arg3=="--sort" || arg4=="--sort" )  {
+      argoff++;
+      sort++;
+    }
+    if ( arg1=="--fold" || arg2=="--fold"|| arg3=="--fold" || arg4=="--fold" )  {
+      argoff++;
+      fold++;
     }
 
 
@@ -338,6 +358,12 @@ int main(int argc, char ** argv) {
 
     {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
         std::vector<double>  drmsds(inputprims.size()*inputprims.size());
+        std::vector<double>  dzs(inputprims.size()*inputprims.size());
+        std::vector<size_t>  order(inputprims.size());
+        std::vector<double>  sumdist(inputprims.size());
+        std::vector<double>  sumdistsq(inputprims.size());
+        std::vector<double>  l2norm(inputprims.size());
+        std::vector<double>  closecells(inputprims.size());
         int perms[24][4]={
                   {0,1,2,3},
                   {0,1,3,2},
@@ -365,6 +391,18 @@ int main(int argc, char ** argv) {
                   {3,0,2,1}};
         /*std::cerr << "size: " << inputprims.size() << std::endl;*/
         for (ii=0; ii < inputprims.size(); ii++) {
+            order[ii] = (size_t)ii;
+            sumdist[ii] = 0.;
+            sumdistsq[ii] = 0.;
+            closecells[ii]=1.;
+            l2norm[ii] = std::sqrt(inputprims[ii][0]*inputprims[ii][0]
+              +inputprims[ii][1]*inputprims[ii][1]
+              +inputprims[ii][2]*inputprims[ii][2]
+              +inputprims[ii][3]*inputprims[ii][3]
+              +inputprims[ii][4]*inputprims[ii][4]
+              +inputprims[ii][5]*inputprims[ii][5]);
+        }
+        for (ii=0; ii < inputprims.size(); ii++) {
             double e3cell1[9], rote3cell2[9];
             //std::err << "ii: " << ii << "  " << inputprims[ii] << std::endl;
             prim1 = inputprims[ii];
@@ -376,6 +414,7 @@ int main(int argc, char ** argv) {
               <<cell1[3]<<","<<cell1[4]<<","<<cell1[5]<<"]"<<std::endl;
             }
             dmat[ii + ii*inputprims.size()] = 0.;
+            dzs[ii + ii*inputprims.size()] = 0.;;
             for (jj=ii+1; jj < inputprims.size(); jj++) {
                 double e3cell2[9];
                 double HornMatM[9];
@@ -394,6 +433,14 @@ int main(int argc, char ** argv) {
                 rawdist = CS6Dist(dprim1,dprim2);
                 if (rawdist < 1.e-13) rawdist = 0.;
                 dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
+                if (dmat[ii+jj*inputprims.size()] < l2norm[ii]) {
+                  closecells[ii]+=1.;
+                  sumdist[ii]+=dmat[ii+jj*inputprims.size()];
+                  sumdistsq[ii]+=.01*rawdist;
+                  closecells[jj]+=1.;
+                  sumdist[jj]+=dmat[jj+ii*inputprims.size()];
+                  sumdistsq[jj]+=.01*rawdist;
+                }
                 rmsdmin = 1.e38;
                 for (ll=0; ll<24; ll++) {
                   CS6M_vecstoE3bycol(edges[perms[ll][0]],edges[perms[ll][1]],edges[perms[ll][2]],e3cell2) 
@@ -447,32 +494,80 @@ int main(int argc, char ** argv) {
                 drmsds[ii+jj*inputprims.size()] = drmsds[jj+ii*inputprims.size()] = rmsdmin;
             }
         }
+        for (ii=0; ii < inputprims.size(); ii++) {
+            for (jj=ii+1; jj < inputprims.size(); jj++) {
+                dzs[ii+jj*inputprims.size()] 
+                = dmat[ii+jj*inputprims.size()]
+                    /std::sqrt((1.e-38
+                                +sumdistsq[ii]/(closecells[ii])
+                                ));
+                dzs[jj+ii*inputprims.size()]
+                = dmat[jj+ii*inputprims.size()]
+                    /std::sqrt((1.e-38
+                                +sumdistsq[jj]/(closecells[jj])
+                                ));
+            }
+        }
+        if (sort) {
+            size_t gap=inputprims.size()/2;
+            int done;
+            size_t tmporder;
+            done = 0;
+            while ( gap > 0 ) {
+              done = 1;
+              for (jj=0; jj+gap < inputprims.size(); jj+=gap) {
+                  if ( sumdistsq[order[jj]]*closecells[order[jj+gap]] > sumdistsq[order[jj+gap]]*closecells[order[jj]] ) {
+                      done = 0;
+                      tmporder = order[jj];
+                      order[jj] = order[jj+gap];
+                      order[jj+gap] = tmporder; 
+                  }
+              }
+              if (done) gap /= 2;
+            }
+        }
 
         std::cout << "cs6dist: ";
         for (jj=0; jj < names.size(); jj++) {
-          std::cout << " " << std::setw(12) << names[jj];
-          if ((jj+1)%8 ==0) {std::cout << std::endl;}
+          std::cout << " " << std::setw(12) << names[order[jj]];
+          if ( fold && (jj+1)%8 ==0 ) {std::cout << std::endl;}
         }
         std::cout << std::endl;
         for (ii=0; ii < inputprims.size(); ii++) {
-            std::cout <<  " " << std::setw(12) <<names[ii];
+            std::cout <<  " " << std::setw(12) <<names[order[ii]];
             for (jj=0; jj < inputprims.size(); jj++) {
-                std::cout <<" "<< std::setw(12) << dmat[ii+jj*inputprims.size()];
-                if ((jj+1)%8 ==0) {std::cout << std::endl;}
+                std::cout <<" "<< std::setw(12) << dmat[order[ii]+order[jj]*inputprims.size()];
+                if ( fold && (jj+1)%8 ==0 ) {std::cout << std::endl;}
             }
             std::cout << std::endl;
         }
-        std::cout << "   rmsd: ";
+
+        std::cout << "z-scores: ";
         for (jj=0; jj < names.size(); jj++) {
-          std::cout << " " << std::setw(12) << names[jj];
-          if ((jj+1)%8 ==0) {std::cout << std::endl;}
+          std::cout << " " << std::setw(12) << names[order[jj]];
+          if ( fold && (jj+1)%8 ==0 ) {std::cout << std::endl;}
         }
         std::cout << std::endl;
         for (ii=0; ii < inputprims.size(); ii++) {
-            std::cout <<  " " << std::setw(12) << names[ii];
+            std::cout <<  " " << std::setw(12) <<names[order[ii]];
             for (jj=0; jj < inputprims.size(); jj++) {
-                std::cout <<" "<< std::setw(12) << drmsds[ii+jj*inputprims.size()];
-                if ((jj+1)%8 ==0) {std::cout << std::endl;}
+                std::cout <<" "<< std::setw(12) << dzs[order[ii]+order[jj]*inputprims.size()];
+                if ( fold && (jj+1)%8 ==0 ) {std::cout << std::endl;}
+            }
+            std::cout << std::endl;
+        }
+
+        std::cout << "   rmsd: ";
+        for (jj=0; jj < names.size(); jj++) {
+          std::cout << " " << std::setw(12) << names[order[jj]];
+          if ( fold && (jj+1)%8 ==0 ) {std::cout << std::endl;}
+        }
+        std::cout << std::endl;
+        for (ii=0; ii < inputprims.size(); ii++) {
+            std::cout <<  " " << std::setw(12) << names[order[ii]];
+            for (jj=0; jj < inputprims.size(); jj++) {
+                std::cout <<" "<< std::setw(12) << drmsds[order[ii]+order[jj]*inputprims.size()];
+                if ( fold && (jj+1)%8 ==0 ) {std::cout << std::endl;}
             }
             std::cout << std::endl;
         }
