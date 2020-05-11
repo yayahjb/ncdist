@@ -77,8 +77,8 @@ else
   RPATH_LIBRARIES ?= /usr/lib/R/lib
 endif
 
-CFLAGS ?= -g -O3 -fPIC -fopenmp
-CXXFLAGS ?= -g -O3 -std=gnu++11 -fPIC -fopenmp
+CFLAGS ?= -g -O3 -fPIC -fopenmp -I.
+CXXFLAGS ?= -g -O3 -std=gnu++11 -fPIC -fopenmp -I.
 #CFLAGS ?= -g -O0 -fPIC -fopenmp
 #CXXFLAGS ?= -g -O0 -std=gnu++11 -fPIC -fopenmp
 
