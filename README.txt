@@ -2,11 +2,12 @@
                                  With S6 and D7 Support
                         Herbert J. Bernstein and Lawrence C. Andrews
                                 Version 1.1.0 07 Jun 2019
+                                     rev 22 Jun 2020
 
                                     yayahjb@gmail.com
 
 
-ncdist is a package of two utilities built on the Niggli-Cone cell distance discussed in 
+ncdist is a package of utilities built on the Niggli-Cone cell distance discussed in 
 [Andrews, L. C.,  Bernstein, H. J. (2014). "The geometry of Niggli reduction: BGAOL -- 
 embedding Niggli reduction and analysis of boundaries". J. Appl. Cryst. 
 47(1), 346 -- 359.] which provides a sensitive and reliable metric for the distance between
