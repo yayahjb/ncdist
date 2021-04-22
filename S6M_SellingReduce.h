@@ -88,7 +88,21 @@
   #define CS6M_QR_X 1
   #define CS6M_QR_Y 2
   #define CS6M_QR_Z 3
-  
+
+  #define CS6M_DC_A2                   0
+  #define CS6M_DC_B2                   1
+  #define CS6M_DC_A_PLUS_B_2           2
+  #define CS6M_DC_A_MINUS_B_2          3
+  #define CS6M_DC_C2                   4
+  #define CS6M_DC_B_PLUS_C_2           5
+  #define CS6M_DC_B_MINUS_C_2          6
+  #define CS6M_DC_A_PLUS_C_2           7
+  #define CS6M_DC_A_MINUS_C_2          8
+  #define CS6M_DC_A_PLUS_B_PLUS_C_2    9
+  #define CS6M_DC_A_PLUS_B_MINUS_C_2  10
+  #define CS6M_DC_A_MINUS_B_PLUS_C_2  11
+  #define CS6M_DC_A_MINUS_B_MINUS_C_2 12
+
 
 
   #define CS6M_abs(x) ((x)<0?-(x):(x))
@@ -1130,7 +1144,7 @@
           CS6M_VOLCHECK("8= ",g6red);                                            \
           redpass++; continue;                                                   \
       }                                                                          \
-      /* 9AB boundaries exsct */                                                 \
+      /* 9AB boundaries exact */                                                 \
       if (fabs(g6red[CS6M_G62AC] - g6red[CS6M_G6A2]) < delta && 2.*g6red[CS6M_G62BC] < g6red[CS6M_G62AB]-delta) { \
           g6red[CS6M_G6C2] = g6red[CS6M_G6A2]+g6red[CS6M_G6C2]-g6red[CS6M_G62AC];\
           g6red[CS6M_G62AC] = -2.*g6red[CS6M_G6A2]+g6red[CS6M_G62AC];            \
@@ -1816,6 +1830,63 @@
        }                                      \
     }                                         \
   }
+
+  #define CS6M_G6toDC7(g6vec,spectrum7) {                    \
+    double spectrum13[13];                                     \
+    int ii, jj, kk, ll;                                      \
+    spectrum13[CS6M_DC_A2]=g6vec[CS6M_G6A2];                 \
+    spectrum13[CS6M_DC_B2]=g6vec[CS6M_G6B2];                 \
+    spectrum13[CS6M_DC_A_PLUS_B_2]                           \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G62AB];  \
+    spectrum13[CS6M_DC_A_MINUS_B_2]                          \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]-g6vec[CS6M_G62AB];  \
+    spectrum13[CS6M_DC_C2]=g6vec[CS6M_G6C2];                 \
+    spectrum13[CS6M_DC_B_PLUS_C_2]                           \
+      =g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]+g6vec[CS6M_G62BC];  \
+    spectrum13[CS6M_DC_B_MINUS_C_2]                          \
+      =g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]-g6vec[CS6M_G62BC];  \
+    spectrum13[CS6M_DC_A_PLUS_C_2]                           \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6C2]+g6vec[CS6M_G62AC];  \
+    spectrum13[CS6M_DC_A_MINUS_C_2]                          \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6C2]-g6vec[CS6M_G62AC];  \
+    spectrum13[CS6M_DC_A_PLUS_B_PLUS_C_2]                    \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
+      +g6vec[CS6M_G62BC]+g6vec[CS6M_G62AC]+g6vec[CS6M_G62AB];\
+    spectrum13[CS6M_DC_A_PLUS_B_MINUS_C_2]                   \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
+      -g6vec[CS6M_G62BC]-g6vec[CS6M_G62AC]+g6vec[CS6M_G62AB];\
+    spectrum13[CS6M_DC_A_MINUS_B_PLUS_C_2]                   \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
+      -g6vec[CS6M_G62BC]+g6vec[CS6M_G62AC]-g6vec[CS6M_G62AB];\
+    spectrum13[CS6M_DC_A_MINUS_B_MINUS_C_2]                  \
+      =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
+      +g6vec[CS6M_G62BC]-g6vec[CS6M_G62AC]-g6vec[CS6M_G62AB];\
+    spectrum7[0]=spectrum13[0];                              \
+    spectrum7[1]=spectrum13[1];                              \
+    if (spectrum13[2] < spectrum13[3]) {                     \
+      spectrum7[2]=spectrum13[2];                            \
+      spectrum7[3]=spectrum13[3];                            \
+    } else {                                                 \
+      spectrum7[2]=spectrum13[3];                            \
+      spectrum7[3]=spectrum13[2];                            \
+    }                                                        \
+    jj = 4;                                                  \
+    for (ii=4;ii<13;ii++) {                                  \
+      for (kk = 2; kk < jj; kk++) {                          \
+        if(spectrum13[ii] < spectrum7[kk]) {                 \
+          for (ll = jj; ll > kk; ll--){                      \
+            spectrum7[ll]=spectrum7[ll-1];                   \
+          }                                                  \
+          break;                                             \
+        }                                                    \
+      }                                                      \
+      if (kk < 7) {                                          \
+        spectrum7[kk]=spectrum13[ii];                        \
+        if (jj < 7) jj++;                                    \
+      }                                                      \
+    }                                                        \
+  }
+
 
   #define CS6M_Cellvolume(cell,volume)       {  \
    double cosAlpha=cos(cell[CS6M_CELLALPHA]);  \

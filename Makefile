@@ -164,7 +164,7 @@ all:  ncdist ncdist_mat d7dist D7Test Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
 	cs6dist_app cs6dist_app2  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
-tests:
+tests:	all
 	./Rtests.bash > Rtests.lst
 	-diff -bu Rtests.lst Rtests.out
 	./dist_tests.bash  > dist_tests.lst
