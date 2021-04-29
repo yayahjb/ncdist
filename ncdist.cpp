@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "S6M_SellingReduce.h"
 
-int dodc7=0, dodc7sq=0;
+int donc=0, dodc7=0, dodc7sq=0, info=0;
 
 //*****************************************************************************
 G6 makeprimredprobe( std::string testlattice,
@@ -21,6 +21,8 @@ G6 makeprimredprobe( std::string testlattice,
     G6 redprimcell;
     D7 d7redprimcell;
     double dredprimcell[7];
+    double dc13[13];
+    double dc7[7];
     G6 g6redprimcell;
     double dg6redprimcell[6];
     Mat66 mc;
@@ -88,10 +90,19 @@ G6 makeprimredprobe( std::string testlattice,
     dprimcell[4]=primcell[4];   
     dprimcell[5]=primcell[5];
     CS6M_G6Reduce(dprimcell,dg6redprimcell,reduced);
-    /*    std::cout << "dprimcell: " << dprimcell[0]<<" "<< dprimcell[1]<<" "<< dprimcell[2]<<" "<< dprimcell[3]<<" "<< dprimcell[4]<<" "<< dprimcell[5]<<" " << std::endl;
-    std::cout << "dg6redprimcell: " << dg6redprimcell[0]<<" "<< dg6redprimcell[1]<<" "<< dg6redprimcell[2]<<" "
+    if (info) {
+      std::cout << "dprimcell: " << dprimcell[0]<<" "<< dprimcell[1]<<" "<< dprimcell[2]<<" "<< dprimcell[3]<<" "<< dprimcell[4]<<" "<< dprimcell[5]<<" " << std::endl;
+      std::cout << "dg6redprimcell: " << dg6redprimcell[0]<<" "<< dg6redprimcell[1]<<" "<< dg6redprimcell[2]<<" "
        << dg6redprimcell[3]<<" "<< dg6redprimcell[4]<<" "<< dg6redprimcell[5]<<" " << std::endl;
-    */
+      CS6M_G6toDC13(dg6redprimcell,dc13,1);
+      std::cout << "dc13_sorted: " << std::sqrt(dc13[0]) << " "<< std::sqrt(dc13[1]) << " "<< std::sqrt(dc13[2]) << " "<< std::sqrt(dc13[3]) 
+                                   << " "<< std::sqrt(dc13[4]) << " "<< std::sqrt(dc13[5]) << " "<< std::sqrt(dc13[6]) << " "<< std::sqrt(dc13[7])
+                                   << " "<< std::sqrt(dc13[8]) << " "<< std::sqrt(dc13[9]) << " "<< std::sqrt(dc13[10]) << " "<< std::sqrt(dc13[11])
+                                   << " "<< std::sqrt(dc13[12]) << " " << std::endl;
+      CS6M_G6toDC7(dg6redprimcell,dc7);
+      std::cout << "dc7: " << std::sqrt(dc7[0]) << " "<< std::sqrt(dc7[1]) << " "<< std::sqrt(dc7[2]) << " "<< std::sqrt(dc7[3]) 
+                     << " "<< std::sqrt(dc7[4]) << " "<< std::sqrt(dc7[5]) << " "<< std::sqrt(dc7[6]) << " " << std::endl;
+    }
     g6redprimcell = G6(dg6redprimcell);
     return g6redprimcell;
 }
@@ -105,16 +116,35 @@ int main(int argc, char ** argv) {
     G6 prim1, prim2;
     double dprim1[6];
     double dprim2[6];
-    double dc71[7],dc73[7];
-    double dc72[7],dc74[7];
-    double dcdist;
     size_t ii;
-    dodc7 = dodc7sq = 0;
-    if (argc < 15) {
-        std::cerr 
-		<< "Usage: ncdist lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2 [--dodc7]" 
-		<< std::endl;
-        return -1;
+    std::size_t notfound=std::string::npos;
+    dodc7 = dodc7sq = donc = info = 0;
+    if (std::string(argv[0]).rfind("ncdist") != notfound) {
+      donc = 1;
+      if (argc < 15) {
+          std::cerr 
+  		<< "Usage: ncdist lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2 [--info] [--dodc7] [--dodc7sq]" 
+  		<< std::endl;
+          return -1;
+      }
+    }
+    if (std::string(argv[0]).rfind("dc7dist") != notfound) {
+      dodc7 = 1;
+      if (argc < 15) {
+          std::cerr 
+  		<< "Usage: dc7dist lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2 [--info] [--donc] [--dodc7sq]" 
+  		<< std::endl;
+          return -1;
+      }
+    }
+    if (std::string(argv[0]).rfind("dc7sqdist") != notfound ) {
+      dodc7sq = 1;
+      if (argc < 15) {
+          std::cerr 
+  		<< "Usage: dc7sqdist lat1 a1 b1 c1 alpha1 beta1 gamma1 lat2 a2 b2 c2 alpha2 beta2 gamma2 [--info] [--donc] [--dodc7]" 
+  		<< std::endl;
+          return -1;
+      }
     }
     lat1 = std::string(argv[1]);
     lat2 = std::string(argv[8]);
@@ -130,46 +160,26 @@ int main(int argc, char ** argv) {
     beta2 = atof(argv[13]);
     gamma1 = atof(argv[7]);
     gamma2 = atof(argv[14]);
-    if (argc > 15 && std::string(argv[15]) == "--dodc7") dodc7=1;
-    if (argc > 15 && std::string(argv[15]) == "--dodc7sq") dodc7sq=1;
+    for (ii=15; ii < argc; ii++) {
+      if (std::string(argv[ii]) == "--info") info=1;
+      if (std::string(argv[ii]) == "--donc") donc=1;
+      if (std::string(argv[ii]) == "--dodc7") dodc7=1;
+      if (std::string(argv[ii]) == "--dodc7sq") dodc7sq=1;
+    }
     prim1 = makeprimredprobe(lat1,a1,b1,c1,alpha1,beta1,gamma1);
     prim2 = makeprimredprobe(lat2,a2,b2,c2,alpha2,beta2,gamma2);
-    /* std::cout << "prim1: "<<prim1 << std::endl;
-    std::cout << "prim2: "<<prim2 << std::endl; */
     for (ii=0; ii < 6; ii++) {
       dprim1[ii] = prim1[ii];
       dprim2[ii] = prim2[ii];
     }
-    CS6M_G6toDC7(dprim1,dc71);
-    CS6M_G6toDC7(dprim2,dc72);
-    dcdist=0.;
-    for (ii=0; ii<7; ii++) {
-      if (dodc7) {
-        dc73[ii]=std::sqrt(dc71[ii]);
-        dc74[ii]=std::sqrt(dc72[ii]);
-        dcdist+=(dc73[ii]-dc74[ii])*(dc73[ii]-dc74[ii]);
-      } else if (dodc7sq) {
-        dcdist+=(dc71[ii]-dc72[ii])*(dc71[ii]-dc72[ii]);
-      }
-    }
-    std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
+    if (info) {
+      std::cout << "dprim1: [" << dprim1[0] <<", "<< dprim1[1] << ", "<< dprim1[2] << ", "
               << dprim1[3] << ", " << dprim1[4] << ", " << dprim1[5] <<"]" << std::endl;
-    std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
+      std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
               << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] <<"]" << std::endl;
-    std::cout << 0.1*std::sqrt(NCDist(dprim1,dprim2)) << std::endl;
-    if (dodc7) {
-      std::cout << "dc73: [" << dc73[0] <<", "<< dc73[1] << ", "<< dc73[2] << ", "
-              << dc73[3] << ", " << dc73[4] << ", " << dc73[5] << ", " << dc73[6] << "]" << std::endl;
-      std::cout << "dc74: [" << dc74[0] <<", "<< dc74[1] << ", "<< dc74[2] << ", "
-              << dc74[3] << ", " << dc74[4] << ", " << dc74[5] << ", " << dc74[6] <<"]" << std::endl;
-      std::cout << std::sqrt(dcdist/7) << std::endl;
     }
-    if (dodc7sq) {
-      std::cout << "dc71: [" << dc71[0] <<", "<< dc71[1] << ", "<< dc71[2] << ", "
-              << dc71[3] << ", " << dc71[4] << ", " << dc71[5] << ", " << dc71[6] << "]" << std::endl;
-      std::cout << "dc72: [" << dc72[0] <<", "<< dc72[1] << ", "<< dc72[2] << ", "
-              << dc72[3] << ", " << dc72[4] << ", " << dc72[5] << ", " << dc72[6] <<"]" << std::endl;
-      std::cout << 0.1*std::sqrt(std::sqrt(dcdist)) << std::endl;
-    }
+    if (donc) std::cout << 0.1*std::sqrt(NCDist(dprim1,dprim2)) << std::endl;
+    if (dodc7) std::cout << DC7Dist(dprim1,dprim2) << std::endl;
+    if (dodc7sq) std::cout << DC7sqDist(dprim1,dprim2) << std::endl;
     return 0;
 }

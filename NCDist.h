@@ -28,6 +28,7 @@ extern "C" {
 
 #include <math.h>
 #include <float.h>
+#include "S6M_SellingReduce.h"
 
 static int changed=0;
 #ifdef NCDIST_DEBUG
@@ -2048,7 +2049,7 @@ static double NCDist_pass(double gvec1[6], double gvec2[6], double dist) {
 }
 
 
-double NCDist(double * gvec1, double * gvec2) {
+double NCDist(double gvec1[6], double gvec2[6]) {
    double dist, dist1, dist2, distmin;
    double ndist1[24];
    double ndist2[24];
@@ -2098,6 +2099,35 @@ double NCDist(double * gvec1, double * gvec2) {
    }
    pass = opass + 100;
    return dist;
+}
+
+double DC7Dist(double gvec1[6], double  gvec2[7]) {
+    double dc7vec1[7],dc7vec2[7];
+    double dc71[7],dc72[7];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC7(gvec1,dc7vec1);
+    CS6M_G6toDC7(gvec2,dc7vec2);
+    for (ii=0; ii<7; ii++){
+      dc71[ii]=sqrt(dc7vec1[ii]);
+      dc72[ii]=sqrt(dc7vec2[ii]);
+      dcdist+=(dc71[ii]-dc72[ii])*(dc71[ii]-dc72[ii]);
+    }
+    return .1*sqrt(4.*dcdist/3.);
+}
+
+double DC7sqDist(double gvec1[6], double  gvec2[7]) {
+    double dc7vec1[7],dc7vec2[7];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC7(gvec1,dc7vec1);
+    CS6M_G6toDC7(gvec2,dc7vec2);
+    for (ii=0; ii<7; ii++){
+      dcdist+=(dc7vec1[ii]-dc7vec2[ii])*(dc7vec1[ii]-dc7vec2[ii]);
+    }
+    return .1*sqrt(sqrt(2.*dcdist/3.));
 }
 
 #endif

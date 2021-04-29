@@ -160,7 +160,7 @@ DEPENDENCIES =  \
 
 
 
-all:  ncdist ncdist_mat d7dist D7Test Follower \
+all:  ncdist ncdist_mat d7dist D7Test dc7dist dc7dist_mat dc7sqdist dc7sqdist_mat Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
 	cs6dist_app cs6dist_app2  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
@@ -239,6 +239,12 @@ ncdist_mat:  ncdist_mat_.o \
 	$(LIBSOURCES) Delone.cpp \
 	-lpthread
 
+dc7dist_mat:	ncdist_mat 
+	cp ncdist_mat dc7dist_mat 
+
+dc7sqdist_mat:	ncdist_mat 
+	cp ncdist_mat dc7sqdist_mat
+
 ncdist_.o:  ncdist.cpp Reducer.h Delone.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h VecN.h Vec_N_Tools.h
 	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) ncdist.cpp -o ncdist_.o
 
@@ -247,6 +253,12 @@ ncdist:  ncdist_.o \
 	g++ $(CXXFLAGS) -o ncdist ncdist_.o -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) \
 	$(LIBSOURCES)Delone.cpp \
 	-lpthread
+
+dc7dist:  ncdist 
+	cp ncdist dc7dist
+
+dc7sqdist:	ncdist 
+	cp ncdist dc7sqdist
 
 d7dist_.o:  d7dist.cpp Reducer.h Delone.h LRL_Cell.h  LRL_Cell_Degrees.h NCDist.h VecN.h Vec_N_Tools.h
 	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) d7dist.cpp -o d7dist_.o
@@ -393,6 +405,10 @@ distclean:  clean
 	-@rm -rf d7dist_.o
 	-@rm -rf Delone.o
 	-@rm -rf D7Test
+	-@rm -rf dc7dist
+	-@rm -rf dc7sqdist
+	-@rm -rf dc7dist_mat
+	-@rm -rf dc7sqdist_mat
 	-@rm -rf Follower
 	-@rm -rf lib
 	-@rm -rf LRL_Cell.o

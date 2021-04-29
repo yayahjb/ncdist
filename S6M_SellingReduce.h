@@ -1732,7 +1732,7 @@
 
 
 
-  #define CS6M_S6Reduce(in,out,reduced) {      \
+  #define CS6M_S6Reduce(in,out,reduced) {    \
     size_t maxIndex       ;                  \
     int reductionCycleCount;                 \
     int reduction;                           \
@@ -1831,75 +1831,101 @@
     }                                         \
   }
 
-  #define CS6M_G6toDC7(g6vec,spectrum7) {                    \
-    double spectrum13[13];                                     \
-    int ii, jj, kk, ll;                                      \
-    spectrum13[CS6M_DC_A2]=g6vec[CS6M_G6A2];                 \
-    spectrum13[CS6M_DC_B2]=g6vec[CS6M_G6B2];                 \
-    spectrum13[CS6M_DC_A_PLUS_B_2]                           \
+  #define CS6M_G6toDC13(g6vec,dc13,sort) {                   \
+    dc13[CS6M_DC_A2]=g6vec[CS6M_G6A2];                       \
+    dc13[CS6M_DC_B2]=g6vec[CS6M_G6B2];                       \
+    dc13[CS6M_DC_A_PLUS_B_2]                                 \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G62AB];  \
-    spectrum13[CS6M_DC_A_MINUS_B_2]                          \
+    dc13[CS6M_DC_A_MINUS_B_2]                                \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]-g6vec[CS6M_G62AB];  \
-    spectrum13[CS6M_DC_C2]=g6vec[CS6M_G6C2];                 \
-    spectrum13[CS6M_DC_B_PLUS_C_2]                           \
+    dc13[CS6M_DC_C2]=g6vec[CS6M_G6C2];                       \
+    dc13[CS6M_DC_B_PLUS_C_2]                                 \
       =g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]+g6vec[CS6M_G62BC];  \
-    spectrum13[CS6M_DC_B_MINUS_C_2]                          \
+    dc13[CS6M_DC_B_MINUS_C_2]                                \
       =g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]-g6vec[CS6M_G62BC];  \
-    spectrum13[CS6M_DC_A_PLUS_C_2]                           \
+    dc13[CS6M_DC_A_PLUS_C_2]                                 \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6C2]+g6vec[CS6M_G62AC];  \
-    spectrum13[CS6M_DC_A_MINUS_C_2]                          \
+    dc13[CS6M_DC_A_MINUS_C_2]                                \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6C2]-g6vec[CS6M_G62AC];  \
-    spectrum13[CS6M_DC_A_PLUS_B_PLUS_C_2]                    \
+    dc13[CS6M_DC_A_PLUS_B_PLUS_C_2]                          \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
       +g6vec[CS6M_G62BC]+g6vec[CS6M_G62AC]+g6vec[CS6M_G62AB];\
-    spectrum13[CS6M_DC_A_PLUS_B_MINUS_C_2]                   \
+    dc13[CS6M_DC_A_PLUS_B_MINUS_C_2]                         \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
       -g6vec[CS6M_G62BC]-g6vec[CS6M_G62AC]+g6vec[CS6M_G62AB];\
-    spectrum13[CS6M_DC_A_MINUS_B_PLUS_C_2]                   \
+    dc13[CS6M_DC_A_MINUS_B_PLUS_C_2]                         \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
       -g6vec[CS6M_G62BC]+g6vec[CS6M_G62AC]-g6vec[CS6M_G62AB];\
-    spectrum13[CS6M_DC_A_MINUS_B_MINUS_C_2]                  \
+    dc13[CS6M_DC_A_MINUS_B_MINUS_C_2]                        \
       =g6vec[CS6M_G6A2]+g6vec[CS6M_G6B2]+g6vec[CS6M_G6C2]    \
       +g6vec[CS6M_G62BC]-g6vec[CS6M_G62AC]-g6vec[CS6M_G62AB];\
-    spectrum7[0]=spectrum13[0];                              \
-    spectrum7[1]=spectrum13[1];                              \
-    if (spectrum13[2] < spectrum13[3]) {                     \
-      spectrum7[2]=spectrum13[2];                            \
-      spectrum7[3]=spectrum13[3];                            \
-    } else {                                                 \
-      spectrum7[2]=spectrum13[3];                            \
-      spectrum7[3]=spectrum13[2];                            \
-    }                                                        \
-    jj = 4;                                                  \
-    for (ii=4;ii<13;ii++) {                                  \
-      for (kk = 2; kk < jj; kk++) {                          \
-        if(spectrum13[ii] < spectrum7[kk]) {                 \
-          for (ll = jj; ll > kk; ll--){                      \
-            spectrum7[ll]=spectrum7[ll-1];                   \
-          }                                                  \
-          break;                                             \
-        }                                                    \
-      }                                                      \
-      if (kk < 7) {                                          \
-        spectrum7[kk]=spectrum13[ii];                        \
-        if (jj < 7) jj++;                                    \
-      }                                                      \
-    }                                                        \
+    if (sort) {                               \
+      int gap;                                \
+      int ii;                                 \
+      int done;                               \
+      double temp;                            \
+      gap = 12;                               \
+      while (gap > 0) {                       \
+        done = 0;                             \
+        while (!done) {                       \
+          done = 1;                           \
+          for (ii=0; ii+gap < 13; ii+=gap) {  \
+            if (dc13[ii] > dc13[ii+gap]) {    \
+              temp = dc13[ii];                \
+              dc13[ii] = dc13[ii+gap];        \
+              dc13[ii+gap] = temp;            \
+              done = 0;                       \
+            }                                 \
+          }                                   \
+        }                                     \
+        gap = gap/2;                          \
+      }                                       \
+    }                                         \
+  }
+
+#define CS6M_G6toDC7(g6vec,spectrum7) {        \
+    double spectrum13[13];                     \
+    int ii, jj, kk, ll;                        \
+    CS6M_G6toDC13(g6vec,spectrum13,0)          \
+    spectrum7[0]=spectrum13[0];                \
+    spectrum7[1]=spectrum13[1];                \
+    if (spectrum13[2] < spectrum13[3]) {       \
+      spectrum7[2]=spectrum13[2];              \
+      spectrum7[3]=spectrum13[3];              \
+    } else {                                   \
+      spectrum7[2]=spectrum13[3];              \
+      spectrum7[3]=spectrum13[2];              \
+    }                                          \
+    jj = 4;                                    \
+    for (ii=4;ii<13;ii++) {                    \
+      for (kk = 2; kk < jj; kk++) {            \
+        if(spectrum13[ii] < spectrum7[kk]) {   \
+          for (ll = jj; ll > kk; ll--){        \
+            spectrum7[ll]=spectrum7[ll-1];     \
+          }                                    \
+          break;                               \
+        }                                      \
+      }                                        \
+      if (kk < 7) {                            \
+        spectrum7[kk]=spectrum13[ii];          \
+        if (jj < 7) jj++;                      \
+      }                                        \
+    }                                          \
   }
 
 
-  #define CS6M_Cellvolume(cell,volume)       {  \
+  #define CS6M_Cellvolume(cell,volume)       { \
    double cosAlpha=cos(cell[CS6M_CELLALPHA]);  \
    double cosBeta =cos(cell[CS6M_CELLBETA ]);  \
    double cosGamma=cos(cell[CS6M_CELLGAMMA]);  \
-   volume=                                    \
+   volume=                                     \
      cell[CS6M_CELLA]*cell[CS6M_CELLB]*cell[CS6M_CELLC] \
-       * CS6M_sqrt( fabs(                          \
-           1.0                                \
-           -cosAlpha*cosAlpha                 \
-           -cosBeta*cosBeta                   \
-           -cosGamma*cosGamma                 \
-           +2.*cosAlpha*cosBeta*cosGamma));   \
+       * CS6M_sqrt( fabs(                      \
+           1.0                                 \
+           -cosAlpha*cosAlpha                  \
+           -cosBeta*cosBeta                    \
+           -cosGamma*cosGamma                  \
+           +2.*cosAlpha*cosBeta*cosGamma));    \
   }
 
   #define CS6M_Cellinverse(cell,inversecell) {        \
