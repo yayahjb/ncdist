@@ -178,8 +178,11 @@ int main(int argc, char ** argv) {
       std::cout << "dprim2: [" << dprim2[0] <<", "<< dprim2[1] << ", "<< dprim2[2] << ", "
               << dprim2[3] << ", " << dprim2[4] << ", " << dprim2[5] <<"]" << std::endl;
     }
+    if (donc && info) std::cout << "raw ncdist: " << NCDist(dprim1,dprim2) << std::endl;
     if (donc) std::cout << 0.1*std::sqrt(NCDist(dprim1,dprim2)) << std::endl;
+    if (dodc7 && info) std::cout << "raw dc7 dist: "<< DC7Distraw(dprim1,dprim2) << std::endl;
     if (dodc7) std::cout << DC7Dist(dprim1,dprim2) << std::endl;
+    if (dodc7sq && info) std::cout << "raw dc7sq dist: "<<DC7sqDistraw(dprim1,dprim2) << std::endl;
     if (dodc7sq) std::cout << DC7sqDist(dprim1,dprim2) << std::endl;
     return 0;
 }
