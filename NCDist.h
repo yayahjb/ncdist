@@ -7,9 +7,7 @@
 //
 
 #ifdef __cplusplus
-
 extern "C" {
-
 #endif
 
 
@@ -1730,8 +1728,6 @@ static void bdmaps(double gvec[6],
 }
 
 
-
-
 /* Compute the minimal distance between gvec1 and gvec2 going
  through bd1 and bd2, assuming rgvec1 and rgevc2 are their
  reflections in those boundaries
@@ -2214,12 +2210,8 @@ double DC10sqDistraw(double gvec1[6], double  gvec2[6]) {
     }
     return sqrt(dcdist);
 }
-
 #endif
-
 #ifdef __cplusplus
-
 }
-
 #endif
 

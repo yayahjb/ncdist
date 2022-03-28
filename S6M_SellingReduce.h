@@ -1995,32 +1995,6 @@
       }                                                       \
   }
 
-/*
-  #define CS6M_DCB_A2                     0
-  #define CS6M_DCB_B2                     1
-  #define CS6M_DCB_C2                     2
-  #define CS6M_DCB_SMALL_BC_DIAG          3
-  #define CS6M_DCB_B_PLUS_C_2             3
-  #define CS6M_DCB_SMALL_AC_DIAG          4
-  #define CS6M_DCB_A_PLUS_C_2             4
-  #define CS6M_DCB_SMALL_AB_DIAG          5
-  #define CS6M_DCB_A_PLUS_B_2             5
-  #define CS6M_DCB_SMALLEST_BODY_DIAG     6
-  #define CS6M_DCB_A_PLUS_B_PLUS_C_2      6
-  #define CS6M_DCB_B_MINUS_C_2            7
-  #define CS6M_DCB_BIG_BC_DIAG            7
-  #define CS6M_DCB_A_MINUS_C_2            8
-  #define CS6M_DCB_BIG_AC_DIAG            8
-  #define CS6M_DCB_A_MINUS_B_2            9
-  #define CS6M_DCB_BIG_AB_DIAG            9
-  #define CS6M_DCB_2ND_SMALLEST_BODY_DIAG 10
-  #define CS6M_DCB_A_PLUS_B_MINUS_C_2     10
-  #define CS6M_DCB_3RD_SMALLEST_BODY_DIAG 11
-  #define CS6M_DCB_A_MINUS_B_PLUS_C_2     11
-  #define CS6M_DCB_LARGEST_BODY_DIAG      12
-  #define CS6M_DCB_A_MINUS_B_MINUS_C_2    12
-*/
-
 #define CS6M_DC13blockstoG6(dc13,g6vecs,maxng6vecs,ng6vecs,error) {     \
   double delta;                                   \
   int id;                                         \
@@ -2243,6 +2217,103 @@
     }                                                                 \
     /* std::cout<<"exiting with ng6vecs: "<< ng6vecs << std::endl;*/  \
   }                                                                   \
+}
+
+#define CS6M_G6toDC7unsorted(g6vec,dc7unsrt)  {\
+    double g6vecred[6];                        \
+    double bodydiags[4];                       \
+    int reduced;                               \
+    int ii, jj, kk, ll;                        \
+    reduced=0;                                 \
+    CS6M_G6Reduce(g6vec,g6vecred,reduced);     \
+    if (!reduced) {                            \
+      for(ii=0;ii<6;ii++)g6vecred[ii]=0.;      \
+    }                                          \
+    dc7unsrt[CS6M_DCB_A2]=g6vecred[CS6M_G6A2]; \
+    dc7unsrt[CS6M_DCB_B2]=g6vecred[CS6M_G6B2]; \
+    dc7unsrt[CS6M_DCB_C2]=g6vecred[CS6M_G6C2]; \
+    if (g6vecred[CS6M_G62BC] <= 0.             \
+       && g6vecred[CS6M_G62AC] <= 0.           \
+       && g6vecred[CS6M_G62AB] <= 0.) {        \
+          dc7unsrt[CS6M_DCB_SMALL_BC_DIAG]     \
+          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] +g6vecred[CS6M_G62BC]; \
+          dc7unsrt[CS6M_DCB_SMALL_AC_DIAG]                                 \
+          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] +g6vecred[CS6M_G62BC]; \
+          dc7unsrt[CS6M_DCB_SMALL_AB_DIAG]                                 \
+          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] +g6vecred[CS6M_G62BC]; \
+          dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG ]                           \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
+           +g6vecred[CS6M_G62BC]+g6vecred[CS6M_G62AC]+g6vecred[CS6M_G62AB];\
+    } else {                                   \
+          dc7unsrt[CS6M_DCB_SMALL_BC_DIAG]     \
+          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] -g6vecred[CS6M_G62BC]; \
+          dc7unsrt[CS6M_DCB_SMALL_AC_DIAG]                                 \
+          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] -g6vecred[CS6M_G62BC]; \
+          dc7unsrt[CS6M_DCB_SMALL_AB_DIAG]                                 \
+          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] -g6vecred[CS6M_G62BC]; \
+          bodydiags[0]=dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG]               \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
+           +g6vecred[CS6M_G62BC]+g6vecred[CS6M_G62AC]+g6vecred[CS6M_G62AB];\
+          bodydiags[1]=                                                    \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
+           -g6vecred[CS6M_G62BC]-g6vecred[CS6M_G62AC]+g6vecred[CS6M_G62AB];\
+          if (bodydiags[1]<bodydiags[0])                                   \
+            dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG]=bodydiags[0]=bodydiags[1];\
+          bodydiags[2]=                                                    \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
+           -g6vecred[CS6M_G62BC]+g6vecred[CS6M_G62AC]-g6vecred[CS6M_G62AB];\
+          if (bodydiags[2]<bodydiags[0])                                   \
+            dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG]=bodydiags[0]=bodydiags[2];\
+          bodydiags[3]=                                                    \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
+           +g6vecred[CS6M_G62BC]-g6vecred[CS6M_G62AC]-g6vecred[CS6M_G62AB];\
+          if (bodydiags[3]<bodydiags[0])                                   \
+            dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG]=bodydiags[3];            \
+    }                                                                      \
+  }
+
+#define CS6M_DC7unsortedtoG6(dc7,g6vec,error) {   \
+  double delta;                                   \
+  double u, v, w, testsign;                       \
+  int ii;                                         \
+  double g6vectemp[6];                            \
+  error=0;                                        \
+  delta=dc7[CS6M_DCB_A2]*1.e-9;                   \
+  for (ii=0;ii<7;ii++) {                          \
+    if (dc7[ii]<delta) error++;                   \
+  }                                               \
+  if (dc7[CS6M_DCB_A2]>dc7[CS6M_DCB_B2]+delta ||  \
+    dc7[CS6M_DCB_B2]>dc7[CS6M_DCB_C2]+delta ) error++;\
+  if (error > 0) {                                \
+    for (ii=0;ii<6;ii++) g6vec[ii]=0.;            \
+  } else {                                        \
+    g6vectemp[CS6M_G6A2]=dc7[CS6M_DCB_A2];        \
+    g6vectemp[CS6M_G6B2]=dc7[CS6M_DCB_B2];        \
+    g6vectemp[CS6M_G6C2]=dc7[CS6M_DCB_C2];        \
+    u=dc7[CS6M_DCB_SMALL_BC_DIAG];                \
+    v=dc7[CS6M_DCB_SMALL_AC_DIAG];                \
+    w=dc7[CS6M_DCB_SMALL_AB_DIAG];                \
+    testsign=dc7[CS6M_DCB_SMALLEST_BODY_DIAG]     \
+             -(g6vectemp[CS6M_G6A2][0]            \
+              +g6vectemp[CS6M_G6B2][0]            \
+              +g6vectemp[CS6M_G6C2][0]+u+v+w);    \
+    if ((CS6M_abs(testsign)<=delta)               \
+        || (CS6M_abs(u)<=delta)                   \
+        || (CS6M_abs(fd[jjm][0])<=delta)          \
+        || (CS6M_abs(fd[kkm][0])<=delta)) {       \
+      g6vectemp[CS6M_G62BC]=u;                    \
+      g6vectemp[CS6M_G62AC]=v;                    \
+      g6vectemp[CS6M_G62AB]=w;                    \
+    } else {                                      \
+      g6vectemp[CS6M_G62BC]=-u;                   \
+      g6vectemp[CS6M_G62AC]=-v;                   \
+      g6vectemp[CS6M_G62AB]=-w;                   \
+    }                                             \
+    CS6M_G6Reduce(g6vectemp,g6vec,error);         \
+    if (error > 0) {                              \
+      for (ii=0;ii<6;ii++) g6vec[ii]=0.;          \
+    }                                             \
+  }                                               \
 }
 
 #define CS6M_G6toDC7(g6vec,spectrum7) {        \
