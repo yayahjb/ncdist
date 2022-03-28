@@ -2101,7 +2101,7 @@ double NCDist(double gvec1[6], double gvec2[6]) {
    return dist;
 }
 
-double DC7Dist(double gvec1[6], double  gvec2[7]) {
+double DC7Dist(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
     double dc71[7],dc72[7];
     double dcdist;
@@ -2117,7 +2117,7 @@ double DC7Dist(double gvec1[6], double  gvec2[7]) {
     return .1*sqrt(4.*dcdist/3.);
 }
 
-double DC7sqDist(double gvec1[6], double  gvec2[7]) {
+double DC7sqDist(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
     double dcdist;
     int ii;
@@ -2129,7 +2129,7 @@ double DC7sqDist(double gvec1[6], double  gvec2[7]) {
     }
     return .1*sqrt(sqrt(2.*dcdist/3.));
 }
-double DC7Distraw(double gvec1[6], double  gvec2[7]) {
+double DC7Distraw(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
     double dc71[7],dc72[7];
     double dcdist;
@@ -2145,7 +2145,7 @@ double DC7Distraw(double gvec1[6], double  gvec2[7]) {
     return sqrt(dcdist);
 }
 
-double DC7sqDistraw(double gvec1[6], double  gvec2[7]) {
+double DC7sqDistraw(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
     double dcdist;
     int ii;
@@ -2154,6 +2154,63 @@ double DC7sqDistraw(double gvec1[6], double  gvec2[7]) {
     CS6M_G6toDC7(gvec2,dc7vec2);
     for (ii=0; ii<7; ii++){
       dcdist+=(dc7vec1[ii]-dc7vec2[ii])*(dc7vec1[ii]-dc7vec2[ii]);
+    }
+    return sqrt(dcdist);
+}
+double DC10Dist(double gvec1[6], double  gvec2[6]) {
+    double dc13vec1[13],dc13vec2[13];
+    double dc131[13],dc132[13];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC13blocks(gvec1,dc13vec1);
+    CS6M_G6toDC13blocks(gvec2,dc13vec2);
+    for (ii=0; ii<10; ii++){
+      dc131[ii]=sqrt(dc13vec1[ii]);
+      dc132[ii]=sqrt(dc13vec2[ii]);
+      dcdist+=(dc131[ii]-dc132[ii])*(dc131[ii]-dc132[ii]);
+    }
+    return .1*sqrt(4.*dcdist/3.);
+}
+
+double DC10sqDist(double gvec1[6], double  gvec2[6]) {
+    double dc13vec1[13],dc13vec2[13];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC13blocks(gvec1,dc13vec1);
+    CS6M_G6toDC7(gvec2,dc13vec2);
+    for (ii=0; ii<10; ii++){
+      dcdist+=(dc13vec1[ii]-dc13vec2[ii])*(dc13vec1[ii]-dc13vec2[ii]);
+    }
+    return .1*sqrt(sqrt(2.*dcdist/3.));
+}
+
+double DC10Distraw(double gvec1[6], double  gvec2[6]) {
+    double dc13vec1[13],dc13vec2[13];
+    double dc131[13],dc132[13];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC13blocks(gvec1,dc13vec1);
+    CS6M_G6toDC13blocks(gvec2,dc13vec2);
+    for (ii=0; ii<10; ii++){
+      dc131[ii]=sqrt(dc13vec1[ii]);
+      dc132[ii]=sqrt(dc13vec2[ii]);
+      dcdist+=(dc131[ii]-dc132[ii])*(dc131[ii]-dc132[ii]);
+    }
+    return sqrt(dcdist);
+}
+
+double DC10sqDistraw(double gvec1[6], double  gvec2[6]) {
+    double dc13vec1[13],dc13vec2[13];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC13blocks(gvec1,dc13vec1);
+    CS6M_G6toDC13blocks(gvec2,dc13vec2);
+    for (ii=0; ii<10; ii++){
+      dcdist+=(dc13vec1[ii]-dc13vec2[ii])*(dc13vec1[ii]-dc13vec2[ii]);
     }
     return sqrt(dcdist);
 }

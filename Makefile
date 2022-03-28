@@ -160,7 +160,8 @@ DEPENDENCIES =  \
 
 
 
-all:  ncdist ncdist_mat d7dist D7Test dc7dist dc7dist_mat dc7sqdist dc7sqdist_mat Follower \
+all:  ncdist ncdist_mat d7dist D7Test dc10dist dc10sqdist \
+	dc7dist dc7dist_mat dc7sqdist dc7sqdist_mat Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
 	cs6dist_app cs6dist_app2  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
@@ -259,6 +260,12 @@ dc7dist:  ncdist
 
 dc7sqdist:	ncdist 
 	cp ncdist dc7sqdist
+
+dc10dist:  ncdist 
+	cp ncdist dc10dist
+
+dc10sqdist:	ncdist 
+	cp ncdist dc10sqdist
 
 d7dist_.o:  d7dist.cpp Reducer.h Delone.h LRL_Cell.h  LRL_Cell_Degrees.h NCDist.h VecN.h Vec_N_Tools.h
 	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) d7dist.cpp -o d7dist_.o
