@@ -345,7 +345,7 @@
     double delta;                                                                         \
     double pi=3.1415926535897932384626433832795;                                          \
     double torad=pi/180.;                                                                 \
-    size_t i;                                                                             \
+    unsigned long i;                                                                      \
     delta = fabs(cell[CS6M_CELLA]);                                                       \
     if (cell[CS6M_CELLB] > delta) delta = cell[CS6M_CELLB];                               \
     if (cell[CS6M_CELLC] > delta) delta = cell[CS6M_CELLC];                               \
@@ -361,7 +361,7 @@
 
   #define CS6M_CelltoG6(cell,g6vec) {                                                     \
     double delta;                                                                         \
-    size_t i;                                                                             \
+    unsigned long i;                                                                      \
     double pi=3.1415926535897932384626433832795;                                          \
     if (cell[CS6M_CELLALPHA]>2.*pi || cell[CS6M_CELLALPHA]<-2.*pi                         \
         || cell[CS6M_CELLBETA]>2.*pi || cell[CS6M_CELLBETA]<-2.*pi                        \
@@ -1709,7 +1709,7 @@
 
   #define CS6M_S6Reduce_Mat(in,out,mat66,reduced) {      \
     double mat66out[36];                     \
-    size_t maxIndex       ;                  \
+    unsigned long maxIndex;                  \
     int reductionCycleCount;                 \
     int reduction;                           \
     int ii;                                  \
@@ -1757,7 +1757,7 @@
 
 
   #define CS6M_S6Reduce(in,out,reduced) {    \
-    size_t maxIndex       ;                  \
+    unsigned long maxIndex;                  \
     int reductionCycleCount;                 \
     int reduction;                           \
     int ii;                                  \
@@ -2238,9 +2238,9 @@
           dc7unsrt[CS6M_DCB_SMALL_BC_DIAG]     \
           = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] +g6vecred[CS6M_G62BC]; \
           dc7unsrt[CS6M_DCB_SMALL_AC_DIAG]                                 \
-          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] +g6vecred[CS6M_G62BC]; \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6C2] +g6vecred[CS6M_G62AC]; \
           dc7unsrt[CS6M_DCB_SMALL_AB_DIAG]                                 \
-          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] +g6vecred[CS6M_G62BC]; \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2] +g6vecred[CS6M_G62AB]; \
           dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG ]                           \
           = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
            +g6vecred[CS6M_G62BC]+g6vecred[CS6M_G62AC]+g6vecred[CS6M_G62AB];\
@@ -2248,23 +2248,23 @@
           dc7unsrt[CS6M_DCB_SMALL_BC_DIAG]     \
           = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] -g6vecred[CS6M_G62BC]; \
           dc7unsrt[CS6M_DCB_SMALL_AC_DIAG]                                 \
-          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] -g6vecred[CS6M_G62BC]; \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6C2] -g6vecred[CS6M_G62AC]; \
           dc7unsrt[CS6M_DCB_SMALL_AB_DIAG]                                 \
-          = g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2] -g6vecred[CS6M_G62BC]; \
+          = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2] -g6vecred[CS6M_G62AB]; \
           bodydiags[0]=dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG]               \
           = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
            +g6vecred[CS6M_G62BC]+g6vecred[CS6M_G62AC]+g6vecred[CS6M_G62AB];\
-          bodydiags[1]=                                                    \
+          bodydiags[1]                                                    \
           = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
            -g6vecred[CS6M_G62BC]-g6vecred[CS6M_G62AC]+g6vecred[CS6M_G62AB];\
           if (bodydiags[1]<bodydiags[0])                                   \
             dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG]=bodydiags[0]=bodydiags[1];\
-          bodydiags[2]=                                                    \
+          bodydiags[2]                                                    \
           = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
            -g6vecred[CS6M_G62BC]+g6vecred[CS6M_G62AC]-g6vecred[CS6M_G62AB];\
           if (bodydiags[2]<bodydiags[0])                                   \
             dc7unsrt[CS6M_DCB_SMALLEST_BODY_DIAG]=bodydiags[0]=bodydiags[2];\
-          bodydiags[3]=                                                    \
+          bodydiags[3]                                                    \
           = g6vecred[CS6M_G6A2]+g6vecred[CS6M_G6B2]+g6vecred[CS6M_G6C2]    \
            +g6vecred[CS6M_G62BC]-g6vecred[CS6M_G62AC]-g6vecred[CS6M_G62AB];\
           if (bodydiags[3]<bodydiags[0])                                   \
@@ -2294,13 +2294,13 @@
     v=dc7[CS6M_DCB_SMALL_AC_DIAG];                \
     w=dc7[CS6M_DCB_SMALL_AB_DIAG];                \
     testsign=dc7[CS6M_DCB_SMALLEST_BODY_DIAG]     \
-             -(g6vectemp[CS6M_G6A2][0]            \
-              +g6vectemp[CS6M_G6B2][0]            \
-              +g6vectemp[CS6M_G6C2][0]+u+v+w);    \
+             -(g6vectemp[CS6M_G6A2]               \
+              +g6vectemp[CS6M_G6B2]               \
+              +g6vectemp[CS6M_G6C2]+u+v+w);       \
     if ((CS6M_abs(testsign)<=delta)               \
         || (CS6M_abs(u)<=delta)                   \
-        || (CS6M_abs(fd[jjm][0])<=delta)          \
-        || (CS6M_abs(fd[kkm][0])<=delta)) {       \
+        || (CS6M_abs(v)<=delta)          \
+        || (CS6M_abs(w)<=delta)) {       \
       g6vectemp[CS6M_G62BC]=u;                    \
       g6vectemp[CS6M_G62AC]=v;                    \
       g6vectemp[CS6M_G62AB]=w;                    \

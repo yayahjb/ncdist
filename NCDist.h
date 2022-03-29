@@ -2125,6 +2125,7 @@ double DC7sqDist(double gvec1[6], double  gvec2[6]) {
     }
     return .1*sqrt(sqrt(2.*dcdist/3.));
 }
+
 double DC7Distraw(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
     double dc71[7],dc72[7];
@@ -2153,6 +2154,65 @@ double DC7sqDistraw(double gvec1[6], double  gvec2[6]) {
     }
     return sqrt(dcdist);
 }
+
+double DC7unsrtDist(double gvec1[6], double  gvec2[6]) {
+    double dc7vec1[7],dc7vec2[7];
+    double dc71[7],dc72[7];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC7unsorted(gvec1,dc7vec1);
+    CS6M_G6toDC7unsorted(gvec2,dc7vec2);
+    for (ii=0; ii<7; ii++){
+      dc71[ii]=sqrt(dc7vec1[ii]);
+      dc72[ii]=sqrt(dc7vec2[ii]);
+      dcdist+=(dc71[ii]-dc72[ii])*(dc71[ii]-dc72[ii]);
+    }
+    return .1*sqrt(4.*dcdist/3.);
+}
+
+double DC7unsrtsqDist(double gvec1[6], double  gvec2[6]) {
+    double dc7vec1[7],dc7vec2[7];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC7unsorted(gvec1,dc7vec1);
+    CS6M_G6toDC7unsorted(gvec2,dc7vec2);
+    for (ii=0; ii<7; ii++){
+      dcdist+=(dc7vec1[ii]-dc7vec2[ii])*(dc7vec1[ii]-dc7vec2[ii]);
+    }
+    return .1*sqrt(sqrt(2.*dcdist/3.));
+}
+
+double DC7unsrtDistraw(double gvec1[6], double  gvec2[6]) {
+    double dc7vec1[7],dc7vec2[7];
+    double dc71[7],dc72[7];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC7unsorted(gvec1,dc7vec1);
+    CS6M_G6toDC7unsorted(gvec2,dc7vec2);
+    for (ii=0; ii<7; ii++){
+      dc71[ii]=sqrt(dc7vec1[ii]);
+      dc72[ii]=sqrt(dc7vec2[ii]);
+      dcdist+=(dc71[ii]-dc72[ii])*(dc71[ii]-dc72[ii]);
+    }
+    return sqrt(dcdist);
+}
+
+double DC7unsrtsqDistraw(double gvec1[6], double  gvec2[6]) {
+    double dc7vec1[7],dc7vec2[7];
+    double dcdist;
+    int ii;
+    dcdist = 0.;
+    CS6M_G6toDC7unsorted(gvec1,dc7vec1);
+    CS6M_G6toDC7unsorted(gvec2,dc7vec2);
+    for (ii=0; ii<7; ii++){
+      dcdist+=(dc7vec1[ii]-dc7vec2[ii])*(dc7vec1[ii]-dc7vec2[ii]);
+    }
+    return sqrt(dcdist);
+}
+
 double DC10Dist(double gvec1[6], double  gvec2[6]) {
     double dc13vec1[13],dc13vec2[13];
     double dc131[13],dc132[13];
