@@ -2277,6 +2277,7 @@
   double u, v, w, testsign;                       \
   int ii;                                         \
   double g6vectemp[6];                            \
+  int reduced;                                    \
   error=0;                                        \
   delta=dc7[CS6M_DCB_A2]*1.e-9;                   \
   for (ii=0;ii<7;ii++) {                          \
@@ -2290,9 +2291,12 @@
     g6vectemp[CS6M_G6A2]=dc7[CS6M_DCB_A2];        \
     g6vectemp[CS6M_G6B2]=dc7[CS6M_DCB_B2];        \
     g6vectemp[CS6M_G6C2]=dc7[CS6M_DCB_C2];        \
-    u=dc7[CS6M_DCB_SMALL_BC_DIAG];                \
-    v=dc7[CS6M_DCB_SMALL_AC_DIAG];                \
-    w=dc7[CS6M_DCB_SMALL_AB_DIAG];                \
+    u=dc7[CS6M_DCB_SMALL_BC_DIAG]                 \
+      -dc7[CS6M_DCB_B2]-dc7[CS6M_DCB_C2];         \
+    v=dc7[CS6M_DCB_SMALL_AC_DIAG]                 \
+      -dc7[CS6M_DCB_A2]-dc7[CS6M_DCB_C2];         \
+    w=dc7[CS6M_DCB_SMALL_AB_DIAG]                 \
+      -dc7[CS6M_DCB_A2]-dc7[CS6M_DCB_B2];         \
     testsign=dc7[CS6M_DCB_SMALLEST_BODY_DIAG]     \
              -(g6vectemp[CS6M_G6A2]               \
               +g6vectemp[CS6M_G6B2]               \
@@ -2309,9 +2313,18 @@
       g6vectemp[CS6M_G62AC]=-v;                   \
       g6vectemp[CS6M_G62AB]=-w;                   \
     }                                             \
-    CS6M_G6Reduce(g6vectemp,g6vec,error);         \
-    if (error > 0) {                              \
+    reduced=0;                                    \
+    CS6M_G6Reduce(g6vectemp,g6vec,reduced);       \
+    std::cout<<"CS6M_DC7unsortedtoG6([" <<        \
+    dc7[0] << " " << dc7[1] << " " << dc7[2] << " " << dc7[3] << \
+    " " << dc7[4] << " " << dc7[5] << " " << dc7[6] << "],["<< \
+    "g6vectemp: [" << g6vectemp[0] << " " << g6vectemp[1] << " " << g6vectemp[2] <<  \
+    " " << g6vectemp[3] << " " << g6vectemp[4] << " " << g6vectemp[5] << "])" <<  \
+    "g6vec: [" << g6vec[0] << " " << g6vec[1] << " " << g6vec[2] << " " << g6vec[3] << \
+    " " << g6vec[4] << " " << g6vec[5] << "])" << std::endl;\
+    if (!reduced) {                               \
       for (ii=0;ii<6;ii++) g6vec[ii]=0.;          \
+      error=1;                                    \
     }                                             \
   }                                               \
 }
