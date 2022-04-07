@@ -14,8 +14,13 @@
 #include <cmath>
 #include <stdlib.h>
 
+int donc=0, doncsq=0,
+    dodc7=0, dodc7sq=0, dodc7unsrt=0, dodc7unsrtsq=0, 
+    dodc10=0, dodc10sq=0, info=0;
+
 G6 makeprimredcell( std::string testlattice,
-        double a, double b, double c, double alpha, double beta, double gamma, double extra, int info=0 )
+        double a, double b, double c, 
+        double alpha, double beta, double gamma, double extra )
 {
     std::string latsym;
     char clatsym;
@@ -27,7 +32,12 @@ G6 makeprimredcell( std::string testlattice,
     S6 s6redprimcell;
     G6 s6redprimcell_as_g6;
     double d7primcell[7];
+    double dc13[13];
+    double dc7[7];
+    double dc7_unsrt[7];
     double s6primcell[6];
+    double dprimcell[6];
+    double dg6redprimcell[6];
     G6 dredprimcell;
     Mat66 mc;
     Mat66 m;
@@ -113,12 +123,18 @@ G6 makeprimredcell( std::string testlattice,
             primcell = mc*(rawcell.Cell2V6());*/
             break;
     }
+    dprimcell[0]=primcell[0];   
+    dprimcell[1]=primcell[1];   
+    dprimcell[2]=primcell[2];   
+    dprimcell[3]=primcell[3];   
+    dprimcell[4]=primcell[4];   
+    dprimcell[5]=primcell[5];
     reduced=0;
-    CS6M_G6Reduce(primcell,redprimcell,reduced);
+    CS6M_G6Reduce(dprimcell,dg6redprimcell,reduced);
     if (!reduced) {
       for(ii=0;ii<6;ii++) redprimcell[ii]=redprimcell_as_g6[ii]=0.;
     } else {
-      for(ii=0;ii<6;ii++) redprimcell_as_g6[ii]=redprimcell[ii];
+      for(ii=0;ii<6;ii++) redprimcell_as_g6[ii]=dg6redprimcell[ii];
     }
     CS6M_G6toD7(primcell,d7primcell);
     reduced=0;   
@@ -217,7 +233,7 @@ bool space( const char c ) {
    return( c == ' ' );
 }
 
-/* Split a string on white space returninf a vector of strings */
+/* Split a string on white space returning a vector of strings */
 
 const std::vector<std::string> SplitBetweenBlanks( const std::string& s ) {
    std::vector<std::string> str;
@@ -235,6 +251,26 @@ const std::vector<std::string> SplitBetweenBlanks( const std::string& s ) {
    return( str );
 }
 
+
+int checkFileName(const std::string& s, const std::string& t) {
+   char sep = '/';
+#ifdef _WIN32
+   sep = '\\';
+#endif
+   char period = '.';
+   std::string basename;
+   size_t i = s.rfind(sep, s.length());
+   basename=std::string(" ");
+   if (i != std::string::npos) {
+      basename=s.substr(i+1, s.length() - i);
+   }
+   if (basename==t) return 1;
+   if ((i=s.rfind(period, basename.length())) != std::string::npos) {
+      basename=basename.substr(i+1, s.length() -i);
+      if (basename==t) return 1;
+   }
+   return 0;
+}
 
 
 
@@ -256,18 +292,47 @@ int main(int argc, char ** argv) {
     double dprim1[6];
     double dprim2[6];
     int argoff;
-    int info;
+    std::size_t notfound=std::string::npos;
+    arg0 = std::string(argv[0]);
+    if (argc > 1) arg1 = std::string(argv[1]);
+    if (argc > 2) arg2 = std::string(argv[2]);
+    dodc7 = dodc7sq = dodc7unsrt = dodc7unsrtsq = dodc10 = dodc10sq = donc = doncsq = info = 0;
+    if (checkFileName(arg0,"ncdist_mat")) {
+      donc = 1;
+    }
+    if (checkFileName(arg0,"ncsqdist_mat")) {
+      doncsq = 1;
+    }
+    if (checkFileName(arg0,"dc7dist_mat")) {
+      dodc7 = 1;
+    }
+    if (checkFileName(arg0,"dc7sqdist_mat")) {
+      dodc7sq = 1;
+    }
+    if (checkFileName(arg0,"dc7unsrtdist_mat")) {
+      dodc7unsrt = 1;
+    }
+    if (checkFileName(arg0,"dc7unsrtsqdist_mat")) {
+      dodc7unsrtsq = 1;
+    }
+    if (checkFileName(arg0,"dc10dist_mat")) {
+      dodc10 = 1;
+    }
+    if (checkFileName(arg0,"dc10sqdist_mat")) {
+      dodc10sq = 1;
+    }
+    if (donc==0 && doncsq==0 && dodc7==0 && dodc7sq==0 && dodc7unsrt==0 && dodc7unsrtsq==0 
+      && dodc10==0 && dodc10sq==0) donc=1;
+
 
     argoff = 0;
     info = 0;
-    if (argc > 1) arg1 = std::string(argv[1]);
-    if (argc > 2) arg2 = std::string(argv[2]);
     if (arg1 == "--help" || arg1 == "-h" || arg2 == "--help" || arg2 == "-h") {
         std::cerr
-                << "Usage: ncdist_mat [--help|-h] print this message and exit"
+                << "Usage: "<<arg0<<" [--help|-h] print this message and exit"
                 << std::endl;
         std::cerr
-                << "       ncdist_mat with no arguments, write distance matrix to cout"
+                << "       "<<arg0<<" with no arguments, write distance matrix to cout"
                 << std::endl;
         std::cerr
                 << "                                      reading cells from cin"
@@ -291,8 +356,8 @@ int main(int argc, char ** argv) {
         alpha1 = atof(retlines[4].c_str());
         beta1 = atof(retlines[5].c_str());
         gamma1 = atof(retlines[6].c_str());
-        prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1,extra1,info);
-        LRL_Cell cell1 = LRL_Cell(prim1[0],prim1[1],prim1[2],prim1[3],prim1[4],prim1[5]);
+        prim1 = makeprimredcell(lat1,a1,b1,c1,alpha1,beta1,gamma1,extra1);
+        LRL_Cell cell1 = LRL_Cell(prim1);
         G6 gv1 = G6(cell1.Cell2V6());
         inputprims.push_back(gv1);
         if (info) {
@@ -300,17 +365,32 @@ int main(int argc, char ** argv) {
             std::cerr << "ii: "<< ii << ": prim1: [" << prim1[0] <<", "<< prim1[1] << ", "<< prim1[2] << ", "
               << prim1[3] << ", " << prim1[4] << ", " << prim1[5] <<  "]" << std::endl;
         }
-
     }
 
     {   std::vector<double>  dmat(inputprims.size()*inputprims.size());
         /* std::cerr << "size: " << inputprims.size() << std::endl;*/
         for (ii=0; ii < inputprims.size(); ii++) {
+            double xdist;
+            double primii[6];
+            for (int iii=0; iii<6; iii++) primii[iii]=inputprims[ii][iii];
+            /* if (ii < 3) std::cerr << "ii: " << ii << " " << primii[0] << " " << primii[1] << " " 
+                << primii[2] << " " << primii[3] << " " << primii[4] << " " << primii[5] <<  std::endl; */
             /* std::cerr << "ii: " << ii << "  " << inputprims[ii] << std::endl;*/
             dmat[ii + ii*inputprims.size()] = 0.;
             for (jj=ii+1; jj < inputprims.size(); jj++) {
-                rawdist = NCDist((double *)inputprims[ii].data(),(double *)inputprims[jj].data());
-                dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = 0.1*std::sqrt(rawdist);
+              double primjj[6];
+              for (int jjj=0; jjj<6; jjj++) primjj[jjj]=inputprims[jj][jjj];
+              /* if (jj < 3) std::cerr << "jj: " << jj << " " << primjj[0] << " " << primjj[1] << " " 
+                << primjj[2] << " " << primjj[3] << " " << primjj[4] << " " << primjj[5] <<  std::endl; */
+              if (donc)  xdist = 0.1*std::sqrt(NCDist(primii,primjj));
+              if (doncsq) xdist = NCDist(primii,primjj);
+              if (dodc7) xdist = DC7Dist(primii,primjj);
+              if (dodc7sq) xdist= DC7sqDist(primii,primjj);
+              if (dodc7unsrt) xdist= DC7unsrtDist(primii,primjj);
+              if (dodc7unsrtsq) xdist= DC7unsrtsqDist(primii,primjj);
+              if (dodc10) xdist= DC10Dist(primii,primjj);
+              if (dodc10sq) xdist= DC10sqDist(primii,primjj);
+                dmat[ii+jj*inputprims.size()] = dmat[jj+ii*inputprims.size()] = xdist;
             }
         }
     

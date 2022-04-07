@@ -160,8 +160,10 @@ DEPENDENCIES =  \
 
 
 
-all:  ncdist ncdist_mat d7dist D7Test dc10dist dc10sqdist \
-	dc7dist dc7dist_mat dc7sqdist dc7sqdist_mat Follower \
+all:  ncdist ncdist_mat ncsqdist ncsqdist_mat \
+ 	d7dist D7Test dc10dist dc10dist_mat dc10sqdist dc10sqdist_mat \
+	dc7dist dc7dist_mat dc7sqdist dc7sqdist_mat dc7unsrtdist dc7unsrtdist_mat dc7unsrtsqdist dc7unsrtsqdist_mat \
+        Follower \
 	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
 	cs6dist_app cs6dist_app2  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
@@ -240,11 +242,26 @@ ncdist_mat:  ncdist_mat_.o \
 	$(LIBSOURCES) Delone.cpp \
 	-lpthread
 
+ncsqdist_mat:	ncdist_mat 
+	cp ncdist_mat ncsqdist_mat 
+
 dc7dist_mat:	ncdist_mat 
 	cp ncdist_mat dc7dist_mat 
 
 dc7sqdist_mat:	ncdist_mat 
-	cp ncdist_mat dc7sqdist_mat
+	cp ncdist_mat dc7sqdist_mat 
+
+dc7unsrtdist_mat:	ncdist_mat 
+	cp ncdist_mat dc7unsrtdist_mat 
+
+dc7unsrtsqdist_mat:	ncdist_mat 
+	cp ncdist_mat dc7unsrtsqdist_mat 
+
+dc10dist_mat:	ncdist_mat 
+	cp ncdist_mat dc10dist_mat 
+
+dc10sqdist_mat:	ncdist_mat 
+	cp ncdist_mat dc10sqdist_mat
 
 ncdist_.o:  ncdist.cpp Reducer.h Delone.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h VecN.h Vec_N_Tools.h
 	g++ $(CXXFLAGS) -c -I $(RCPPARMA_HEADERS) -I $(RCPPPARA_HEADERS) ncdist.cpp -o ncdist_.o
@@ -255,11 +272,20 @@ ncdist:  ncdist_.o \
 	$(LIBSOURCES)Delone.cpp \
 	-lpthread
 
+ncsqdist: ncdist
+	cp ncdist ncsqdist
+
 dc7dist:  ncdist 
 	cp ncdist dc7dist
 
 dc7sqdist:	ncdist 
 	cp ncdist dc7sqdist
+
+dc7unsrtdist:  ncdist 
+	cp ncdist dc7unsrtdist
+
+dc7unsrtsqdist:	ncdist 
+	cp ncdist dc7unsrtsqdist
 
 dc10dist:  ncdist 
 	cp ncdist dc10dist
@@ -425,7 +451,21 @@ distclean:  clean
 	-@rm -rf ncdist_mat_.o
 	-@rm -rf ncdist_mat
 	-@rm -rf ncdist_.o
-	-@rm -rf ncdist
+	-@rm -rf ncsqdist
+	-@rm -rf dc7dist
+	-@rm -rf dc7sqqdist
+	-@rm -rf dc7unsrtdist
+	-@rm -rf dc7unsrtsqdist
+	-@rm -rf dc10dist
+	-@rm -rf dc10sqdist
+	-@rm -rf ncdist_mat
+	-@rm -rf ncsqdist_mat
+	-@rm -rf dc7dist_mat
+	-@rm -rf dc7sqqdist_mat
+	-@rm -rf dc7unsrtdist_mat
+	-@rm -rf dc7unsrtsqdist_mat
+	-@rm -rf dc10dist_mat
+	-@rm -rf dc10sqdist_mat
 	-@rm -rf Reducer.o
 	-@rm -rf S6Dist_func_.o
 	-@rm -rf s6dist_app
