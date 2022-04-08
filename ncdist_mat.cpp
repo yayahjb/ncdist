@@ -157,6 +157,8 @@ G6 makeprimredcell( std::string testlattice,
     d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
     s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
     if (info) {
+      double v7vec[7];
+      CS6M_G6toV7(redprimcell_as_g6,v7vec);
       std::cout << "Primitive Reduced Probe LRL_Cell: " <<
       g6primredprobe[0]<<" "<<  
       g6primredprobe[1]<<" "<<  
@@ -178,28 +180,17 @@ G6 makeprimredcell( std::string testlattice,
       s6redprimcell[3]<<" "<<
       s6redprimcell[4]<<" "<<
       s6redprimcell[5] << std::endl;
-      std::cout << "Volume :" << LRL_Cell(redprimcell).Volume() << std::endl;
+      std::cout << "Volume :" << v7vec[6]*v7vec[6]*v7vec[6] << std::endl;
       crootvol = pow(LRL_Cell(redprimcell).Volume(),1./3.);
-      Reducer::Reduce((LRL_Cell(redprimcell).Inverse()).Cell2V6(),m,reducedBase,0.0);
-      recipcell = LRL_Cell_Degrees((LRL_Cell(redprimcell).Inverse()));
-      std::cout << "Reciprocal of Primitive Probe LRL_Cell: " <<
-      recipcell[0]<<" "<<
-      recipcell[1]<<" "<<
-      recipcell[2]<<" "<<
-      recipcell[3]<<" "<<
-      recipcell[4]<<" "<<
-      recipcell[5]<< std::endl;
-      std::cout << "Volume of Reciprocal LRL_Cell: " <<
-      (LRL_Cell(redprimcell).Inverse()).Volume() << std::endl;
       std::cout << "V7 linearized and scaled: "
-      << g6primredprobe[0]*std::sqrt(6./7.)<<" "
-      << g6primredprobe[1]*std::sqrt(6./7.)<<" "
-      << g6primredprobe[2]*std::sqrt(6./7.)<<" "
-      << std::sqrt(1./reducedBase[0])*std::sqrt(6./7.)<<" "
-      << std::sqrt(1./reducedBase[1])*std::sqrt(6./7.)<<" "
-      << std::sqrt(1./reducedBase[2])*std::sqrt(6./7.)<<" "
+      << v7vec[0]*std::sqrt(6./7.)<<" "
+      << v7vec[1]*std::sqrt(6./7.)<<" "
+      << v7vec[2]*std::sqrt(6./7.)<<" "
+      << v7vec[3]*std::sqrt(6./7.)<<" "
+      << v7vec[4]*std::sqrt(6./7.)<<" "
+      << v7vec[5]*std::sqrt(6./7.)<<" "
       << " "<<
-      crootvol*std::sqrt(6./7.)<<std::endl;
+      v7vec[5]*std::sqrt(6./7.)<<std::endl;
       if (latsym[0] == 'V' || latsym[0] == 'v') {
         std::cout << "raw G6 vector: "
         << primcell[0]<<" "   

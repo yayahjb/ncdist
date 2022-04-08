@@ -1324,6 +1324,33 @@ CNC_g456pmdistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5], \
 
 #define CNCM_g123pmdist(v1,v2) sqrt(CNCM_g123pmdistsq(v1,v2))
 
+/*     Compute the best distance between 2 dc7unsrt vectors
+ allowing for permulations of  first 3 elements (edges)
+coupled to permutations of the second 3 elements (smaller
+face diagonals)
+ */
+
+
+#define CNC_dc7unsrtdistsq_byelem(\
+  dc7u11,dc7u12,dc7u13,dc7u14,dc7u15,dc7u16,dc7u17, \
+  dc7u21,dc7u22,dc7u23,dc7u24,dc7u25,dc7u26,dc7u27) \
+((dc7u11-dc7u21)*(dc7u11-dc7u21)+(dc7u12-dc7u22)*(dc7u12-dc7u22)\
+  +(dc7u13-dc7u23)*(dc7u13-dc7u23)+(dc7u14-dc7u24)*(dc7u14-dc7u24)+\
+  +(dc7u15-dc7u25)*(dc7u15-dc7u25)+(dc7u16-dc7u26)*(dc7u16-dc7u26)+\
+  +(dc7u17-dc7u27)*(dc7u17-dc7u27))
+
+
+#define CNCM_dc7unsrtdistsq(v1,v2) \
+(CNCM_min((CNCM_min3( CNC_dc7unsrtdistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v1[6],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5],v2[6]),\
+                      CNC_dc7unsrtdistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v1[6],v2[0],v2[2],v2[1],v2[3],v2[5],v2[4],v2[6]),\
+                      CNC_dc7unsrtdistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v1[6],v2[1],v2[0],v2[2],v2[4],v2[3],v2[5],v2[6]))),\
+          (CNCM_min3( CNC_dc7unsrtdistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v1[6],v2[1],v2[2],v2[0],v2[4],v2[5],v2[3],v2[6]),\
+                      CNC_dc7unsrtdistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v1[6],v2[2],v2[0],v2[1],v2[5],v2[3],v2[4],v2[6]),\
+                      CNC_dc7unsrtdistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v1[6],v2[2],v2[1],v2[0],v2[5],v2[4],v2[3],v2[6])))))
+
+
+#define CNCM_dc7unsrtdist(v1,v2) sqrt(CNCM_dc7unsrtdistsq(v1,v2))
+
 /* #define FASTER */
 #define FASTEST 
 #ifdef FASTEST
@@ -2158,59 +2185,50 @@ double DC7sqDistraw(double gvec1[6], double  gvec2[6]) {
 double DC7unsrtDist(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
     double dc71[7],dc72[7];
-    double dcdist;
+    double dcdistsq;
     int ii;
-    dcdist = 0.;
     CS6M_G6toDC7unsorted(gvec1,dc7vec1);
     CS6M_G6toDC7unsorted(gvec2,dc7vec2);
     for (ii=0; ii<7; ii++){
       dc71[ii]=sqrt(dc7vec1[ii]);
       dc72[ii]=sqrt(dc7vec2[ii]);
-      dcdist+=(dc71[ii]-dc72[ii])*(dc71[ii]-dc72[ii]);
     }
-    return .1*sqrt(4.*dcdist/3.);
+    dcdistsq=CNCM_dc7unsrtdistsq(dc71,dc72);
+    return .1*sqrt(4.*dcdistsq/3.);
 }
 
 double DC7unsrtsqDist(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
-    double dcdist;
+    double dcdistsq;
     int ii;
-    dcdist = 0.;
     CS6M_G6toDC7unsorted(gvec1,dc7vec1);
     CS6M_G6toDC7unsorted(gvec2,dc7vec2);
-    for (ii=0; ii<7; ii++){
-      dcdist+=(dc7vec1[ii]-dc7vec2[ii])*(dc7vec1[ii]-dc7vec2[ii]);
-    }
-    return .1*sqrt(sqrt(2.*dcdist/3.));
+    dcdistsq=CNCM_dc7unsrtdistsq(dc7vec1,dc7vec2);
+    return .1*sqrt(sqrt(2.*dcdistsq/3.));
 }
 
 double DC7unsrtDistraw(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
     double dc71[7],dc72[7];
-    double dcdist;
+    double dcdistsq;
     int ii;
-    dcdist = 0.;
     CS6M_G6toDC7unsorted(gvec1,dc7vec1);
     CS6M_G6toDC7unsorted(gvec2,dc7vec2);
     for (ii=0; ii<7; ii++){
       dc71[ii]=sqrt(dc7vec1[ii]);
       dc72[ii]=sqrt(dc7vec2[ii]);
-      dcdist+=(dc71[ii]-dc72[ii])*(dc71[ii]-dc72[ii]);
     }
-    return sqrt(dcdist);
+    dcdistsq=CNCM_dc7unsrtdistsq(dc71,dc72);
+    return sqrt(dcdistsq);
 }
 
 double DC7unsrtsqDistraw(double gvec1[6], double  gvec2[6]) {
     double dc7vec1[7],dc7vec2[7];
-    double dcdist;
-    int ii;
-    dcdist = 0.;
+    double dcdistsq;
     CS6M_G6toDC7unsorted(gvec1,dc7vec1);
     CS6M_G6toDC7unsorted(gvec2,dc7vec2);
-    for (ii=0; ii<7; ii++){
-      dcdist+=(dc7vec1[ii]-dc7vec2[ii])*(dc7vec1[ii]-dc7vec2[ii]);
-    }
-    return sqrt(dcdist);
+    dcdistsq=CNCM_dc7unsrtdistsq(dc7vec1,dc7vec2);
+    return sqrt(dcdistsq);
 }
 
 double DC10Dist(double gvec1[6], double  gvec2[6]) {
