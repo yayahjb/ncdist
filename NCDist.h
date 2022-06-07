@@ -1334,10 +1334,10 @@ face diagonals)
 #define CNC_dc7unsrtdistsq_byelem(\
   dc7u11,dc7u12,dc7u13,dc7u14,dc7u15,dc7u16,dc7u17, \
   dc7u21,dc7u22,dc7u23,dc7u24,dc7u25,dc7u26,dc7u27) \
-((dc7u11-dc7u21)*(dc7u11-dc7u21)+(dc7u12-dc7u22)*(dc7u12-dc7u22)\
-  +(dc7u13-dc7u23)*(dc7u13-dc7u23)+(dc7u14-dc7u24)*(dc7u14-dc7u24)+\
-  +(dc7u15-dc7u25)*(dc7u15-dc7u25)+(dc7u16-dc7u26)*(dc7u16-dc7u26)+\
-  +(dc7u17-dc7u27)*(dc7u17-dc7u27))
+((dc7u11-dc7u21)*(dc7u11-dc7u21)+(dc7u12-dc7u22)*(dc7u12-dc7u22) \
+  +(dc7u13-dc7u23)*(dc7u13-dc7u23)+(dc7u14-dc7u24)*(dc7u14-dc7u24)/4.\
+  +(dc7u15-dc7u25)*(dc7u15-dc7u25)/4.+(dc7u16-dc7u26)*(dc7u16-dc7u26)/4.\
+  +(dc7u17-dc7u27)*(dc7u17-dc7u27)/9.)
 
 
 #define CNCM_dc7unsrtdistsq(v1,v2) \

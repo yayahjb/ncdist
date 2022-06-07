@@ -8,6 +8,7 @@
 #define ARMA_DONT_USE_BLAS
 #define ARMA_DONT_USE_LAPACK
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -385,10 +386,11 @@ int main(int argc, char ** argv) {
             }
         }
     
-
+        std::cout << std::setprecision(2);
+        std::cout.setf(std::ios::scientific, std::ios::floatfield);
         for (ii=0; ii < inputprims.size(); ii++) {
             for (jj=0; jj < inputprims.size(); jj++) {
-                std::cout <<" "<<dmat[ii+jj*inputprims.size()];
+                std::cout << std::setw(2)<<"  "<<std::setw(5)<<dmat[ii+jj*inputprims.size()];
             }
             std::cout << std::endl;
         }

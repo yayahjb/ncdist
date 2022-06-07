@@ -54,9 +54,12 @@ if(CS6M_changed) {fprintf(stderr,"%s[%g, %g, %g, %g, %g, %g]%s",prolog,value[0],
 #define CS6M_report_double_vector(prolog,value,epilog)
 #endif
 
-
+#ifndef CS6M_min
 #define CS6M_min(a,b) (((a)<(b))?(a):(b))
+#endif
+#ifndef CS6M_max
 #define CS6M_max(a,b) (((a)<(b))?(b):(a))
+#endif
 
 #define NS6BND 6
 
@@ -670,14 +673,27 @@ static double s6eucldist(double v1[6], double v2[6]) {
 }
 
 
-
+#ifndef CS6M_min2
 #define CS6M_min2(a,b) (((a)<(b))?(a):(b))
+#endif
+#ifndef CS6M_min3
 #define CS6M_min3(a,b,c) ((CS6M_min2(a,b)<(c))?(CS6M_min2(a,b)):(c))
+#endif
+#ifndef CS6M_min4
 #define CS6M_min4(a,b,c,d) ((CS6M_min3(a,b,c)<(d))?(CS6M_min3(a,b,c)):(d))
+#endif
+#ifndef CS6M_min5
 #define CS6M_min5(a,b,c,d,e) ((CS6M_min4(a,b,c,d)<(e))?(CS6M_min4(a,b,c,d)):(e))
+#endif
+#ifndef CS6M_min6
 #define CS6M_min6(a,b,c,d,e,f) ((CS6M_min5(a,b,c,d,e)<(f))?(CS6M_min5(a,b,c,d,e)):(f))
+#endif
+#ifndef CS6M_min7
 #define CS6M_min7(a,b,c,d,e,f,g) ((CS6M_min6(a,b,c,d,e,f)<(g))?(CS6M_min6(a,b,c,d,e,f)):(g))
+#endif
+#ifndef CS6M_min8
 #define CS6M_min8(a,b,c,d,e,f,g,h) ((CS6M_min7(a,b,c,d,e,f,g)<(h))?(CS6M_min7(a,b,c,d,e,f,g)):(h))
+#endif
 
 
 /* Macro versions of distances */
