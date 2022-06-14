@@ -52,9 +52,6 @@ G6 makeprimredcell( std::string testlattice,
     LRL_Cell g6primredprobe;
     LRL_Cell d7primredprobe;
     LRL_Cell s6primredprobe;
-    g6primredprobe = LRL_Cell_Degrees(redprimcell_as_g6);
-    d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
-    s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
     double crootvol; 
     LRL_Cell rawcell(a,b,c, alpha,beta,gamma);
     int ii;
@@ -137,6 +134,27 @@ G6 makeprimredcell( std::string testlattice,
     } else {
       for(ii=0;ii<6;ii++) redprimcell_as_g6[ii]=dg6redprimcell[ii];
     }
+    CS6M_G6toD7(primcell,d7primcell);
+    reduced=0;   
+    CS6M_D7Reduce(d7primcell,d7redprimcell,reduced);
+    if (!reduced) {
+      for(ii=0;ii<6;ii++) d7redprimcell_as_g6[ii]=0.;
+      for(ii=0;ii<7;ii++) d7redprimcell[ii]=0.;
+    } else {
+      CS6M_D7toG6(d7redprimcell,d7redprimcell_as_g6);
+    }
+    CS6M_G6toS6(primcell,s6primcell);
+    reduced=0;       
+    CS6M_S6Reduce(s6primcell,s6redprimcell,reduced);
+    if (!reduced) {
+      for(ii=0;ii<6;ii++) s6redprimcell[ii]=s6redprimcell_as_g6[ii]=0;
+    } else {
+      CS6M_S6toG6(s6redprimcell,s6redprimcell_as_g6);
+    }
+    g6primredprobe = LRL_Cell_Degrees(redprimcell_as_g6);
+    d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
+    s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
+
     if (info) {
       std::cout << "dprimcell: " << dprimcell[0]<<" "<< dprimcell[1]<<" "<< dprimcell[2]<<" "
         << dprimcell[3]<<" "<< dprimcell[4]<<" "<< dprimcell[5]<<" " << std::endl;
@@ -160,26 +178,6 @@ G6 makeprimredcell( std::string testlattice,
         <<  std::sqrt(dc7_unsrt[5]) << " " <<  std::sqrt(dc7_unsrt[6]) << " " << std::endl;
     }
 
-    CS6M_G6toD7(primcell,d7primcell);
-    reduced=0;   
-    CS6M_D7Reduce(d7primcell,d7redprimcell,reduced);
-    if (!reduced) {
-      for(ii=0;ii<6;ii++) d7redprimcell_as_g6[ii]=0.;
-      for(ii=0;ii<7;ii++) d7redprimcell[ii]=0.;
-    } else {
-      CS6M_D7toG6(d7redprimcell,d7redprimcell_as_g6);
-    }
-    CS6M_G6toS6(primcell,s6primcell);
-    reduced=0;       
-    CS6M_S6Reduce(s6primcell,s6redprimcell,reduced);
-    if (!reduced) {
-      for(ii=0;ii<6;ii++) s6redprimcell[ii]=s6redprimcell_as_g6[ii]=0;
-    } else {
-      CS6M_S6toG6(s6redprimcell,s6redprimcell_as_g6);
-    }
-    g6primredprobe = LRL_Cell_Degrees(redprimcell_as_g6);
-    d7primredprobe = LRL_Cell_Degrees(d7redprimcell_as_g6);
-    s6primredprobe = LRL_Cell_Degrees(s6redprimcell_as_g6);
     if (info) {
       double v7vec[7];
       CS6M_G6toV7(redprimcell_as_g6,v7vec);
