@@ -82,8 +82,6 @@ G6 makeprimredcell( std::string testlattice,
         case 'h':   
             CS6M_CelltoG6(rawcell,v6cell);
             CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
-            /* mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());*/
             break;
         case 'V':  
         case 'v':
@@ -117,8 +115,6 @@ G6 makeprimredcell( std::string testlattice,
             latsym = "P";
             CS6M_CelltoG6(rawcell,v6cell);
             CS6M_LatSymMat66(v6cell,clatsym,mc,primcell);
-            /*mc = rawcell.LatSymMat66(latsym);
-            primcell = mc*(rawcell.Cell2V6());*/
             break;
     }
     dprimcell[0]=primcell[0];   
@@ -129,6 +125,10 @@ G6 makeprimredcell( std::string testlattice,
     dprimcell[5]=primcell[5];
     reduced=0;
     CS6M_G6Reduce(dprimcell,dg6redprimcell,reduced);
+    if (info) {
+      std::cout << "dprimcell: "<<dprimcell[0]<<" "<<dprimcell[1]<<" "<<dprimcell[2]<<" "<<dprimcell[3]<<" "<<dprimcell[4]<<" "<<dprimcell[5]<<std::endl; 
+      std::cout << "dg6redprimcell: "<<dg6redprimcell[0]<<" "<<dg6redprimcell[1]<<" "<<dg6redprimcell[2]<<" "<<dg6redprimcell[3]<<" "<<dg6redprimcell[4]<<" "<<dg6redprimcell[5]<<std::endl; 
+    }
     if (!reduced) {
       for(ii=0;ii<6;ii++) redprimcell[ii]=redprimcell_as_g6[ii]=0.;
     } else {
@@ -167,15 +167,30 @@ G6 makeprimredcell( std::string testlattice,
         << std::sqrt(dc13[5]) << " "<< std::sqrt(dc13[6]) << " "<< std::sqrt(dc13[7]) << " "
         << std::sqrt(dc13[8]) << " "<< std::sqrt(dc13[9]) << " "<< std::sqrt(dc13[10]) << " "
         << std::sqrt(dc13[11]) << " "<< std::sqrt(dc13[12]) << " " << std::endl;
-      CS6M_G6toDC7(dg6redprimcell,dc7);
+      if (dodc7 || dodc7sq) CS6M_G6toDC7(dg6redprimcell,dc7);
+      if (dodc7) {
       std::cout << "dc7: " << std::sqrt(dc7[0]) << " "<< std::sqrt(dc7[1]) << " "
         << std::sqrt(dc7[2]) << " "<< std::sqrt(dc7[3]) << " "<< std::sqrt(dc7[4]) << " "
         << std::sqrt(dc7[5]) << " "<< std::sqrt(dc7[6]) << " " << std::endl;
-      CS6M_G6toDC7unsorted(dg6redprimcell,dc7_unsrt);
+      }
+      if (dodc7sq) {
+      std::cout << "dc7sq: " << dc7[0] << " "<< dc7[1] << " "
+        << dc7[2] << " "<< dc7[3] << " "<< dc7[4] << " "
+        << dc7[5] << " "<< dc7[6] << " " << std::endl;
+      }
+      if (dodc7unsrt || dodc7unsrtsq) CS6M_G6toDC7unsorted(dg6redprimcell,dc7_unsrt);
+      if (dodc7unsrt) {
       std::cout << "dc7_unsorted: " <<  std::sqrt(dc7_unsrt[0]) << " " 
         <<  std::sqrt(dc7_unsrt[1]) << " " <<  std::sqrt(dc7_unsrt[2]) << " " 
         <<  std::sqrt(dc7_unsrt[3]) << " " <<  std::sqrt(dc7_unsrt[4]) << " "
         <<  std::sqrt(dc7_unsrt[5]) << " " <<  std::sqrt(dc7_unsrt[6]) << " " << std::endl;
+      }
+      if (dodc7unsrtsq) {
+      std::cout << "dc7_unsorted_squared: " <<  dc7_unsrt[0] << " " 
+        <<  dc7_unsrt[1] << " " <<  dc7_unsrt[2] << " " 
+        <<  dc7_unsrt[3] << " " <<  dc7_unsrt[4] << " "
+        <<  dc7_unsrt[5] << " " <<  dc7_unsrt[6] << " " << std::endl;
+      }
     }
 
     if (info) {

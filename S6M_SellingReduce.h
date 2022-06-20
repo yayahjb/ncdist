@@ -699,7 +699,7 @@
       for (ii=0; ii < 36; ii++) mat66[ii]=mat66out[ii]; \
     }                                         \
     delta=g6unred[2];                         \
-    CS6M_VOLCHECK("S6",g6red);                \
+    CS6M_VOLCHECK("G6",g6red);                \
     if (g6unred[1] > delta) delta=g6unred[1]; \
     if (g6unred[0] > delta) delta=g6unred[0]; \
     delta = delta * 1.e-12;                   \
@@ -761,7 +761,7 @@
       if ( g6red[CS6M_G62BC]*g6red[CS6M_G62AC]*g6red[CS6M_G62AB] > 0. ) { \
         int mmm=0, ppp=0;                                        \
         if (g6red[CS6M_G62BC] < 0. || g6red[CS6M_G62AC] < 0.     \
-          || g6red[CS6M_G62AC] < 0. ) {                          \
+          || g6red[CS6M_G62AB] < 0. ) {                          \
           if ( g6red[CS6M_G62BC] < 0. ) { g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; mmm +=1; } \
           if ( g6red[CS6M_G62AC] < 0. ) { g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; mmm +=2; } \
           if ( g6red[CS6M_G62AB] < 0. ) { g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; mmm +=4; } \
@@ -787,7 +787,7 @@
         }                                                        \
       } else {                                                   \
         if (g6red[CS6M_G62BC] > 0. || g6red[CS6M_G62AC] > 0.     \
-          || g6red[CS6M_G62AC] > 0. ) {                          \
+          || g6red[CS6M_G62AB] > 0. ) {                          \
           if ( g6red[CS6M_G62BC] > 0. ) { g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; ppp += 1; } \
           if ( g6red[CS6M_G62AC] > 0. ) { g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; ppp += 2; } \
           if ( g6red[CS6M_G62AB] > 0. ) { g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; ppp += 4; } \
@@ -807,7 +807,7 @@
           }                                                                              \
           /* std::cout<<"--- "<<g6red[0]<<" "<<g6red[1]<<" "     \
           <<g6red[2]<<" "<<g6red[3]<<" "<<g6red[4]<<" "<<g6red[5]\
-          <<" "<<std::endl;*/                                    \
+          <<" "<<std::endl; */                                   \
           CS6M_VOLCHECK("+++ ",g6red);                           \
           redpass++; continue;                                   \
         }                                                        \
@@ -921,7 +921,7 @@
           CS6M_VOLCHECK("8= ",g6red);                                            \
           redpass++; continue;                                                   \
       }                                                                          \
-      /* 9AB boundaries exsct */                                                 \
+      /* 9AB boundaries exact */                                                 \
       if (fabs(g6red[CS6M_G62AC] - g6red[CS6M_G6A2]) < delta && 2.*g6red[CS6M_G62BC] < g6red[CS6M_G62AB]-delta) { \
           g6red[CS6M_G6C2] = g6red[CS6M_G6A2]+g6red[CS6M_G6C2]-g6red[CS6M_G62AC];\
           g6red[CS6M_G62AC] = -2.*g6red[CS6M_G6A2]+g6red[CS6M_G62AC];            \
@@ -1067,19 +1067,19 @@
       }                                                          \
       if ( g6red[CS6M_G62BC]*g6red[CS6M_G62AC]*g6red[CS6M_G62AB] > 0. ) { \
         if (g6red[CS6M_G62BC] < 0. || g6red[CS6M_G62AC] < 0.     \
-          || g6red[CS6M_G62AC] < 0. ) {                          \
+          || g6red[CS6M_G62AB] < 0. ) {                          \
           if ( g6red[CS6M_G62BC] < 0. ) g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; \
           if ( g6red[CS6M_G62AC] < 0. ) g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; \
           if ( g6red[CS6M_G62AB] < 0. ) g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; \
           /* std::cout<<"+++ "<<g6red[0]<<" "<<g6red[1]<<" "     \
           <<g6red[2]<<" "<<g6red[3]<<" "<<g6red[4]<<" "<<g6red[5]\
-          <<" "<<std::endl; */                                   \
+          <<" "<<std::endl; */                                    \
           CS6M_VOLCHECK("--- ",g6red);                           \
           redpass++; continue;                                   \
         }                                                        \
       } else {                                                   \
         if (g6red[CS6M_G62BC] > 0. || g6red[CS6M_G62AC] > 0.     \
-          || g6red[CS6M_G62AC] > 0. ) {                          \
+          || g6red[CS6M_G62AB] > 0. ) {                          \
           if ( g6red[CS6M_G62BC] > 0. ) g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; \
           if ( g6red[CS6M_G62AC] > 0. ) g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; \
           if ( g6red[CS6M_G62AB] > 0. ) g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; \
@@ -1363,7 +1363,7 @@
       }                                                          \
       if ( g6red[CS6M_G62BC]*g6red[CS6M_G62AC]*g6red[CS6M_G62AB] > 0. ) { \
         if (g6red[CS6M_G62BC] < 0. || g6red[CS6M_G62AC] < 0.     \
-          || g6red[CS6M_G62AC] < 0. ) {                          \
+          || g6red[CS6M_G62AB] < 0. ) {                          \
           if ( g6red[CS6M_G62BC] < 0. ) g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; \
           if ( g6red[CS6M_G62AC] < 0. ) g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; \
           if ( g6red[CS6M_G62AB] < 0. ) g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; \
@@ -1375,7 +1375,7 @@
         }                                                        \
       } else {                                                   \
         if (g6red[CS6M_G62BC] > 0. || g6red[CS6M_G62AC] > 0.     \
-          || g6red[CS6M_G62AC] > 0. ) {                          \
+          || g6red[CS6M_G62AB] > 0. ) {                          \
           if ( g6red[CS6M_G62BC] > 0. ) g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; \
           if ( g6red[CS6M_G62AC] > 0. ) g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; \
           if ( g6red[CS6M_G62AB] > 0. ) g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; \
@@ -1477,7 +1477,7 @@
           CS6M_VOLCHECK("8= ",g6red);                                            \
           redpass++; continue;                                                   \
       }                                                                          \
-      /* 9AB boundaries exsct */                                                 \
+      /* 9AB boundaries exact */                                                 \
       if (fabs(g6red[CS6M_G62AC] - g6red[CS6M_G6A2]) < delta && 2.*g6red[CS6M_G62BC] < g6red[CS6M_G62AB]-delta) { \
           g6red[CS6M_G6C2] = g6red[CS6M_G6A2]+g6red[CS6M_G6C2]-g6red[CS6M_G62AC];\
           g6red[CS6M_G62AC] = -2.*g6red[CS6M_G6A2]+g6red[CS6M_G62AC];            \
