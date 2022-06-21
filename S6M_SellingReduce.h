@@ -362,7 +362,7 @@
     delta = fabs(cell[CS6M_CELLA]);                                                       \
     if (cell[CS6M_CELLB] > delta) delta = cell[CS6M_CELLB];                               \
     if (cell[CS6M_CELLC] > delta) delta = cell[CS6M_CELLC];                               \
-    delta *= 1.e-12;                                                                      \
+    delta *= 1.e-9;                                                                      \
     g6vec[CS6M_G6A2] = cell[CS6M_CELLA]*cell[CS6M_CELLA];                                 \
     g6vec[CS6M_G6B2] = cell[CS6M_CELLB]*cell[CS6M_CELLB];                                 \
     g6vec[CS6M_G6C2] = cell[CS6M_CELLC]*cell[CS6M_CELLC];                                 \
@@ -384,7 +384,7 @@
       delta = fabs(cell[CS6M_CELLA]);                                                     \
       if (cell[CS6M_CELLB] > delta) delta = cell[CS6M_CELLB];                             \
       if (cell[CS6M_CELLC] > delta) delta = cell[CS6M_CELLC];                             \
-      delta *= 1.e-12;                                                                    \
+      delta *= 1.e-9;                                                                    \
       g6vec[CS6M_G6A2] = cell[CS6M_CELLA]*cell[CS6M_CELLA];                               \
       g6vec[CS6M_G6B2] = cell[CS6M_CELLB]*cell[CS6M_CELLB];                               \
       g6vec[CS6M_G6C2] = cell[CS6M_CELLC]*cell[CS6M_CELLC];                               \
@@ -702,8 +702,8 @@
     CS6M_VOLCHECK("G6",g6red);                \
     if (g6unred[1] > delta) delta=g6unred[1]; \
     if (g6unred[0] > delta) delta=g6unred[0]; \
-    delta = delta * 1.e-12;                   \
-    if (delta < 1.e-12) delta=1.e-12;         \
+    delta = delta * 1.e-9;                   \
+    if (delta < 1.e-9) delta=1.e-9;         \
     if (fabs(g6red[CS6M_G62BC])  < delta ) g6red[CS6M_G62BC] = 0;      \
     if (fabs(g6red[CS6M_G62AC])  < delta ) g6red[CS6M_G62AC] = 0;      \
     if (fabs(g6red[CS6M_G62AB])  < delta ) g6red[CS6M_G62AB] = 0;      \
@@ -1013,8 +1013,8 @@
     CS6M_VOLCHECK("S6",g6red);                \
     if (g6unred[1] > delta) delta=g6unred[1]; \
     if (g6unred[0] > delta) delta=g6unred[0]; \
-    delta = delta * 1.e-12;                   \
-    if (delta < 1.e-12) delta=1.e-12;         \
+    delta = delta * 1.e-9;                   \
+    if (delta < 1.e-9) delta=1.e-9;         \
     if (fabs(g6red[CS6M_G62BC])  < delta ) g6red[CS6M_G62BC] = 0;      \
     if (fabs(g6red[CS6M_G62AC])  < delta ) g6red[CS6M_G62AC] = 0;      \
     if (fabs(g6red[CS6M_G62AB])  < delta ) g6red[CS6M_G62AB] = 0;      \
@@ -1309,8 +1309,8 @@
     CS6M_VOLCHECK("S6",g6red);                \
     if (g6scaled[1] > delta) delta=g6scaled[1]; \
     if (g6scaled[0] > delta) delta=g6scaled[0]; \
-    delta = delta * 1.e-12;                   \
-    if (delta < 1.e-12) delta=1.e-12;         \
+    delta = delta * 1.e-9;                   \
+    if (delta < 1.e-9) delta=1.e-9;         \
     if (fabs(g6red[CS6M_G62BC])  < delta ) g6red[CS6M_G62BC] = 0;      \
     if (fabs(g6red[CS6M_G62AC])  < delta ) g6red[CS6M_G62AC] = 0;      \
     if (fabs(g6red[CS6M_G62AB])  < delta ) g6red[CS6M_G62AB] = 0;      \
@@ -1362,23 +1362,26 @@
         redpass++; continue;                                     \
       }                                                          \
       if ( g6red[CS6M_G62BC]*g6red[CS6M_G62AC]*g6red[CS6M_G62AB] > 0. ) { \
-        if (g6red[CS6M_G62BC] < 0. || g6red[CS6M_G62AC] < 0.     \
-          || g6red[CS6M_G62AB] < 0. ) {                          \
-          if ( g6red[CS6M_G62BC] < 0. ) g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; \
-          if ( g6red[CS6M_G62AC] < 0. ) g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; \
-          if ( g6red[CS6M_G62AB] < 0. ) g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; \
+        if (g6red[CS6M_G62BC] < delta || g6red[CS6M_G62AC] < delta     \
+          || g6red[CS6M_G62AB] < delta ) {                          \
+          if ( g6red[CS6M_G62BC] < delta && g6red[CS6M_G62BC]>=0. ) g6red[CS6M_G62BC] = 0.; \
+          if ( g6red[CS6M_G62BC] < 0. ) g6red[CS6M_G62BC] = fabs(g6red[CS6M_G62BC]); \
+          if ( g6red[CS6M_G62AC] < delta && g6red[CS6M_G62AC]>=0. ) g6red[CS6M_G62AC] = 0.; \
+          if ( g6red[CS6M_G62AC] < 0. ) g6red[CS6M_G62AC] = fabs(g6red[CS6M_G62AC]); \
+          if ( g6red[CS6M_G62AB] < delta && g6red[CS6M_G62AB]>=0. ) g6red[CS6M_G62AB] = 0.; \
+          if ( g6red[CS6M_G62AB] < 0. ) g6red[CS6M_G62AB] = fabs(g6red[CS6M_G62AB]); \
           /* std::cout<<"+++ "<<g6red[0]<<" "<<g6red[1]<<" "     \
           <<g6red[2]<<" "<<g6red[3]<<" "<<g6red[4]<<" "<<g6red[5]\
-          <<" "<<std::endl; */                                   \
+          <<" "<<std::endl; */                                    \
           CS6M_VOLCHECK("--- ",g6red);                           \
           redpass++; continue;                                   \
         }                                                        \
       } else {                                                   \
-        if (g6red[CS6M_G62BC] > 0. || g6red[CS6M_G62AC] > 0.     \
-          || g6red[CS6M_G62AB] > 0. ) {                          \
-          if ( g6red[CS6M_G62BC] > 0. ) g6red[CS6M_G62BC] = -g6red[CS6M_G62BC]; \
-          if ( g6red[CS6M_G62AC] > 0. ) g6red[CS6M_G62AC] = -g6red[CS6M_G62AC]; \
-          if ( g6red[CS6M_G62AB] > 0. ) g6red[CS6M_G62AB] = -g6red[CS6M_G62AB]; \
+        if (g6red[CS6M_G62BC] >=delta || g6red[CS6M_G62AC] >= delta     \
+          || g6red[CS6M_G62AB] >= delta ) {                          \
+          if ( g6red[CS6M_G62BC] > 0. ) g6red[CS6M_G62BC] = -fabs(g6red[CS6M_G62BC]); \
+          if ( g6red[CS6M_G62AC] > 0. ) g6red[CS6M_G62AC] = -fabs(g6red[CS6M_G62AC]); \
+          if ( g6red[CS6M_G62AB] > 0. ) g6red[CS6M_G62AB] = -fabs(g6red[CS6M_G62AB]); \
           /* std::cout<<"--- "<<g6red[0]<<" "<<g6red[1]<<" "     \
           <<g6red[2]<<" "<<g6red[3]<<" "<<g6red[4]<<" "<<g6red[5]\
           <<" "<<std::endl; */                                   \
@@ -1736,7 +1739,7 @@
       out[ii] = in[ii];                      \
       delta += ((out[ii]>0.)?out[ii]:(-out[ii])); \
     }                                        \
-    delta *= 1.e-12;                         \
+    delta *= 1.e-9;                         \
     while ( (CS6M_CountPositive(out,delta)) != 0) {\
         maxScalar = -1.0E20;                  \
                                               \
@@ -1784,7 +1787,7 @@
       out[ii] = in[ii];                      \
       delta += ((out[ii]>0.)?out[ii]:(-out[ii])); \
     }                                        \
-    delta *= 1.e-12;                         \
+    delta *= 1.e-9;                         \
     while ( (CS6M_CountPositive(out,delta)) != 0) {\
         maxScalar = -1.0E20;                  \
                                               \
@@ -1835,8 +1838,8 @@
     if (out[2] > delta) delta=out[2];         \
     if (out[1] > delta) delta=out[1];         \
     if (out[0] > delta) delta=out[0];         \
-    delta = delta * 1.e-12;                   \
-    if (delta < 1.e-12) delta=1.e-12;         \
+    delta = delta * 1.e-9;                   \
+    if (delta < 1.e-9) delta=1.e-9;         \
     while (out[0] > out[1]+delta || out[1] > out[2]+delta || out[2] > out[3]+delta ) {\
        if (out[2] > out[3]+delta) {           \
          temp = out[2];                       \
