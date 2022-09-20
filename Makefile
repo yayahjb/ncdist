@@ -121,7 +121,6 @@ LIBSOURCES = \
 	VectorTools.cpp \
 	vector_3d.cpp 
 
-
 DEPENDENCIES =  \
 	B4.h B4.cpp \
 	CellInputData.h CellInputData.cpp \
@@ -158,13 +157,12 @@ DEPENDENCIES =  \
 	VectorTools.cpp \
 	vector_3d.cpp 
 
-
-
 all:  ncdist ncdist_mat ncsqdist ncsqdist_mat \
  	d7dist D7Test dc10dist dc10dist_mat dc10sqdist dc10sqdist_mat \
 	dc7dist dc7dist_mat dc7sqdist dc7sqdist_mat dc7unsrtdist dc7unsrtdist_mat dc7unsrtsqdist dc7unsrtsqdist_mat \
         Follower \
-	rcpp_ncdist.so rcpp_d7dist.so rcpp_s6dist.so rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
+	rcpp_ncdist.so rcpp_dc7unsrtdist.so rcpp_d7dist.so rcpp_s6dist.so \
+	rcpp_cs6dist.so rcpp_cs6dist_in_g6.so \
 	cs6dist_app cs6dist_app2  s6dist_app cs6dist_mat cs6dist_dist cs6_s6_test
 
 tests:	all
@@ -309,7 +307,6 @@ Reducer.o:  Reducer.cpp Reducer.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h
 		-I$(RCPPPARA_HEADERS) \
 		-I$(RCPPARMA_HEADERS) -c Reducer.cpp -o Reducer.o
 
-
 Delone.o:  Delone.cpp Delone.h  Reducer.h LRL_Cell.h LRL_Cell_Degrees.h NCDist.h
 	g++ $(CXXFLAGS)  -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
 	 -I$(RCPP_HEADERS) \
@@ -356,6 +353,14 @@ rcpp_ncdist.so:	rcpp_ncdist.cpp \
 	$(DEPENDENCIES) Delone.h Delone.cpp
 	g++ $(CXXFLAGS) -shared -o rcpp_ncdist.so -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
 	-I$(RCPP_HEADERS) -I$(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS)  rcpp_ncdist.cpp \
+	Delone.cpp \
+	$(LIBSOURCES) \
+	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
+
+rcpp_dc7unsrtdist.so:	rcpp_dc7unsrtdist.cpp \
+	$(DEPENDENCIES) Delone.h Delone.cpp
+	g++ $(CXXFLAGS) -shared -o rcpp_dc7unsrtdist.so -I$(RPATH_HEADERS) -DNDEBUG  -fpic  -O2 -fPIC \
+	-I$(RCPP_HEADERS) -I$(RCPPPARA_HEADERS) -I$(RCPPARMA_HEADERS)  rcpp_dc7unsrtdist.cpp \
 	Delone.cpp \
 	$(LIBSOURCES) \
 	-L$(RPATH_LIBRARIES) -lR -lblas -llapack -lpthread
@@ -473,4 +478,5 @@ distclean:  clean
 	-@rm -rf rcpp_cs6dist.so
 	-@rm -rf rcpp_cs6dist_in_g6.so
 	-@rm -rf rcpp_ncdist.so
+	-@rm -rf rcpp_dc7unsrtdist.so
 	-@rm -rf rcpp_d7dist.so
