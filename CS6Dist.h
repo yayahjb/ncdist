@@ -18,7 +18,7 @@ extern "C" {
 
 
 /* #define S6DIST_DEBUG */ 
-#define S6DIST_NO_OUTER_PASS  
+/* #define S6DIST_NO_OUTER_PASS */  
 
 #include <math.h>
 #include <float.h>
@@ -737,10 +737,6 @@ static double s6eucldist(double v1[6], double v2[6]) {
 fabs((v11-v21)*(v11-v21)+(v12-v22)*(v12-v22)+(v13-v23)*(v13-v23) + \
 (v14-v24)*(v14-v24)+(v15-v25)*(v15-v25)+(v16-v26)*(v16-v26))
 
-
-#define CS6M_s6prods_byelem(v11,v12,v13,v14,v15,v16,v21,v22,v23,v24,v25,v26) \
-2.*(v11*v21+v12*v22+v13*v23+v14*v24+v15*v25+v16*v26)
-
 #define CS6M_s61234distsq(v1,v2) \
 CS6M_min3(\
 CS6M_min8(\
@@ -775,39 +771,35 @@ CS6M_s6eucldistsq_byelem(v1[0],v1[4],v1[5],v1[3],v1[1],v1[2],v2[0],v2[1],v2[2],v
 
 static double s61234distsq(double v1[6], double v2[6]) {
     double distsq;
-    double dwnby;
     double dtrial[24];
     int i;
-    distsq = v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2] + v1[3]*v1[3] + v1[4]*v1[4] + v1[5]*v1[5] 
-    + v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2] + v2[3]*v2[3] + v2[4]*v2[4] + v2[5]*v2[5];
-    dtrial[0] = CS6M_s6prods_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[1] = CS6M_s6prods_byelem(v1[4],v1[3],v1[2],v1[1],v1[0],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[2] = CS6M_s6prods_byelem(v1[0],v1[2],v1[1],v1[3],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[3] = CS6M_s6prods_byelem(v1[5],v1[3],v1[1],v1[2],v1[0],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[4] = CS6M_s6prods_byelem(v1[4],v1[2],v1[3],v1[1],v1[5],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[5] = CS6M_s6prods_byelem(v1[5],v1[1],v1[3],v1[2],v1[4],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[6] = CS6M_s6prods_byelem(v1[1],v1[0],v1[2],v1[4],v1[3],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[7] = CS6M_s6prods_byelem(v1[3],v1[4],v1[2],v1[0],v1[1],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[8] = CS6M_s6prods_byelem(v1[1],v1[2],v1[0],v1[4],v1[5],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[9] = CS6M_s6prods_byelem(v1[5],v1[4],v1[0],v1[2],v1[1],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[10] = CS6M_s6prods_byelem(v1[3],v1[2],v1[4],v1[0],v1[5],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[11] = CS6M_s6prods_byelem(v1[5],v1[0],v1[4],v1[2],v1[3],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[12] = CS6M_s6prods_byelem(v1[2],v1[0],v1[1],v1[5],v1[3],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[13] = CS6M_s6prods_byelem(v1[3],v1[5],v1[1],v1[0],v1[2],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[14] = CS6M_s6prods_byelem(v1[2],v1[1],v1[0],v1[5],v1[4],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[15] = CS6M_s6prods_byelem(v1[4],v1[5],v1[0],v1[1],v1[2],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[16] = CS6M_s6prods_byelem(v1[3],v1[1],v1[5],v1[0],v1[4],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[17] = CS6M_s6prods_byelem(v1[4],v1[0],v1[5],v1[1],v1[3],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[18] = CS6M_s6prods_byelem(v1[2],v1[4],v1[3],v1[5],v1[1],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[19] = CS6M_s6prods_byelem(v1[1],v1[5],v1[3],v1[4],v1[2],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[20] = CS6M_s6prods_byelem(v1[2],v1[3],v1[4],v1[5],v1[0],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[21] = CS6M_s6prods_byelem(v1[0],v1[5],v1[4],v1[3],v1[2],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[22] = CS6M_s6prods_byelem(v1[1],v1[3],v1[5],v1[4],v1[0],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dtrial[23] = CS6M_s6prods_byelem(v1[0],v1[4],v1[5],v1[3],v1[1],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
-    dwnby = dtrial[0];
-    for (i = 1; i < 24; i++) if (dtrial[i] > dwnby) dwnby = dtrial[i];
-    if (dwnby > distsq) dwnby = distsq;
-    return (fabs(distsq - dwnby));
+    dtrial[0] = CS6M_s6eucldistsq_byelem(v1[0],v1[1],v1[2],v1[3],v1[4],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[1] = CS6M_s6eucldistsq_byelem(v1[4],v1[3],v1[2],v1[1],v1[0],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[2] = CS6M_s6eucldistsq_byelem(v1[0],v1[2],v1[1],v1[3],v1[5],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[3] = CS6M_s6eucldistsq_byelem(v1[5],v1[3],v1[1],v1[2],v1[0],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[4] = CS6M_s6eucldistsq_byelem(v1[4],v1[2],v1[3],v1[1],v1[5],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[5] = CS6M_s6eucldistsq_byelem(v1[5],v1[1],v1[3],v1[2],v1[4],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[6] = CS6M_s6eucldistsq_byelem(v1[1],v1[0],v1[2],v1[4],v1[3],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[7] = CS6M_s6eucldistsq_byelem(v1[3],v1[4],v1[2],v1[0],v1[1],v1[5],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[8] = CS6M_s6eucldistsq_byelem(v1[1],v1[2],v1[0],v1[4],v1[5],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[9] = CS6M_s6eucldistsq_byelem(v1[5],v1[4],v1[0],v1[2],v1[1],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[10] = CS6M_s6eucldistsq_byelem(v1[3],v1[2],v1[4],v1[0],v1[5],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[11] = CS6M_s6eucldistsq_byelem(v1[5],v1[0],v1[4],v1[2],v1[3],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[12] = CS6M_s6eucldistsq_byelem(v1[2],v1[0],v1[1],v1[5],v1[3],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[13] = CS6M_s6eucldistsq_byelem(v1[3],v1[5],v1[1],v1[0],v1[2],v1[4],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[14] = CS6M_s6eucldistsq_byelem(v1[2],v1[1],v1[0],v1[5],v1[4],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[15] = CS6M_s6eucldistsq_byelem(v1[4],v1[5],v1[0],v1[1],v1[2],v1[3],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[16] = CS6M_s6eucldistsq_byelem(v1[3],v1[1],v1[5],v1[0],v1[4],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[17] = CS6M_s6eucldistsq_byelem(v1[4],v1[0],v1[5],v1[1],v1[3],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[18] = CS6M_s6eucldistsq_byelem(v1[2],v1[4],v1[3],v1[5],v1[1],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[19] = CS6M_s6eucldistsq_byelem(v1[1],v1[5],v1[3],v1[4],v1[2],v1[0],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[20] = CS6M_s6eucldistsq_byelem(v1[2],v1[3],v1[4],v1[5],v1[0],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[21] = CS6M_s6eucldistsq_byelem(v1[0],v1[5],v1[4],v1[3],v1[2],v1[1],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[22] = CS6M_s6eucldistsq_byelem(v1[1],v1[3],v1[5],v1[4],v1[0],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    dtrial[23] = CS6M_s6eucldistsq_byelem(v1[0],v1[4],v1[5],v1[3],v1[1],v1[2],v2[0],v2[1],v2[2],v2[3],v2[4],v2[5]);
+    distsq = dtrial[0];
+    for (i = 1; i < 24; i++) if (dtrial[i] < distsq) distsq = dtrial[i];
+    return distsq;
 }
 
 #define s61234dist(v1,v2) sqrt(s61234distsq(v1,v2))
